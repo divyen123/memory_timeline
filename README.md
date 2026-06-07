@@ -5,10 +5,10 @@ sharing, and exporting personal memories.
 
 ## Live Application
 
-[Open Memory Timeline](http://13.63.48.235)
+[Open Memory Timeline](https://memory-timeline-divyen.duckdns.org)
 
-The current deployment uses HTTP. HTTPS and a permanent domain should be added
-before treating the application as production-ready.
+The application is deployed over HTTPS. New users can register an account and
+maintain their own private collection of memories.
 
 ## Features
 
@@ -62,11 +62,15 @@ Never commit `.env` files, private keys, deployment archives, or uploaded images
 
 The live deployment serves the Vite build through Nginx and proxies `/api` to
 the Express backend on port `5001`. PM2 keeps the backend running after logout
-and server restarts.
+and server restarts. DuckDNS points the public hostname to an AWS Elastic IP,
+and Let's Encrypt provides the TLS certificate.
 
 Production secrets belong only in `/home/ubuntu/backend/.env` on EC2 or in a
 managed secret store. AWS access keys are not required because the instance
 uses an IAM role.
+
+GitHub contains the source code and CI workflow; the live application continues
+to run on EC2 independently of GitHub.
 
 ## Verification
 

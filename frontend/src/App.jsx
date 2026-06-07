@@ -1,0 +1,207 @@
+import React,{ useState,useEffect } from "react";
+import { Routes,Route,useNavigate,useLocation } from "react-router-dom";
+
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import AddMemory from "./pages/AddMemory";
+import MemoryTimeline from "./pages/MemoryTimeline";
+import MemoryDetails from "./pages/MemoryDetails";
+import Profile from "./pages/Profile";
+import PublicShare from "./pages/PublicShare";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ReminderWidget from "./components/ReminderWidget";
+import { loadSettings, saveSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "./settings";
+
+import "./App.css";
+
+const FONT_SIZE_MAP = {
+  small:"14px",
+  normal:"16px",
+  large:"18px",
+  extra:"20px"
+};
+
+const FONT_FAMILY_MAP = {
+  normal:"'Segoe UI', Arial, sans-serif",
+  modern:"Arial, Helvetica, sans-serif",
+  rounded:"'Trebuchet MS', 'Segoe UI', sans-serif",
+  classic:"Georgia, 'Times New Roman', serif",
+  mono:"Consolas, 'Courier New', monospace",
+  handwritten:"'Comic Sans MS', 'Segoe Print', cursive",
+  italic:"'Segoe UI', Arial, sans-serif"
+};
+
+function App(){
+
+  const [settings,setSettings] = useState(()=>loadSettings());
+  const darkMode = settings.defaultTheme === "dark";
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const showLogout = localStorage.getItem("token") &&
+    (
+      ["/add","/timeline","/profile"].includes(location.pathname) ||
+      location.pathname.startsWith("/memory/")
+    );
+  const authPages = ["/", "/register", "/forgot-password"];
+  const isAuthPage = authPages.includes(location.pathname);
+  const isPublicSharePage = location.pathname.startsWith("/share/");
+  const showTopButtons = !isAuthPage && !isPublicSharePage;
+  const showSharedReminder = !isAuthPage && !isPublicSharePage && location.pathname !== "/timeline";
+
+  useEffect(()=>{
+
+    if(darkMode){
+      document.body.classList.add("dark");
+      document.body.classList.remove("light");
+    }
+    else{
+      document.body.classList.add("light");
+      document.body.classList.remove("dark");
+    }
+
+    document.body.classList.remove("card-size-small", "card-size-medium", "card-size-large");
+    document.body.classList.add(`card-size-${settings.cardSize || "medium"}`);
+    document.body.classList.toggle("glass-containers-off", !settings.containerGlass);
+    document.body.classList.toggle("button-glass-on", Boolean(settings.buttonGlass));
+    document.body.classList.toggle("memory-hover-off", !settings.hoverEnabled);
+    document.body.classList.toggle("top-actions-left", settings.topButtonsPosition === "left");
+    document.body.classList.remove("hearts-slow", "hearts-normal", "hearts-fast", "hearts-fixed");
+    document.body.classList.add(`hearts-${settings.heartsSpeed || "normal"}`);
+
+    document.documentElement.style.setProperty("--app-font-size", FONT_SIZE_MAP[settings.fontSize] || FONT_SIZE_MAP.normal);
+    document.documentElement.style.setProperty("--app-font-weight", settings.fontWeight || "normal");
+    document.documentElement.style.setProperty("--app-font-family", FONT_FAMILY_MAP[settings.fontStyle] || FONT_FAMILY_MAP.normal);
+    document.documentElement.style.setProperty("--app-font-style", settings.fontStyle === "italic" ? "italic" : "normal");
+    document.documentElement.style.setProperty("--top-action-size", `${settings.topButtonsSize || 50}px`);
+    document.documentElement.style.setProperty("--button-bg-color", settings.buttonBackgroundColor || "#ff4b7d");
+    document.documentElement.style.setProperty("--container-glass-alpha", settings.containerGlassAlpha ?? 0.12);
+    document.documentElement.style.setProperty("--button-glass-alpha", settings.buttonGlassAlpha ?? 0.18);
+    document.documentElement.style.setProperty("--memory-hover-scale", settings.hoverScale ?? 1.05);
+    document.documentElement.style.setProperty("--light-gradient-start", settings.lightGradientStart || "#ff7ac6");
+    document.documentElement.style.setProperty("--light-gradient-middle", settings.lightGradientMiddle || "#c45cff");
+    document.documentElement.style.setProperty("--light-gradient-end", settings.lightGradientEnd || "#7a8cff");
+    document.documentElement.style.setProperty("--dark-gradient-start", settings.darkGradientStart || "#0f172a");
+    document.documentElement.style.setProperty("--dark-gradient-middle", settings.darkGradientMiddle || "#1e1b4b");
+    document.documentElement.style.setProperty("--dark-gradient-end", settings.darkGradientEnd || "#020617");
+
+  },[darkMode, settings]);
+
+  useEffect(()=>{
+    const handleSettingsUpdated = (event) => {
+      setSettings(event.detail || loadSettings());
+    };
+
+    window.addEventListener(SETTINGS_UPDATED_EVENT, handleSettingsUpdated);
+    window.addEventListener(SETTINGS_PREVIEW_EVENT, handleSettingsUpdated);
+    window.addEventListener("storage", handleSettingsUpdated);
+
+    return () => {
+      window.removeEventListener(SETTINGS_UPDATED_EVENT, handleSettingsUpdated);
+      window.removeEventListener(SETTINGS_PREVIEW_EVENT, handleSettingsUpdated);
+      window.removeEventListener("storage", handleSettingsUpdated);
+    };
+  },[]);
+
+  const toggleTheme = () => {
+    const nextSettings = saveSettings({
+      ...settings,
+      defaultTheme:darkMode ? "light" : "dark"
+    });
+
+    setSettings(nextSettings);
+  };
+
+  /* LOGOUT FUNCTION */
+
+  const handleLogout = () => {
+
+    localStorage.removeItem("token");
+
+    navigate("/");
+
+  };
+
+  return(
+
+    <div className={`container ${isPublicSharePage ? "public-route-container" : ""}`}>
+
+      {!isPublicSharePage && <div className="hearts">
+        <span>❤️</span>
+        <span>💖</span>
+        <span>💕</span>
+        <span>💗</span>
+        <span>💞</span>
+        <span>💓</span>
+        <span>💘</span>
+        <span>💝</span>
+      </div>}
+
+      {/* BUTTON GROUP */}
+
+  {showTopButtons && (
+  <div className="top-buttons">
+
+  <button
+    className="toggle-btn"
+    onClick={toggleTheme}
+    title={darkMode ? "Use light theme" : "Use dark theme"}
+    aria-label={darkMode ? "Use light theme" : "Use dark theme"}
+  >
+    {darkMode ? "☀️" : "🌙"}
+  </button>
+
+  {showLogout && (
+    <button
+      className="logout-btn"
+      onClick={handleLogout}
+    >
+      🔓
+    </button>
+  )}
+
+</div>
+  )}
+      {showSharedReminder && <ReminderWidget />}
+      <Routes>
+
+        <Route path="/" element={<Login />} />
+
+        <Route path="/register" element={<Register />} />
+
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        <Route path="/share/:token" element={<PublicShare />} />
+
+        <Route path="/add" element={
+          <ProtectedRoute>
+            <AddMemory />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/timeline" element={
+          <ProtectedRoute>
+            <MemoryTimeline />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/memory/:id" element={
+          <ProtectedRoute>
+            <MemoryDetails />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
+
+      </Routes>
+
+    </div>
+  );
+}
+
+export default App;

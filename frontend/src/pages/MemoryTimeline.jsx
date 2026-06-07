@@ -1,0 +1,1364 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import JSZip from "jszip";
+import MemoryCard from "../components/MemoryCard";
+import { useLocation, useNavigate } from "react-router-dom";
+import { createCategoryShare, createMemoryShare, downloadMemoryImage, getImageUrl, getMemories, deleteMemory, toggleFavorite } from "../services/api";
+import PageTransition from "../components/PageTransition";
+import SmartImage from "../components/SmartImage";
+import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
+import { playAppSound } from "../sound";
+import { shareUrl } from "../share";
+
+function MemoryTimeline() {
+
+  const [memories, setMemories] = useState([]);
+  const [message, setMessage] = useState("");
+  const [memoryToDelete, setMemoryToDelete] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [viewMode, setViewMode] = useState("timeline");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [previewMemory, setPreviewMemory] = useState(null);
+  const [showReminderPanel, setShowReminderPanel] = useState(false);
+  const [reminderPage, setReminderPage] = useState(0);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [activeReminder, setActiveReminder] = useState(null);
+  const [reminderActionVersion, setReminderActionVersion] = useState(0);
+  const [previewImageIndex, setPreviewImageIndex] = useState(0);
+  const [exportPanel, setExportPanel] = useState(null);
+  const [selectedMemoryIds, setSelectedMemoryIds] = useState([]);
+  const [exportCategory, setExportCategory] = useState("All");
+  const [exportFromDate, setExportFromDate] = useState("");
+  const [exportToDate, setExportToDate] = useState("");
+  const [exportFavoritesOnly, setExportFavoritesOnly] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [settings, setSettings] = useState(()=>loadSettings());
+
+  const loadMoreRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const lastSoundReminderRef = useRef("");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
+
+  const loadMemories = useCallback(async (nextPage = 1, replace = false) => {
+    setLoading(true);
+
+    try{
+      const res = await getMemories({
+        page:nextPage,
+        limit:12,
+        search:searchText || undefined,
+        sort:sortOrder,
+        category:categoryFilter,
+        favorite:showFavorites ? "true" : undefined
+      });
+
+      setMemories(prevMemories => replace
+        ? res.data.memories
+        : [...prevMemories, ...res.data.memories]);
+      setPage(res.data.page);
+      setHasMore(res.data.hasMore);
+    }finally{
+      setLoading(false);
+    }
+  }, [categoryFilter, searchText, showFavorites, sortOrder]);
+
+  useEffect(() => {
+    loadMemories(1, true);
+  }, [loadMemories]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+
+    if(!target){
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if(entry.isIntersecting && hasMore && !loading){
+        loadMemories(page + 1);
+      }
+    }, {threshold:0.4});
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadMemories, page]);
+
+  const memoriesByMonth = useMemo(() => {
+    return memories.reduce((groups, memory) => {
+      const month = new Date(memory.date).toLocaleDateString("en-GB", {
+        month:"long",
+        year:"numeric"
+      });
+
+      if(!groups[month]){
+        groups[month] = [];
+      }
+
+      groups[month].push(memory);
+      return groups;
+    }, {});
+  }, [memories]);
+
+  const upcomingReminders = useMemo(() => {
+    const today = new Date();
+    const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const reminderWindowEnd = new Date();
+    reminderWindowEnd.setDate(today.getDate() + Number(settings.reminderLeadDays || 2));
+
+    return memories.filter((memory) => {
+      if(!memory.reminderDate){
+        return false;
+      }
+
+      const reminder = new Date(memory.reminderDate);
+      const startReminder = new Date(reminder.getFullYear(), reminder.getMonth(), reminder.getDate());
+      return startReminder >= startToday && startReminder <= reminderWindowEnd;
+    });
+  }, [memories, settings.reminderLeadDays]);
+
+  const reminderPageSize = 5;
+  const reminderPageCount = Math.max(1, Math.ceil(upcomingReminders.length / reminderPageSize));
+  const pagedReminders = upcomingReminders.slice(
+    reminderPage * reminderPageSize,
+    reminderPage * reminderPageSize + reminderPageSize
+  );
+
+  const handleFavorite = async (id) => {
+    const res = await toggleFavorite(id);
+    setMemories(prevMemories => prevMemories.map(memory =>
+      memory._id === id ? res.data : memory
+    ));
+  };
+
+  const handleDeleteRequest = (memory, options = {}) => {
+    if(!options.keepPreviewOpen){
+      setPreviewMemory(null);
+    }
+    setMemoryToDelete(memory);
+  };
+
+  const closeDeleteDialog = () => {
+    setMemoryToDelete(null);
+  };
+
+  const confirmDelete = async () => {
+
+    if(!memoryToDelete){
+      return;
+    }
+
+    const deletingPreviewMemory = previewMemory?._id === memoryToDelete._id;
+
+    try {
+
+      await deleteMemory(memoryToDelete._id);
+
+      setMemories(prevMemories => {
+        const updated = prevMemories.filter(memory => memory._id !== memoryToDelete._id);
+        return [...updated];
+      });
+
+      setMemoryToDelete(null);
+      if(deletingPreviewMemory){
+        setPreviewMemory(null);
+      }
+      setMessage("Memory deleted");
+
+    } catch (error) {
+
+      console.error(error);
+      setMemoryToDelete(null);
+      setMessage("Failed to delete memory");
+
+    }
+
+  };
+
+  const exportTimeline = () => {
+    const rows = memories.map(memory => {
+      const date = new Date(memory.date).toLocaleDateString("en-GB", {
+        day:"2-digit",
+        month:"short",
+        year:"numeric"
+      });
+      const images = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
+      const imageMarkup = images.map(image => `
+        <img src="${getImageUrl(image)}" alt="${memory.title}" />
+      `).join("");
+
+      return `
+        <section>
+          <h2>${memory.title}</h2>
+          <p><strong>${date}</strong> · ${memory.category || "Personal"}</p>
+          <p>${memory.description}</p>
+          <div class="images">${imageMarkup}</div>
+        </section>
+      `;
+    }).join("");
+
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Memory Timeline</title>
+          <style>
+            body{font-family:Arial,sans-serif;padding:32px;color:#222;}
+            h1{margin-bottom:24px;}
+            section{border-bottom:1px solid #ddd;padding:18px 0;}
+            .images{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px;}
+            img{width:100%;max-height:280px;object-fit:cover;border-radius:10px;}
+          </style>
+        </head>
+        <body>
+          <h1>Memory Timeline</h1>
+          ${rows || "<p>No memories to export.</p>"}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const shareCategory = async () => {
+    if(categoryFilter === "All"){
+      setMessage("Choose a category before sharing an album");
+      return;
+    }
+
+    try{
+      const res = await createCategoryShare({category:categoryFilter});
+      const url = `${window.location.origin}/share/${res.data.token}`;
+      const result = await shareUrl({
+        title:`${categoryFilter} Memories`,
+        text:`Sharing my ${categoryFilter} memories from Memory Timeline`,
+        url
+      });
+
+      if(result === "shared"){
+        setMessage("Album share opened");
+      }
+      else if(result === "copied"){
+        setMessage("Native sharing is unavailable. Album link copied instead");
+      }
+      else if(result === "manual"){
+        setMessage("Copy the album link from the dialog");
+      }
+    }catch{
+      setMessage("Album sharing failed");
+    }
+  };
+
+  const escapeHtml = (value = "") => String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+  const blobToDataUrl = (blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+
+  const fetchAllMemories = async (filters = {}) => {
+    const allMemories = [];
+    let nextPage = 1;
+    let more = true;
+
+    while(more){
+      const res = await getMemories({
+        page:nextPage,
+        limit:30,
+        sort:"oldest",
+        category:filters.category || "All",
+        favorite:filters.favorite ? "true" : undefined
+      });
+
+      allMemories.push(...res.data.memories);
+      more = res.data.hasMore;
+      nextPage += 1;
+    }
+
+    return allMemories.filter((memory) => {
+      const memoryDate = new Date(memory.date);
+      const fromMatches = !filters.fromDate || memoryDate >= new Date(`${filters.fromDate}T00:00:00`);
+      const toMatches = !filters.toDate || memoryDate <= new Date(`${filters.toDate}T23:59:59`);
+      return fromMatches && toMatches;
+    });
+  };
+
+  const exportMemoriesAsHtml = async (items, label) => {
+    if(!items.length){
+      setMessage("No memories match this export");
+      return;
+    }
+
+    setExporting(true);
+    setMessage(`Preparing ${items.length} ${items.length === 1 ? "memory" : "memories"}...`);
+
+    try{
+      const rows = [];
+
+      for(const memory of items){
+        const images = getMemoryImages(memory);
+        const embeddedImages = [];
+
+        for(let index = 0; index < images.length; index += 1){
+          try{
+            const response = await downloadMemoryImage(memory._id, index);
+            embeddedImages.push(await blobToDataUrl(response.data));
+          }catch{
+            embeddedImages.push(getImageUrl(images[index]));
+          }
+        }
+
+        const date = new Date(memory.date).toLocaleDateString("en-GB", {
+          day:"2-digit",
+          month:"short",
+          year:"numeric"
+        });
+        const imageMarkup = embeddedImages.map((image, index) => `
+          <img src="${image}" alt="${escapeHtml(memory.title)} image ${index + 1}" />
+        `).join("");
+
+        rows.push(`
+          <article class="memory">
+            <div class="memory-heading">
+              <div>
+                <span class="category">${escapeHtml(memory.category || "Personal")}</span>
+                <h2>${escapeHtml(memory.title || "Untitled memory")}</h2>
+              </div>
+              <time>${date}</time>
+            </div>
+            <div class="description">${memory.description || ""}</div>
+            ${imageMarkup ? `<div class="images">${imageMarkup}</div>` : ""}
+          </article>
+        `);
+      }
+
+      const documentMarkup = `<!doctype html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <title>${escapeHtml(label)}</title>
+            <style>
+              *{box-sizing:border-box}
+              body{margin:0;padding:40px;background:#f7f4ff;color:#202039;font-family:Inter,Arial,sans-serif}
+              main{width:min(1080px,100%);margin:auto}
+              header{padding:32px;border-radius:24px;background:linear-gradient(135deg,#ff4b7d,#7468ff);color:white;margin-bottom:28px}
+              header h1{margin:0 0 8px;font-size:38px}
+              header p{margin:0;opacity:.86}
+              .memory{padding:28px;margin:0 0 24px;border:1px solid #e6def7;border-radius:24px;background:white;box-shadow:0 16px 40px rgba(44,35,83,.1);break-inside:avoid}
+              .memory-heading{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}
+              h2{margin:10px 0 12px;font-size:28px}
+              time{white-space:nowrap;color:#696580;font-weight:700}
+              .category{display:inline-block;padding:6px 11px;border-radius:999px;background:#f2e9ff;color:#6a36b8;font-weight:800}
+              .description{line-height:1.65;color:#4b4861}
+              .images{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+              img{display:block;width:100%;max-height:520px;object-fit:cover;border-radius:16px;background:#eee}
+              @media(max-width:680px){body{padding:18px}.images{grid-template-columns:1fr}.memory-heading{display:block}time{display:block;margin-bottom:8px}}
+              @media print{body{padding:0;background:white}.memory{box-shadow:none}}
+            </style>
+          </head>
+          <body>
+            <main>
+              <header>
+                <h1>${escapeHtml(label)}</h1>
+                <p>${items.length} ${items.length === 1 ? "memory" : "memories"} exported from Memory Timeline</p>
+              </header>
+              ${rows.join("")}
+            </main>
+          </body>
+        </html>`;
+      const blob = new Blob([documentMarkup], {type:"text/html;charset=utf-8"});
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const safeLabel = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+      link.href = objectUrl;
+      link.download = `${safeLabel || "memory-timeline"}-${new Date().toISOString().slice(0,10)}.html`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+      setMessage("Memory export downloaded");
+      setExportPanel(null);
+      setSelectedMemoryIds([]);
+    }catch(error){
+      console.error(error);
+      setMessage("Memory export failed");
+    }finally{
+      setExporting(false);
+    }
+  };
+
+  const sanitizeFileName = (value) => (
+    String(value || "")
+      .split("")
+      .filter((character) => character.charCodeAt(0) >= 32)
+      .join("")
+      .replace(/[<>:"/\\|?*]/g, "-")
+  );
+
+  const safeFilePart = (value, fallback = "memory") => (
+    sanitizeFileName(value || fallback)
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase() || fallback
+  );
+
+  const getDownloadFileName = (response, memory, imageIndex) => {
+    const disposition = response.headers["content-disposition"] || "";
+    const utf8Name = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+    const quotedName = disposition.match(/filename="([^"]+)"/i)?.[1];
+    const plainName = disposition.match(/filename=([^;]+)/i)?.[1]?.trim();
+    const headerName = utf8Name ? decodeURIComponent(utf8Name) : quotedName || plainName;
+
+    if(headerName){
+      return sanitizeFileName(headerName);
+    }
+
+    const extension = response.data.type?.split("/")[1]?.replace("jpeg", "jpg") || "jpg";
+    return `${safeFilePart(memory.title)}-${imageIndex + 1}.${extension}`;
+  };
+
+  const downloadBlob = (blob, fileName) => {
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = objectUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  };
+
+  const exportMemories = async (items, label) => {
+    if(!items.length){
+      setMessage("No memories match this export");
+      return;
+    }
+
+    setExporting(true);
+    setMessage(`Preparing images from ${items.length} ${items.length === 1 ? "memory" : "memories"}...`);
+
+    try{
+      const files = [];
+
+      for(const memory of items){
+        const images = getMemoryImages(memory);
+
+        for(let imageIndex = 0; imageIndex < images.length; imageIndex += 1){
+          const response = await downloadMemoryImage(memory._id, imageIndex);
+          files.push({
+            blob:response.data,
+            name:getDownloadFileName(response, memory, imageIndex)
+          });
+        }
+      }
+
+      if(!files.length){
+        setMessage("The selected memories do not contain images");
+        return;
+      }
+
+      if(files.length === 1){
+        downloadBlob(files[0].blob, files[0].name);
+        setMessage("Image download started");
+      }else{
+        const zip = new JSZip();
+        const usedNames = new Map();
+
+        files.forEach(({blob, name}) => {
+          const dotIndex = name.lastIndexOf(".");
+          const baseName = dotIndex > 0 ? name.slice(0, dotIndex) : name;
+          const extension = dotIndex > 0 ? name.slice(dotIndex) : "";
+          const duplicateNumber = usedNames.get(name) || 0;
+          const uniqueName = duplicateNumber ? `${baseName}-${duplicateNumber + 1}${extension}` : name;
+
+          usedNames.set(name, duplicateNumber + 1);
+          zip.file(uniqueName, blob);
+        });
+
+        const zipBlob = await zip.generateAsync({type:"blob", compression:"DEFLATE"});
+        const zipName = `${safeFilePart(label, "memory-images")}-${new Date().toISOString().slice(0,10)}.zip`;
+        downloadBlob(zipBlob, zipName);
+        setMessage(`${files.length} images exported as ZIP`);
+      }
+
+      setExportPanel(null);
+      setSelectedMemoryIds([]);
+    }catch(error){
+      console.error(error);
+      setMessage("Memory export failed");
+    }finally{
+      setExporting(false);
+    }
+  };
+
+  const handleExportAll = async () => {
+    setExportPanel(null);
+    await exportMemories(await fetchAllMemories(), "All Memories");
+  };
+
+  const toggleMemorySelection = (id) => {
+    setSelectedMemoryIds((current) => current.includes(id)
+      ? current.filter((memoryId) => memoryId !== id)
+      : [...current, id]);
+  };
+
+  const handleExportSelected = async () => {
+    const selected = memories.filter((memory) => selectedMemoryIds.includes(memory._id));
+    await exportMemories(selected, "Selected Memories");
+  };
+
+  const handleFilteredExport = async () => {
+    const filtered = await fetchAllMemories({
+      category:exportCategory,
+      fromDate:exportFromDate,
+      toDate:exportToDate,
+      favorite:exportFavoritesOnly
+    });
+    const label = exportCategory === "All" ? "Filtered Memories" : `${exportCategory} Memories`;
+    await exportMemories(filtered, label);
+  };
+
+  void exportTimeline;
+  void shareCategory;
+  void exportMemoriesAsHtml;
+
+  const shareMemory = async (memory) => {
+    try{
+      const res = await createMemoryShare(memory._id);
+      const url = `${window.location.origin}/share/${res.data.token}`;
+      const result = await shareUrl({
+        title:memory.title || "Memory Timeline",
+        text:`Sharing "${memory.title || "this memory"}" from Memory Timeline`,
+        url
+      });
+
+      if(result === "shared"){
+        setMessage("Memory share opened");
+      }
+      else if(result === "copied"){
+        setMessage("Native sharing is unavailable. Link copied instead");
+      }
+      else if(result === "manual"){
+        setMessage("Copy the share link from the dialog");
+      }
+    }catch{
+      setMessage("Memory sharing failed");
+    }
+  };
+
+  const downloadPreviewImage = async () => {
+    if(!previewMemory){
+      return;
+    }
+
+    try{
+      const response = await downloadMemoryImage(previewMemory._id, previewImageIndex);
+      const blob = response.data;
+      const objectUrl = URL.createObjectURL(blob);
+      const safeTitle = previewMemory.title
+        .replace(/[^a-z0-9]+/gi, "-")
+        .replace(/^-|-$/g, "")
+        .toLowerCase() || "memory";
+      const disposition = response.headers["content-disposition"] || "";
+      const fileName = disposition.match(/filename="([^"]+)"/)?.[1] || `${safeTitle}-${previewImageIndex + 1}.jpg`;
+      const link = document.createElement("a");
+
+      link.href = objectUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+      setMessage("Image download started");
+    }catch{
+      setMessage("Image download failed");
+    }
+  };
+
+  const togglePreviewFavorite = async (memory) => {
+    const res = await toggleFavorite(memory._id);
+    setMemories(prevMemories => prevMemories.map(item =>
+      item._id === memory._id ? res.data : item
+    ));
+    setPreviewMemory(res.data);
+  };
+
+  const getMemoryImages = (memory) => (
+    memory.images?.length ? memory.images : (memory.image ? [memory.image] : [])
+  );
+
+  const showPreviousPreviewImage = () => {
+    const images = getMemoryImages(previewMemory);
+    setPreviewImageIndex(index => (index - 1 + images.length) % images.length);
+  };
+
+  const showNextPreviewImage = () => {
+    const images = getMemoryImages(previewMemory);
+    setPreviewImageIndex(index => (index + 1) % images.length);
+  };
+
+  useEffect(() => {
+
+    if(message){
+
+      const timer = setTimeout(()=>{
+        setMessage("");
+      },2400);
+
+      return ()=>clearTimeout(timer);
+
+    }
+
+  },[message]);
+
+  useEffect(() => {
+    const returnedPreview = location.state?.previewMemory;
+
+    if(returnedPreview){
+      setPreviewMemory(returnedPreview);
+      setMemories(prevMemories => prevMemories.map(memory =>
+        memory._id === returnedPreview._id ? returnedPreview : memory
+      ));
+      navigate(location.pathname, {replace:true, state:null});
+    }
+  }, [location.pathname, location.state, navigate]);
+
+  useEffect(() => {
+    if(reminderPage >= reminderPageCount){
+      setReminderPage(reminderPageCount - 1);
+    }
+  }, [reminderPage, reminderPageCount]);
+
+  useEffect(() => {
+    setPreviewImageIndex(0);
+  }, [previewMemory?._id]);
+
+  useEffect(() => {
+    if(showSearch){
+      searchInputRef.current?.focus();
+    }
+  }, [showSearch]);
+
+  useEffect(() => {
+    const handleSettingsUpdated = (event) => {
+      setSettings(event.detail || loadSettings());
+    };
+
+    window.addEventListener(SETTINGS_UPDATED_EVENT, handleSettingsUpdated);
+    window.addEventListener(SETTINGS_PREVIEW_EVENT, handleSettingsUpdated);
+    window.addEventListener("storage", handleSettingsUpdated);
+
+    return () => {
+      window.removeEventListener(SETTINGS_UPDATED_EVENT, handleSettingsUpdated);
+      window.removeEventListener(SETTINGS_PREVIEW_EVENT, handleSettingsUpdated);
+      window.removeEventListener("storage", handleSettingsUpdated);
+    };
+  }, []);
+
+  const previewDeleteActive = Boolean(
+    memoryToDelete && previewMemory && memoryToDelete._id === previewMemory._id
+  );
+  const previewImages = previewMemory ? getMemoryImages(previewMemory) : [];
+  const currentPreviewImage = previewImages[previewImageIndex] || previewImages[0];
+
+  const getReminderKey = (memory) => (
+    `memory-reminder-${memory._id}-${memory.reminderDate?.split("T")[0] || ""}`
+  );
+
+  const getTodayKey = (date = new Date()) => {
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${date.getFullYear()}-${month}-${day}`;
+  };
+
+  const getDaysUntilReminder = (reminderDate) => {
+    const today = new Date();
+    const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const reminder = new Date(reminderDate);
+    const startReminder = new Date(reminder.getFullYear(), reminder.getMonth(), reminder.getDate());
+
+    return Math.round((startReminder - startToday) / (1000 * 60 * 60 * 24));
+  };
+
+  useEffect(() => {
+    const reminder = memories.find((memory) => {
+      if(!memory.reminderDate){
+        return false;
+      }
+
+      const reminderKey = getReminderKey(memory);
+      const dismissedDate = localStorage.getItem(`${reminderKey}-dismissed-date`);
+
+      if(dismissedDate === getTodayKey()){
+        return false;
+      }
+
+      const daysUntilReminder = getDaysUntilReminder(memory.reminderDate);
+
+      if(daysUntilReminder < 0){
+        return false;
+      }
+
+      const snoozedUntil = localStorage.getItem(`${reminderKey}-snoozed-until`);
+      const snoozeDue = snoozedUntil && snoozedUntil <= getTodayKey();
+
+      return snoozeDue || (!snoozedUntil && daysUntilReminder <= Number(settings.reminderLeadDays || 2));
+    });
+
+    setActiveReminder(reminder || null);
+  }, [memories, reminderActionVersion, settings.reminderLeadDays]);
+
+  const dismissReminderToday = () => {
+    if(!activeReminder){
+      return;
+    }
+
+    localStorage.setItem(`${getReminderKey(activeReminder)}-dismissed-date`, getTodayKey());
+    setActiveReminder(null);
+    setReminderActionVersion(version => version + 1);
+  };
+
+  const remindTomorrow = () => {
+    if(!activeReminder){
+      return;
+    }
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    localStorage.setItem(`${getReminderKey(activeReminder)}-snoozed-until`, getTodayKey(tomorrow));
+    setActiveReminder(null);
+    setReminderActionVersion(version => version + 1);
+  };
+
+  useEffect(() => {
+    if(!activeReminder){
+      return;
+    }
+
+    const reminderKey = getReminderKey(activeReminder);
+
+    if(lastSoundReminderRef.current === reminderKey){
+      return;
+    }
+
+    lastSoundReminderRef.current = reminderKey;
+    playAppSound("reminder");
+  }, [activeReminder]);
+
+  return (
+
+    <>
+
+    <PageTransition>
+
+      <div className="timeline-container">
+
+        {message && (
+          <div className="toast">
+            {message}
+          </div>
+        )}
+
+        <div className="reminder-menu">
+          <button
+            type="button"
+            className="reminder-icon-btn"
+            aria-label="Show reminders"
+            onClick={()=>{
+              setShowReminderPanel(!showReminderPanel);
+              setReminderPage(0);
+            }}
+          >
+            🔔
+            {upcomingReminders.length > 0 && (
+              <span>{upcomingReminders.length}</span>
+            )}
+          </button>
+
+          {showReminderPanel && (
+            <div className="reminder-popover">
+              <h3>Reminders</h3>
+              {upcomingReminders.length > 0 ? (
+                <>
+                  {pagedReminders.map((memory)=>(
+                    <button
+                      type="button"
+                      className="reminder-popover-item"
+                      key={memory._id}
+                      onClick={()=>{
+                        setPreviewMemory(memory);
+                        setShowReminderPanel(false);
+                      }}
+                    >
+                      <strong>{memory.title}</strong>
+                      <small>
+                        {new Date(memory.reminderDate).toLocaleDateString("en-GB", {
+                          day:"2-digit",
+                          month:"short",
+                          year:"numeric"
+                        })}
+                      </small>
+                    </button>
+                  ))}
+
+                  {reminderPageCount > 1 && (
+                    <div className="reminder-pagination">
+                      <button
+                        type="button"
+                        aria-label="Previous reminders"
+                        disabled={reminderPage === 0}
+                        onClick={()=>setReminderPage(page => Math.max(0, page - 1))}
+                      >
+                        ‹
+                      </button>
+                      <span>{reminderPage + 1} / {reminderPageCount}</span>
+                      <button
+                        type="button"
+                        aria-label="Next reminders"
+                        disabled={reminderPage >= reminderPageCount - 1}
+                        onClick={()=>setReminderPage(page => Math.min(reminderPageCount - 1, page + 1))}
+                      >
+                        ›
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p>No reminders this week</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        <h2 className="timeline-title">Memory Timeline</h2>
+
+        <div className="timeline-controls-shell">
+          <div className="timeline-controls">
+          <div className={`timeline-search-shell ${showSearch || searchText ? "open" : ""}`}>
+            <button
+              type="button"
+              className="timeline-icon-control"
+              title="Search memories"
+              aria-label="Search memories"
+              aria-expanded={showSearch || Boolean(searchText)}
+              onClick={()=>{
+                const shouldClose = showSearch || searchText;
+                setShowSearch(!shouldClose);
+                if(shouldClose){
+                  setSearchText("");
+                }
+              }}
+            >
+              &#128269;
+            </button>
+
+            <input
+              ref={searchInputRef}
+              className="timeline-search"
+              type="search"
+              placeholder="Search memories"
+              value={searchText}
+              onChange={(e)=>setSearchText(e.target.value)}
+              onFocus={()=>setShowSearch(true)}
+              tabIndex={showSearch || searchText ? 0 : -1}
+            />
+          </div>
+
+          <div className="timeline-filter-menu">
+            <button
+              type="button"
+              className={`timeline-icon-control filter-icon-control ${showFilterMenu ? "active" : ""}`}
+              title="Filter memories"
+              aria-label="Filter memories"
+              aria-expanded={showFilterMenu}
+              onClick={()=>setShowFilterMenu(!showFilterMenu)}
+            >
+              <span className="filter-funnel-icon" aria-hidden="true" />
+            </button>
+
+            {showFilterMenu && (
+              <div className="timeline-filter-popover">
+                <div className="timeline-filter-section">
+                  <span>Sort</span>
+                  <button
+                    type="button"
+                    className={sortOrder === "newest" ? "selected" : ""}
+                    onClick={()=>setSortOrder("newest")}
+                  >
+                    New to old
+                  </button>
+                  <button
+                    type="button"
+                    className={sortOrder === "oldest" ? "selected" : ""}
+                    onClick={()=>setSortOrder("oldest")}
+                  >
+                    Old to new
+                  </button>
+                </div>
+
+                <div className="timeline-filter-section">
+                  <span>Category</span>
+                  {categories.map((category)=>(
+                    <button
+                      type="button"
+                      key={category}
+                      className={categoryFilter === category ? "selected" : ""}
+                      onClick={()=>setCategoryFilter(category)}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            className={`filter-toggle ${showFavorites ? "active" : ""}`}
+            title="Favorites"
+            aria-label="Favorites"
+            onClick={()=>setShowFavorites(!showFavorites)}
+          >
+            ⭐
+          </button>
+        
+          <button
+            type="button"
+            className="timeline-action-btn"
+            title="Add New Memory"
+            aria-label="Add New Memory"
+            onClick={() => navigate("/add")}
+          >
+            ➕
+          </button>
+          <button
+            type="button"
+            className="timeline-action-btn"
+            title={viewMode === "timeline" ? "Calendar View" : "Timeline View"}
+            aria-label={viewMode === "timeline" ? "Calendar View" : "Timeline View"}
+            onClick={()=>setViewMode(viewMode === "timeline" ? "calendar" : "timeline")}
+          >
+            {viewMode === "timeline" ? "📅" : "🕘"}
+          </button>
+          <button
+            type="button"
+            className={`timeline-action-btn export-image-btn ${exportPanel ? "active" : ""}`}
+            title="Export memories"
+            aria-label="Export memories"
+            aria-expanded={Boolean(exportPanel)}
+            onClick={()=>setExportPanel(exportPanel ? null : "menu")}
+          >
+            📤
+          </button>
+          <button
+            type="button"
+            className="timeline-action-btn"
+            title="Settings"
+            aria-label="Settings"
+            onClick={() => navigate("/profile")}
+          >
+            👤
+          </button>
+          </div>
+
+          {exportPanel === "menu" && (
+            <div className="timeline-export-popover">
+              <button type="button" onClick={handleExportAll}>
+                <strong>Export all</strong>
+                <small>Download every memory</small>
+              </button>
+              <button
+                type="button"
+                onClick={()=>{
+                  setSelectedMemoryIds([]);
+                  setExportPanel("selected");
+                }}
+              >
+                <strong>Export selected</strong>
+                <small>Choose memories from the timeline</small>
+              </button>
+              <button type="button" onClick={()=>setExportPanel("filter")}>
+                <strong>Export by filter</strong>
+                <small>Category, date, or favorites</small>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {exportPanel === "selected" && (
+          <div className="export-selection-bar">
+            <div>
+              <strong>Select memories to export</strong>
+              <span>{selectedMemoryIds.length} selected</span>
+            </div>
+            <div className="export-selection-actions">
+              <button
+                type="button"
+                onClick={()=>setSelectedMemoryIds(
+                  selectedMemoryIds.length === memories.length ? [] : memories.map((memory)=>memory._id)
+                )}
+              >
+                {selectedMemoryIds.length === memories.length && memories.length ? "Clear all" : "Select visible"}
+              </button>
+              <button
+                type="button"
+                className="export-cancel-btn"
+                onClick={()=>{
+                  setExportPanel(null);
+                  setSelectedMemoryIds([]);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="export-confirm-btn"
+                disabled={!selectedMemoryIds.length || exporting}
+                onClick={handleExportSelected}
+              >
+                {exporting ? "Preparing..." : "Export"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {memories.length === 0 && !loading ? (
+          <div className="empty-state">
+            <h3>No Memories Yet</h3>
+            <p>Start your timeline with a moment worth keeping.</p>
+            <button onClick={() => navigate("/add")}>
+              Add First Memory
+            </button>
+          </div>
+        ) : viewMode === "calendar" ? (
+          <div className="calendar-view">
+            {Object.entries(memoriesByMonth).map(([month, items])=>(
+              <div className="calendar-month" key={month}>
+                <h3>{month}</h3>
+                <div className="calendar-grid">
+                  {items.map((memory)=>(
+                    <button
+                      key={memory._id}
+                      className={`calendar-memory ${selectedMemoryIds.includes(memory._id) ? "selected" : ""}`}
+                      onClick={()=>{
+                        if(exportPanel === "selected"){
+                          toggleMemorySelection(memory._id);
+                        }else{
+                          setPreviewMemory(memory);
+                        }
+                      }}
+                    >
+                      {exportPanel === "selected" && (
+                        <i aria-hidden="true">{selectedMemoryIds.includes(memory._id) ? "\u2713" : ""}</i>
+                      )}
+                      <span>{new Date(memory.date).getDate()}</span>
+                      {memory.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+
+          <div className="timeline">
+            {memories.map((memory, index) => (
+              <MemoryCard
+                key={`${memory._id}-${index}`}
+                memory={memory}
+                index={index}
+                onDelete={handleDeleteRequest}
+                onFavorite={handleFavorite}
+                onPreview={setPreviewMemory}
+                selectionMode={exportPanel === "selected"}
+                selected={selectedMemoryIds.includes(memory._id)}
+                onSelect={toggleMemorySelection}
+              />
+            ))}
+          </div>
+
+        )}
+
+        <div ref={loadMoreRef} className="load-more-sentinel">
+          {loading && "Loading memories..."}
+          {!loading && hasMore && (
+            <button onClick={()=>loadMemories(page + 1)}>
+              Load More
+            </button>
+          )}
+        </div>
+
+      </div>
+
+    </PageTransition>
+
+    {exportPanel === "filter" && (
+      <div className="export-filter-overlay" onClick={()=>setExportPanel(null)}>
+        <div className="export-filter-dialog" onClick={(event)=>event.stopPropagation()}>
+          <div className="export-filter-heading">
+            <div>
+              <span>Custom export</span>
+              <h3>Export by filter</h3>
+            </div>
+            <button type="button" aria-label="Close export filters" onClick={()=>setExportPanel(null)}>
+              &#10005;
+            </button>
+          </div>
+
+          <label>
+            Category
+            <select value={exportCategory} onChange={(event)=>setExportCategory(event.target.value)}>
+              {categories.map((category)=><option key={category} value={category}>{category}</option>)}
+            </select>
+          </label>
+
+          <div className="export-date-fields">
+            <label>
+              From date
+              <input type="date" value={exportFromDate} onChange={(event)=>setExportFromDate(event.target.value)} />
+            </label>
+            <label>
+              To date
+              <input type="date" value={exportToDate} onChange={(event)=>setExportToDate(event.target.value)} />
+            </label>
+          </div>
+
+          <label className="export-favorite-option">
+            <input
+              type="checkbox"
+              checked={exportFavoritesOnly}
+              onChange={(event)=>setExportFavoritesOnly(event.target.checked)}
+            />
+            Favorites only
+          </label>
+
+          <div className="export-filter-actions">
+            <button type="button" className="export-cancel-btn" onClick={()=>setExportPanel(null)}>
+              Cancel
+            </button>
+            <button type="button" className="export-confirm-btn" disabled={exporting} onClick={handleFilteredExport}>
+              {exporting ? "Preparing..." : "Export memories"}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {activeReminder && (
+      <div className="reminder-alert-overlay">
+        <div className="reminder-alert-card" role="dialog" aria-modal="true">
+          <span className="reminder-alert-icon" aria-hidden="true">
+            &#128276;
+          </span>
+          <p className="reminder-alert-kicker">Reminder coming up</p>
+          <h3>{activeReminder.title}</h3>
+          <p>
+            This memory is scheduled for{" "}
+            <strong>
+              {new Date(activeReminder.reminderDate).toLocaleDateString("en-GB", {
+                day:"2-digit",
+                month:"short",
+                year:"numeric"
+              })}
+            </strong>
+            . Reminder messages start {settings.reminderLeadDays} day{Number(settings.reminderLeadDays) === 1 ? "" : "s"} before.
+          </p>
+          <div className="reminder-alert-actions">
+            <button type="button" className="reminder-ignore-btn" onClick={dismissReminderToday}>
+              Dismiss today
+            </button>
+            <button type="button" className="reminder-tomorrow-btn" onClick={remindTomorrow}>
+              Remind me tomorrow
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {previewMemory && (
+      <div
+        className="preview-overlay"
+        onClick={()=>{
+          if(!previewDeleteActive){
+            setPreviewMemory(null);
+          }
+        }}
+      >
+        <div className="preview-dialog" onClick={(event)=>event.stopPropagation()}>
+          <div className="preview-media">
+            {currentPreviewImage && (
+              <SmartImage
+                key={`${currentPreviewImage}-preview-${previewImageIndex}`}
+                className="preview-carousel-image"
+                src={getImageUrl(currentPreviewImage)}
+                alt={previewMemory.title}
+              />
+            )}
+
+            {previewImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="preview-image-nav left"
+                  aria-label="Previous image"
+                  onClick={showPreviousPreviewImage}
+                >
+                  &#8249;
+                </button>
+                <button
+                  type="button"
+                  className="preview-image-nav right"
+                  aria-label="Next image"
+                  onClick={showNextPreviewImage}
+                >
+                  &#8250;
+                </button>
+                <span className="preview-image-count">
+                  {previewImageIndex + 1} / {previewImages.length}
+                </span>
+              </>
+            )}
+          </div>
+
+          <div className="preview-content">
+            <div className="memory-card-kicker">
+              <span>{previewMemory.category || "Personal"}</span>
+              <small>{new Date(previewMemory.date).toLocaleDateString("en-GB", {
+                day:"2-digit",
+                month:"short",
+                year:"numeric"
+              })}</small>
+            </div>
+            <h3>{previewMemory.title}</h3>
+            <div
+              className="preview-description"
+              dangerouslySetInnerHTML={{__html: previewMemory.description}}
+            />
+            <div className="preview-actions">
+              <button
+                type="button"
+                title="Edit"
+                aria-label="Edit"
+                onClick={()=>navigate("/add", {state:{...previewMemory, returnToPreview:true}})}
+              >
+                ✏️
+              </button>
+              <button
+                type="button"
+                title="Favorite"
+                aria-label="Favorite"
+                className={previewMemory.favorite ? "active" : ""}
+                onClick={()=>togglePreviewFavorite(previewMemory)}
+              >
+                {previewMemory.favorite ? "★" : "☆"}
+              </button>
+              <button
+                type="button"
+                title="Share"
+                aria-label="Share"
+                onClick={()=>shareMemory(previewMemory)}
+              >
+                📩
+              </button>
+              <button
+                type="button"
+                title="Download image"
+                aria-label="Download image"
+                onClick={downloadPreviewImage}
+              >
+                ⬇️
+              </button>
+              <button
+                type="button"
+                title="Delete"
+                aria-label="Delete"
+                onClick={()=>handleDeleteRequest(previewMemory, {keepPreviewOpen:true})}
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          {previewDeleteActive && (
+            <div className="preview-confirm">
+              <div className="preview-confirm-dialog">
+                <h3>Delete Memory?</h3>
+                <p>
+                  Are you sure you want to delete "{memoryToDelete.title}"?
+                </p>
+                <div className="confirm-actions">
+                  <button
+                    type="button"
+                    className="cancel-delete-btn"
+                    onClick={closeDeleteDialog}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="confirm-delete-btn"
+                    onClick={confirmDelete}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
+    {memoryToDelete && !previewDeleteActive && (
+      <div className="confirm-overlay">
+        <div className="confirm-dialog">
+          <h3>Delete Memory?</h3>
+          <p>
+            Are you sure you want to delete "{memoryToDelete.title}"?
+          </p>
+          <div className="confirm-actions">
+            <button
+              type="button"
+              className="cancel-delete-btn"
+              onClick={closeDeleteDialog}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="confirm-delete-btn"
+              onClick={confirmDelete}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    </>
+
+  );
+}
+
+export default MemoryTimeline;

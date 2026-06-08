@@ -11,6 +11,7 @@ function ReminderWidget(){
   const [activeReminder,setActiveReminder] = useState(null);
   const [reminderActionVersion,setReminderActionVersion] = useState(0);
   const lastSoundReminderRef = useRef("");
+  const reminderMenuRef = useRef(null);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -157,6 +158,24 @@ function ReminderWidget(){
   };
 
   useEffect(() => {
+    if(!showReminderPanel){
+      return;
+    }
+
+    const closeReminderPanel = (event) => {
+      if(reminderMenuRef.current && !reminderMenuRef.current.contains(event.target)){
+        setShowReminderPanel(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", closeReminderPanel);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeReminderPanel);
+    };
+  }, [showReminderPanel]);
+
+  useEffect(() => {
     if(!activeReminder){
       return;
     }
@@ -173,7 +192,7 @@ function ReminderWidget(){
 
   return (
     <>
-      <div className="reminder-menu">
+      <div className="reminder-menu" ref={reminderMenuRef}>
         <button
           type="button"
           className="reminder-icon-btn"

@@ -42,6 +42,8 @@ function MemoryTimeline() {
   const loadMoreRef = useRef(null);
   const searchInputRef = useRef(null);
   const lastSoundReminderRef = useRef("");
+  const reminderMenuRef = useRef(null);
+  const filterMenuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
@@ -72,6 +74,30 @@ function MemoryTimeline() {
   useEffect(() => {
     loadMemories(1, true);
   }, [loadMemories]);
+
+  useEffect(() => {
+    if(!showReminderPanel && !showFilterMenu){
+      return;
+    }
+
+    const closeOpenPanels = (event) => {
+      const target = event.target;
+
+      if(showReminderPanel && reminderMenuRef.current && !reminderMenuRef.current.contains(target)){
+        setShowReminderPanel(false);
+      }
+
+      if(showFilterMenu && filterMenuRef.current && !filterMenuRef.current.contains(target)){
+        setShowFilterMenu(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", closeOpenPanels);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeOpenPanels);
+    };
+  }, [showFilterMenu, showReminderPanel]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
@@ -778,7 +804,7 @@ function MemoryTimeline() {
           </div>
         )}
 
-        <div className="reminder-menu">
+        <div className="reminder-menu" ref={reminderMenuRef}>
           <button
             type="button"
             className="reminder-icon-btn"
@@ -883,7 +909,7 @@ function MemoryTimeline() {
             />
           </div>
 
-          <div className="timeline-filter-menu">
+          <div className="timeline-filter-menu" ref={filterMenuRef}>
             <button
               type="button"
               className={`timeline-icon-control filter-icon-control ${showFilterMenu ? "active" : ""}`}

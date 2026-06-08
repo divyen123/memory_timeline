@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { createMemoryShare, deleteMemory, getImageUrl, getMemory, toggleFavorite } from "../services/api";
 import PageTransition from "../components/PageTransition";
@@ -12,6 +12,7 @@ function MemoryDetails() {
   const [message,setMessage] = useState("");
   const [showDeleteConfirm,setShowDeleteConfirm] = useState(false);
   const [carouselIndex,setCarouselIndex] = useState(null);
+  const backGuardRef = useRef(false);
 
   useEffect(()=>{
     let active = true;
@@ -26,6 +27,25 @@ function MemoryDetails() {
       active = false;
     };
   },[id]);
+
+  useEffect(()=>{
+    if(backGuardRef.current){
+      return;
+    }
+
+    backGuardRef.current = true;
+    window.history.pushState({memoryDetailsBackGuard:true}, "", window.location.href);
+
+    const handleBrowserBack = () => {
+      navigate("/timeline", {replace:true});
+    };
+
+    window.addEventListener("popstate", handleBrowserBack);
+
+    return () => {
+      window.removeEventListener("popstate", handleBrowserBack);
+    };
+  },[navigate]);
 
   const handleFavorite = async () => {
     const res = await toggleFavorite(id);
@@ -101,6 +121,10 @@ function MemoryDetails() {
     setCarouselIndex((current)=> current === images.length - 1 ? 0 : current + 1);
   };
 
+  const goBackToTimeline = () => {
+    navigate("/timeline", {replace:true});
+  };
+
   return (
     <>
     <PageTransition>
@@ -110,6 +134,15 @@ function MemoryDetails() {
         )}
 
         <div className="details-panel story-panel">
+          <button
+            type="button"
+            className="details-back-btn"
+            aria-label="Back to all memories"
+            onClick={goBackToTimeline}
+          >
+            &#8592;
+          </button>
+
           <div className="story-hero">
             {images[0] ? (
               <SmartImage src={getImageUrl(images[0])} alt={memory.title} />
@@ -173,7 +206,7 @@ function MemoryDetails() {
             <button onClick={handleShare}>
               Share
             </button>
-            <button className="timeline-btn" onClick={()=>navigate("/timeline")}>
+            <button className="timeline-btn" onClick={goBackToTimeline}>
               Back to Timeline
             </button>
           </div>

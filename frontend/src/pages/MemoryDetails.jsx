@@ -121,7 +121,7 @@ function MemoryDetails() {
               className={`favorite-btn details-favorite ${memory.favorite ? "active" : ""}`}
               onClick={handleFavorite}
             >
-              {memory.favorite ? "★" : "☆"}
+              <span aria-hidden="true">{memory.favorite ? "\u2605" : "\u2606"}</span>
             </button>
 
             <div className="story-hero-content">
@@ -139,8 +139,10 @@ function MemoryDetails() {
 
           <div className="story-body">
             <div
-              className="details-description"
-              dangerouslySetInnerHTML={{__html: memory.description}}
+              className={`details-description ${memory.description ? "" : "empty"}`}
+              dangerouslySetInnerHTML={{
+                __html:memory.description || "<p>No description added for this memory.</p>"
+              }}
             />
           </div>
 

@@ -1285,8 +1285,10 @@ function MemoryTimeline() {
             </div>
             <h3>{previewMemory.title}</h3>
             <div
-              className="preview-description"
-              dangerouslySetInnerHTML={{__html: previewMemory.description}}
+              className={`preview-description ${previewMemory.description ? "" : "empty"}`}
+              dangerouslySetInnerHTML={{
+                __html:previewMemory.description || "<p>No description added for this memory.</p>"
+              }}
             />
             <div className="preview-actions">
               <button
@@ -1295,7 +1297,7 @@ function MemoryTimeline() {
                 aria-label="Edit"
                 onClick={()=>navigate("/add", {state:{...previewMemory, returnToPreview:true}})}
               >
-                ✏️
+                <span aria-hidden="true">&#9998;</span>
               </button>
               <button
                 type="button"
@@ -1304,7 +1306,7 @@ function MemoryTimeline() {
                 className={previewMemory.favorite ? "active" : ""}
                 onClick={()=>togglePreviewFavorite(previewMemory)}
               >
-                {previewMemory.favorite ? "★" : "☆"}
+                <span aria-hidden="true">{previewMemory.favorite ? "\u2605" : "\u2606"}</span>
               </button>
               <button
                 type="button"
@@ -1312,7 +1314,7 @@ function MemoryTimeline() {
                 aria-label="Share"
                 onClick={()=>shareMemory(previewMemory)}
               >
-                📩
+                <span aria-hidden="true">&#8599;</span>
               </button>
               <button
                 type="button"
@@ -1320,7 +1322,7 @@ function MemoryTimeline() {
                 aria-label="Download image"
                 onClick={downloadPreviewImage}
               >
-                ⬇️
+                <span aria-hidden="true">&#8681;</span>
               </button>
               <button
                 type="button"
@@ -1328,7 +1330,7 @@ function MemoryTimeline() {
                 aria-label="Delete"
                 onClick={()=>handleDeleteRequest(previewMemory, {keepPreviewOpen:true})}
               >
-                🗑️
+                <span aria-hidden="true">&#128465;</span>
               </button>
             </div>
           </div>

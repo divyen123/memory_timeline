@@ -32,6 +32,42 @@ const getAllowedOrigins = () => (
 );
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
+const SETTINGS_PROFILE_KEYS = new Set(["mobile", "desktop"]);
+const SETTINGS_KEYS = new Set([
+  "reminderLeadDays",
+  "defaultTheme",
+  "cardSize",
+  "topButtonsPosition",
+  "topButtonsSize",
+  "fontSize",
+  "fontWeight",
+  "fontStyle",
+  "containerGlass",
+  "containerGlassAlpha",
+  "buttonBackgroundColor",
+  "buttonGlass",
+  "buttonGlassAlpha",
+  "heartsSpeed",
+  "lightGradientStart",
+  "lightGradientMiddle",
+  "lightGradientEnd",
+  "darkGradientStart",
+  "darkGradientMiddle",
+  "darkGradientEnd",
+  "hoverEnabled",
+  "hoverScale",
+  "soundEnabled",
+  "createSound",
+  "updateSound",
+  "reminderSound"
+]);
+
+const sanitizeSettings = (settings = {}) => (
+  Object.fromEntries(
+    Object.entries(settings)
+      .filter(([key])=>SETTINGS_KEYS.has(key))
+  )
+);
 
 const validateProductionConfig = () => {
   if(!JWT_SECRET || JWT_SECRET.length < 32){
@@ -419,6 +455,69 @@ app.put("/api/profile/password", authMiddleware, async(req,res)=>{
   }catch(err){
 
     res.status(500).json({error:"Password update failed"});
+
+  }
+
+});
+
+app.get("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
+
+  try{
+
+    const {profile} = req.params;
+
+    if(!SETTINGS_PROFILE_KEYS.has(profile)){
+      return res.status(400).json({message:"Invalid settings profile"});
+    }
+
+    const user = await User.findById(req.user.userId).select("settingsProfiles");
+
+    if(!user){
+      return res.status(404).json({message:"User not found"});
+    }
+
+    res.json({
+      profile,
+      settings:user.settingsProfiles?.[profile] || {}
+    });
+
+  }catch(err){
+
+    res.status(500).json({error:"Settings load failed"});
+
+  }
+
+});
+
+app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
+
+  try{
+
+    const {profile} = req.params;
+
+    if(!SETTINGS_PROFILE_KEYS.has(profile)){
+      return res.status(400).json({message:"Invalid settings profile"});
+    }
+
+    const settings = sanitizeSettings(req.body?.settings);
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      {$set:{[`settingsProfiles.${profile}`]:settings}},
+      {new:true, runValidators:true}
+    ).select("settingsProfiles");
+
+    if(!user){
+      return res.status(404).json({message:"User not found"});
+    }
+
+    res.json({
+      profile,
+      settings:user.settingsProfiles?.[profile] || settings
+    });
+
+  }catch(err){
+
+    res.status(500).json({error:"Settings update failed"});
 
   }
 

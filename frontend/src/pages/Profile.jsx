@@ -1,8 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getProfile, updatePassword, updateProfile } from "../services/api";
+import {
+  getAppearanceSettings,
+  getProfile,
+  updateAppearanceSettings,
+  updatePassword,
+  updateProfile
+} from "../services/api";
 import PageTransition from "../components/PageTransition";
-import { defaultSettings, loadSettings, previewSettings, saveSettings } from "../settings";
+import {
+  defaultSettings,
+  getDeviceProfile,
+  loadSettings,
+  previewSettings,
+  saveSettings
+} from "../settings";
 import { playAppSound } from "../sound";
 
 function Profile() {
@@ -15,7 +27,8 @@ function Profile() {
   const [currentPassword,setCurrentPassword] = useState("");
   const [newPassword,setNewPassword] = useState("");
   const [message,setMessage] = useState("");
-  const [appSettings,setAppSettings] = useState(()=>loadSettings());
+  const deviceProfile = getDeviceProfile();
+  const [appSettings,setAppSettings] = useState(()=>loadSettings(deviceProfile));
   const backupFileRef = useRef(null);
 
   useEffect(()=>{
@@ -29,13 +42,23 @@ function Profile() {
     };
 
     fetchProfile();
-  },[]);
+
+    getAppearanceSettings(deviceProfile)
+      .then(({data})=>{
+        const remoteSettings = data.settings || {};
+
+        if(Object.keys(remoteSettings).length){
+          setAppSettings(saveSettings(remoteSettings, deviceProfile));
+        }
+      })
+      .catch(()=>{});
+  },[deviceProfile]);
 
   useEffect(()=>{
     return () => {
-      previewSettings(loadSettings());
+      previewSettings(loadSettings(deviceProfile));
     };
-  },[]);
+  },[deviceProfile]);
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -67,17 +90,31 @@ function Profile() {
     }
   };
 
-  const handleSettingsUpdate = (e) => {
+  const handleSettingsUpdate = async(e) => {
     e.preventDefault();
-    const savedSettings = saveSettings(appSettings);
-    setAppSettings(savedSettings);
-    setMessage("Settings updated");
+    const savedSettings = saveSettings(appSettings, deviceProfile);
+
+    try{
+      const {data} = await updateAppearanceSettings(deviceProfile, savedSettings);
+      setAppSettings(saveSettings(data.settings, deviceProfile));
+      setMessage(`${deviceProfile === "mobile" ? "Mobile" : "Desktop"} settings saved`);
+    }catch{
+      setAppSettings(savedSettings);
+      setMessage("Settings saved on this device, but cloud sync failed");
+    }
   };
 
-  const handleSettingsReset = () => {
-    const resetSettings = saveSettings(defaultSettings);
+  const handleSettingsReset = async() => {
+    const resetSettings = saveSettings(defaultSettings, deviceProfile);
+
+    try{
+      await updateAppearanceSettings(deviceProfile, resetSettings);
+      setMessage(`${deviceProfile === "mobile" ? "Mobile" : "Desktop"} settings reset`);
+    }catch{
+      setMessage("Settings reset locally, but cloud sync failed");
+    }
+
     setAppSettings(resetSettings);
-    setMessage("Settings reset");
   };
 
   const updateSetting = (key, value) => {
@@ -101,6 +138,7 @@ function Profile() {
     const backup = {
       version:1,
       exportedAt:new Date().toISOString(),
+      deviceProfile,
       settings:appSettings,
       reminderState
     };
@@ -126,7 +164,8 @@ function Profile() {
 
     try{
       const backup = JSON.parse(await file.text());
-      const restoredSettings = saveSettings(backup.settings || backup);
+      const restoredSettings = saveSettings(backup.settings || backup, deviceProfile);
+      await updateAppearanceSettings(deviceProfile, restoredSettings);
 
       Object.entries(backup.reminderState || {}).forEach(([key, value]) => {
         if(key.startsWith("memory-reminder-")){
@@ -181,6 +220,9 @@ function Profile() {
         <div className="profile-grid">
           <div className="profile-card settings-card">
             <h2>Settings</h2>
+            <p className="settings-device-note">
+              Editing the <strong>{deviceProfile}</strong> profile. It syncs across your {deviceProfile} devices only.
+            </p>
             <form onSubmit={handleSettingsUpdate}>
               <label className="settings-field">
                 <span>Reminder starts</span>

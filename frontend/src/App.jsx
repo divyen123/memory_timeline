@@ -11,7 +11,14 @@ import Profile from "./pages/Profile";
 import PublicShare from "./pages/PublicShare";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReminderWidget from "./components/ReminderWidget";
-import { loadSettings, saveSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "./settings";
+import { getAppearanceSettings, updateAppearanceSettings } from "./services/api";
+import {
+  getDeviceProfile,
+  loadSettings,
+  saveSettings,
+  SETTINGS_PREVIEW_EVENT,
+  SETTINGS_UPDATED_EVENT
+} from "./settings";
 
 import "./App.css";
 
@@ -34,7 +41,8 @@ const FONT_FAMILY_MAP = {
 
 function App(){
 
-  const [settings,setSettings] = useState(()=>loadSettings());
+  const [deviceProfile,setDeviceProfile] = useState(()=>getDeviceProfile());
+  const [settings,setSettings] = useState(()=>loadSettings(deviceProfile));
   const darkMode = settings.defaultTheme === "dark";
 
   const navigate = useNavigate();
@@ -71,6 +79,12 @@ function App(){
     document.body.classList.add(`hearts-${settings.heartsSpeed || "normal"}`);
 
     document.documentElement.style.setProperty("--app-font-size", FONT_SIZE_MAP[settings.fontSize] || FONT_SIZE_MAP.normal);
+    document.documentElement.style.setProperty("--app-font-delta", {
+      small:"-2px",
+      normal:"0px",
+      large:"2px",
+      extra:"4px"
+    }[settings.fontSize] || "0px");
     document.documentElement.style.setProperty("--app-font-weight", settings.fontWeight || "normal");
     document.documentElement.style.setProperty("--app-font-family", FONT_FAMILY_MAP[settings.fontStyle] || FONT_FAMILY_MAP.normal);
     document.documentElement.style.setProperty("--app-font-style", settings.fontStyle === "italic" ? "italic" : "normal");
@@ -104,13 +118,75 @@ function App(){
     };
   },[]);
 
-  const toggleTheme = () => {
+  useEffect(()=>{
+    const handleViewportChange = () => {
+      const nextProfile = getDeviceProfile();
+
+      if(nextProfile !== deviceProfile){
+        setDeviceProfile(nextProfile);
+        setSettings(loadSettings(nextProfile));
+      }
+    };
+
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("orientationchange", handleViewportChange);
+
+    return () => {
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("orientationchange", handleViewportChange);
+    };
+  },[deviceProfile]);
+
+  useEffect(()=>{
+    const token = localStorage.getItem("token");
+    const localSettings = loadSettings(deviceProfile);
+
+    if(!token){
+      return;
+    }
+
+    let active = true;
+
+    getAppearanceSettings(deviceProfile)
+      .then(async({data})=>{
+        if(!active){
+          return;
+        }
+
+        const remoteSettings = data.settings || {};
+
+        if(Object.keys(remoteSettings).length === 0){
+          await updateAppearanceSettings(deviceProfile, localSettings);
+          if(active){
+            setSettings(saveSettings(localSettings, deviceProfile));
+          }
+          return;
+        }
+
+        setSettings(saveSettings(remoteSettings, deviceProfile));
+      })
+      .catch(()=>{});
+
+    return ()=>{
+      active = false;
+    };
+  },[deviceProfile, location.pathname]);
+
+  const toggleTheme = async() => {
     const nextSettings = saveSettings({
       ...settings,
       defaultTheme:darkMode ? "light" : "dark"
-    });
+    }, deviceProfile);
 
     setSettings(nextSettings);
+
+    if(localStorage.getItem("token")){
+      try{
+        await updateAppearanceSettings(deviceProfile, nextSettings);
+      }catch{
+        // Keep the immediate local preference; authenticated navigation retries synchronization.
+      }
+    }
   };
 
   /* LOGOUT FUNCTION */
@@ -119,6 +195,7 @@ function App(){
 
     localStorage.removeItem("token");
 
+    setSettings(loadSettings(deviceProfile));
     navigate("/");
 
   };

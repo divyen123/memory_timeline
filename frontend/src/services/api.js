@@ -64,5 +64,7 @@ export const resetPassword = (data)=>API.post("/reset-password",data);
 export const getProfile = ()=>API.get("/profile");
 export const updateProfile = (data)=>API.put("/profile",data);
 export const updatePassword = (data)=>API.put("/profile/password",data);
+export const getAppearanceSettings = (profile)=>API.get(`/profile/settings/${profile}`);
+export const updateAppearanceSettings = (profile,settings)=>API.put(`/profile/settings/${profile}`, {settings});
 
 export default API;

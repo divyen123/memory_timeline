@@ -36,28 +36,59 @@ const numberOrDefault = (value, fallback) => {
   return Number.isFinite(number) ? number : fallback;
 };
 
-export const loadSettings = () => {
+const parseTokenUserId = () => {
   try{
-    const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || "{}");
+    const token = localStorage.getItem("token");
 
-    return {
-      ...defaultSettings,
-      ...savedSettings
-    };
+    if(!token){
+      return "guest";
+    }
+
+    const payload = token.split(".")[1]
+      .replaceAll("-", "+")
+      .replaceAll("_", "/");
+    const decoded = JSON.parse(atob(payload));
+    return decoded.userId || decoded.id || "user";
   }catch{
-    return defaultSettings;
+    return "user";
   }
 };
 
-export const normalizeSettings = (settings) => ({
-    ...defaultSettings,
-    ...settings,
-    reminderLeadDays:Number(settings.reminderLeadDays) || defaultSettings.reminderLeadDays,
-    topButtonsSize:numberOrDefault(settings.topButtonsSize, defaultSettings.topButtonsSize),
-    containerGlassAlpha:numberOrDefault(settings.containerGlassAlpha, defaultSettings.containerGlassAlpha),
-    buttonGlassAlpha:numberOrDefault(settings.buttonGlassAlpha, defaultSettings.buttonGlassAlpha),
-    hoverScale:numberOrDefault(settings.hoverScale, defaultSettings.hoverScale)
+export const getDeviceProfile = () => {
+  if(typeof navigator === "undefined"){
+    return "desktop";
+  }
+
+  const mobileAgent = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent);
+  const compactTouchDevice = typeof window !== "undefined" &&
+    navigator.maxTouchPoints > 1 &&
+    window.matchMedia("(max-width: 820px)").matches;
+  return mobileAgent || compactTouchDevice ? "mobile" : "desktop";
+};
+
+export const getSettingsStorageKey = (profile = getDeviceProfile()) => (
+  `${SETTINGS_STORAGE_KEY}:${parseTokenUserId()}:${profile}`
+);
+
+export const normalizeSettings = (settings = {}) => ({
+  ...defaultSettings,
+  ...settings,
+  reminderLeadDays:Number(settings.reminderLeadDays) || defaultSettings.reminderLeadDays,
+  topButtonsSize:numberOrDefault(settings.topButtonsSize, defaultSettings.topButtonsSize),
+  containerGlassAlpha:numberOrDefault(settings.containerGlassAlpha, defaultSettings.containerGlassAlpha),
+  buttonGlassAlpha:numberOrDefault(settings.buttonGlassAlpha, defaultSettings.buttonGlassAlpha),
+  hoverScale:numberOrDefault(settings.hoverScale, defaultSettings.hoverScale)
 });
+
+export const loadSettings = (profile = getDeviceProfile()) => {
+  try{
+    const scopedSettings = localStorage.getItem(getSettingsStorageKey(profile));
+    const legacySettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    return normalizeSettings(JSON.parse(scopedSettings || legacySettings || "{}"));
+  }catch{
+    return {...defaultSettings};
+  }
+};
 
 export const previewSettings = (settings) => {
   const nextSettings = normalizeSettings(settings);
@@ -67,10 +98,15 @@ export const previewSettings = (settings) => {
   return nextSettings;
 };
 
-export const saveSettings = (settings) => {
+export const saveSettings = (settings, profile = getDeviceProfile()) => {
   const nextSettings = normalizeSettings(settings);
 
-  localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(nextSettings));
+  localStorage.setItem(getSettingsStorageKey(profile), JSON.stringify(nextSettings));
+
+  if(parseTokenUserId() !== "guest"){
+    localStorage.removeItem(SETTINGS_STORAGE_KEY);
+  }
+
   window.dispatchEvent(new CustomEvent(SETTINGS_UPDATED_EVENT, {detail:nextSettings}));
 
   return nextSettings;

@@ -23,6 +23,17 @@ const userSchema = new mongoose.Schema({
   password:{
     type:String,
     required:true
+  },
+
+  settingsProfiles:{
+    mobile:{
+      type:mongoose.Schema.Types.Mixed,
+      default:{}
+    },
+    desktop:{
+      type:mongoose.Schema.Types.Mixed,
+      default:{}
+    }
   }
 
 });

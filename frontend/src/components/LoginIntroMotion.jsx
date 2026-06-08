@@ -134,6 +134,10 @@ function MemoryTimelineIntro({mobile = false}){
 
 function LoginIntroMotion(){
   const [mobile,setMobile] = useState(()=>window.matchMedia("(max-width: 760px)").matches);
+  const [viewportSize,setViewportSize] = useState(()=>({
+    width:window.innerWidth,
+    height:window.innerHeight
+  }));
 
   useEffect(()=>{
     const query = window.matchMedia("(max-width: 760px)");
@@ -143,6 +147,27 @@ function LoginIntroMotion(){
     return ()=>query.removeEventListener("change", handleChange);
   },[]);
 
+  useEffect(()=>{
+    const updateViewportSize = () => {
+      setViewportSize({
+        width:window.innerWidth,
+        height:window.innerHeight
+      });
+    };
+
+    updateViewportSize();
+    window.addEventListener("resize", updateViewportSize);
+    window.addEventListener("orientationchange", updateViewportSize);
+
+    return ()=>{
+      window.removeEventListener("resize", updateViewportSize);
+      window.removeEventListener("orientationchange", updateViewportSize);
+    };
+  },[]);
+
+  const compositionWidth = mobile ? Math.max(320, Math.round(viewportSize.width)) : 1280;
+  const compositionHeight = mobile ? Math.max(620, Math.round(viewportSize.height)) : 720;
+
   return (
     <div className={`login-intro-overlay ${mobile ? "mobile" : "desktop"}`} role="status" aria-live="polite">
       <Player
@@ -150,8 +175,8 @@ function LoginIntroMotion(){
         inputProps={{mobile}}
         durationInFrames={96}
         fps={30}
-        compositionWidth={mobile ? 390 : 1280}
-        compositionHeight={mobile ? 844 : 720}
+        compositionWidth={compositionWidth}
+        compositionHeight={compositionHeight}
         autoPlay
         controls={false}
         style={{

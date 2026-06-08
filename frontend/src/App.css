@@ -3164,6 +3164,8 @@ body.light .rich-editor:empty:before{
 
 @media (max-width:760px){
   .login-intro-overlay.mobile{
+    width:100vw;
+    min-width:100vw;
     background:#08081d;
   }
 
@@ -3172,7 +3174,16 @@ body.light .rich-editor:empty:before{
     height:100% !important;
   }
 
+  .login-intro-overlay.mobile > div,
+  .login-intro-overlay.mobile > div > div,
+  .login-intro-overlay.mobile video,
+  .login-intro-overlay.mobile canvas{
+    max-width:none !important;
+  }
+
   .remotion-intro-frame.mobile{
+    width:100% !important;
+    height:100% !important;
     padding:
       calc(34px + env(safe-area-inset-top))
       24px
@@ -5454,12 +5465,12 @@ body.light .calendar-memory{
 
   .details-back-btn{
     position:absolute;
-    top:14px;
-    left:14px;
+    top:12px;
+    left:12px;
     z-index:6;
-    width:44px;
-    height:44px;
-    min-height:44px;
+    width:36px;
+    height:36px;
+    min-height:36px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -5470,8 +5481,9 @@ body.light .calendar-memory{
     color:white;
     box-shadow:0 12px 30px rgba(0,0,0,0.34);
     backdrop-filter:blur(12px);
-    font-size:24px;
-    line-height:1;
+    font-size:20px;
+    line-height:36px;
+    text-align:center;
   }
 
   .details-back-btn:hover{
@@ -5481,12 +5493,12 @@ body.light .calendar-memory{
 
   .preview-back-btn{
     position:absolute;
-    top:14px;
-    left:14px;
+    top:12px;
+    left:12px;
     z-index:8;
-    width:44px;
-    height:44px;
-    min-height:44px;
+    width:36px;
+    height:36px;
+    min-height:36px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -5497,8 +5509,9 @@ body.light .calendar-memory{
     color:white;
     box-shadow:0 12px 30px rgba(0,0,0,0.34);
     backdrop-filter:blur(12px);
-    font-size:24px;
-    line-height:1;
+    font-size:20px;
+    line-height:36px;
+    text-align:center;
   }
 
   .preview-back-btn:hover{

@@ -19,6 +19,7 @@ const {
 } = require("../controllers/memoryController");
 
 const uploadDir = path.resolve("uploads");
+const MAX_MEMORY_IMAGES = 10;
 fs.mkdirSync(uploadDir, {recursive:true});
 
 const storage = multer.diskStorage({
@@ -45,7 +46,7 @@ const upload = multer({
   storage,
   limits:{
     fileSize:Number(process.env.MAX_UPLOAD_MB || 8) * 1024 * 1024,
-    files:8
+    files:MAX_MEMORY_IMAGES
   },
   fileFilter(req, file, cb){
     if(allowedImageTypes.has(file.mimetype)){
@@ -58,14 +59,27 @@ const upload = multer({
 });
 
 const memoryImagesUpload = (req, res, next) => {
-  upload.array("images", 8)(req, res, (error) => {
+  upload.array("images", MAX_MEMORY_IMAGES)(req, res, (error) => {
     if(!error){
       next();
       return;
     }
 
+    (req.files || []).forEach((file) => {
+      if(file?.path){
+        fs.rmSync(file.path, {force:true});
+      }
+    });
+
     if(error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE"){
       return res.status(413).json({message:`Each image must be ${process.env.MAX_UPLOAD_MB || 8}MB or smaller`});
+    }
+
+    if(
+      error instanceof multer.MulterError &&
+      (error.code === "LIMIT_FILE_COUNT" || error.code === "LIMIT_UNEXPECTED_FILE")
+    ){
+      return res.status(400).json({message:`Maximum is ${MAX_MEMORY_IMAGES} images`});
     }
 
     return res.status(400).json({message:error.message || "Upload failed"});

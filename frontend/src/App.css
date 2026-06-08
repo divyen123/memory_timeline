@@ -4564,7 +4564,116 @@ body.light .file-label{
 
 .add-memory-page input[type="file"]{
   padding:6px 0;
-  margin-bottom:12px;
+  margin-bottom:8px;
+}
+
+.upload-helper{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin:-2px 0 12px;
+  color:rgba(255,255,255,0.72);
+  font-size:13px;
+  line-height:1.45;
+}
+
+body.light .upload-helper{
+  color:rgba(44,44,44,0.68);
+}
+
+.add-memory-page .upload-helper button{
+  width:auto;
+  min-width:0;
+  min-height:0;
+  margin:0;
+  padding:7px 12px;
+  flex:0 0 auto;
+  border-radius:999px;
+  background:rgba(255,75,125,0.18);
+  border:1px solid rgba(255,255,255,0.18);
+  color:white;
+  font-size:12px;
+  box-shadow:none;
+}
+
+body.light .add-memory-page .upload-helper button{
+  border-color:rgba(44,44,44,0.12);
+  color:#2c2c2c;
+  background:rgba(255,75,125,0.12);
+}
+
+.selected-files-panel{
+  margin:-2px 0 13px;
+  padding:12px;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;
+  background:rgba(255,255,255,0.06);
+}
+
+body.light .selected-files-panel{
+  border-color:rgba(44,44,44,0.1);
+  background:rgba(255,255,255,0.36);
+}
+
+.selected-files-header{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:9px;
+  color:white;
+}
+
+body.light .selected-files-header{
+  color:#2c2c2c;
+}
+
+.selected-files-header small{
+  color:rgba(255,255,255,0.55);
+  font-size:12px;
+}
+
+body.light .selected-files-header small{
+  color:rgba(44,44,44,0.5);
+}
+
+.selected-files-list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:7px;
+  max-height:128px;
+  overflow:auto;
+  padding-right:3px;
+}
+
+.selected-files-list span{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  padding:8px 10px;
+  border-radius:11px;
+  background:rgba(14,14,44,0.28);
+  color:rgba(255,255,255,0.86);
+  font-size:13px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+body.light .selected-files-list span{
+  background:rgba(255,255,255,0.45);
+  color:rgba(44,44,44,0.78);
+}
+
+.selected-files-list small{
+  flex:0 0 auto;
+  color:rgba(255,255,255,0.52);
+}
+
+body.light .selected-files-list small{
+  color:rgba(44,44,44,0.5);
 }
 
 .add-memory-page button{
@@ -5320,6 +5429,17 @@ body.light .calendar-memory{
   .story-hero img{
     object-fit:contain;
     object-position:center !important;
+  }
+
+  .upload-helper,
+  .selected-files-header{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:7px;
+  }
+
+  .add-memory-page .upload-helper button{
+    align-self:flex-start;
   }
 }
 

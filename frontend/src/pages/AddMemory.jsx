@@ -4,6 +4,42 @@ import { useNavigate, useLocation } from "react-router-dom";
 import PageTransition from "../components/PageTransition";
 import { playAppSound } from "../sound";
 
+const MAX_MEMORY_IMAGES = 10;
+const MAX_IMAGE_MB = 8;
+const ACCEPTED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif"
+]);
+const ACCEPTED_IMAGE_EXTENSIONS = [".jpg",".jpeg",".png",".webp",".gif"];
+
+const formatFileSize = (bytes) => {
+  if(bytes < 1024 * 1024){
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const isAcceptedImage = (file) => {
+  const fileName = file.name.toLowerCase();
+  return ACCEPTED_IMAGE_TYPES.has(file.type) ||
+    ACCEPTED_IMAGE_EXTENSIONS.some((extension)=>fileName.endsWith(extension));
+};
+
+const getUploadErrorMessage = (err) => {
+  if(err.response?.data?.message){
+    return err.response.data.message;
+  }
+
+  if(err.response?.status === 413){
+    return `Each image must be ${MAX_IMAGE_MB}MB or smaller`;
+  }
+
+  return "Operation failed";
+};
+
 function AddMemory() {
 
   const navigate = useNavigate();
@@ -13,6 +49,7 @@ function AddMemory() {
   const isEditing = Boolean(editingMemory);
   const editorRef = useRef(null);
   const selectionRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const [title, setTitle] = useState(editingMemory?.title || "");
   const [description, setDescription] = useState(editingMemory?.description || "");
@@ -22,6 +59,45 @@ function AddMemory() {
   const [images, setImages] = useState([]);
   const [message, setMessage] = useState("");
   const categories = ["Personal","Family","Friends","Travel","School","Work","Other"];
+
+  const validateImages = (files) => {
+    if(files.length > MAX_MEMORY_IMAGES){
+      return `Maximum is ${MAX_MEMORY_IMAGES} images`;
+    }
+
+    const invalidFile = files.find((file)=>!isAcceptedImage(file));
+    if(invalidFile){
+      return "Only JPG, PNG, WebP, and GIF images are allowed";
+    }
+
+    const oversizedFile = files.find((file)=>file.size > MAX_IMAGE_MB * 1024 * 1024);
+    if(oversizedFile){
+      return `Each image must be ${MAX_IMAGE_MB}MB or smaller`;
+    }
+
+    return "";
+  };
+
+  const handleImagesChange = (event) => {
+    const selectedImages = Array.from(event.target.files || []);
+    const validationMessage = validateImages(selectedImages);
+
+    if(validationMessage){
+      setImages([]);
+      setMessage(validationMessage);
+      event.target.value = "";
+      return;
+    }
+
+    setImages(selectedImages);
+  };
+
+  const clearImages = () => {
+    setImages([]);
+    if(fileInputRef.current){
+      fileInputRef.current.value = "";
+    }
+  };
 
   useEffect(()=>{
     if(editorRef.current && editorRef.current.innerHTML !== description){
@@ -65,6 +141,12 @@ function AddMemory() {
       formData.append("category",category);
       formData.append("reminderDate",reminderDate);
 
+      const validationMessage = validateImages(images);
+      if(validationMessage){
+        setMessage(validationMessage);
+        return;
+      }
+
       images.forEach((image)=>{
         formData.append("images",image);
       });
@@ -94,7 +176,7 @@ function AddMemory() {
         setDate("");
         setCategory("Personal");
         setReminderDate("");
-        setImages([]);
+        clearImages();
 
       }
 
@@ -102,7 +184,7 @@ function AddMemory() {
     catch(err){
 
       console.error(err);
-      setMessage(err.response?.data?.message || "Operation failed");
+      setMessage(getUploadErrorMessage(err));
 
     }
 
@@ -184,12 +266,39 @@ function AddMemory() {
         )}
 
         <input
+          ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif"
           multiple
-          onChange={(e)=>setImages(Array.from(e.target.files))}
+          onChange={handleImagesChange}
           required={!isEditing}
         />
+
+        <div className="upload-helper">
+          <span>Upload up to {MAX_MEMORY_IMAGES} images. JPG, PNG, WebP, and GIF are supported.</span>
+          {images.length > 0 && (
+            <button type="button" onClick={clearImages}>
+              Clear
+            </button>
+          )}
+        </div>
+
+        {images.length > 0 && (
+          <div className="selected-files-panel">
+            <div className="selected-files-header">
+              <strong>{images.length} {images.length === 1 ? "image" : "images"} selected</strong>
+              <small>Maximum {MAX_MEMORY_IMAGES}</small>
+            </div>
+            <div className="selected-files-list">
+              {images.map((image)=>(
+                <span key={`${image.name}-${image.size}`}>
+                  {image.name}
+                  <small>{formatFileSize(image.size)}</small>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         <button type="submit">
           {isEditing ? "Update Memory" : "Add Memory"}

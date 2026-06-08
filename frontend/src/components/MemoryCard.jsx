@@ -24,6 +24,7 @@ function MemoryCard({
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
   const displayImages = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
+  const cardImages = memory.thumbnails?.length ? memory.thumbnails : displayImages;
 
   useEffect(() => {
 
@@ -101,8 +102,8 @@ function MemoryCard({
         )}
 
         <div className={`memory-photo-wrap collage-${Math.min(displayImages.length || 1, 4)}`}>
-          {displayImages[0] ? (
-            displayImages.slice(0,4).map((image, imageIndex)=>(
+          {cardImages[0] ? (
+            cardImages.slice(0,4).map((image, imageIndex)=>(
               <SmartImage
                 key={`${image}-${imageIndex}`}
                 src={getImageUrl(image)}

@@ -96,6 +96,8 @@ function PublicShare() {
                       key={`${memory._id}-${index}`}
                       src={getImageUrl(image)}
                       alt={`${memory.title}${images.length > 1 ? ` ${index + 1}` : ""}`}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      decoding="async"
                     />
                   ))}
                 </div>

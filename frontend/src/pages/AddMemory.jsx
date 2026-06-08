@@ -13,6 +13,8 @@ const ACCEPTED_IMAGE_TYPES = new Set([
   "image/gif"
 ]);
 const ACCEPTED_IMAGE_EXTENSIONS = [".jpg",".jpeg",".png",".webp",".gif"];
+const OPTIMIZED_IMAGE_MAX_EDGE = 1920;
+const OPTIMIZED_IMAGE_QUALITY = 0.82;
 
 const formatFileSize = (bytes) => {
   if(bytes < 1024 * 1024){
@@ -40,6 +42,75 @@ const getUploadErrorMessage = (err) => {
   return "Operation failed";
 };
 
+const loadImageForOptimization = (file) => new Promise((resolve, reject) => {
+  const objectUrl = URL.createObjectURL(file);
+  const image = new Image();
+
+  image.onload = () => {
+    URL.revokeObjectURL(objectUrl);
+    resolve(image);
+  };
+  image.onerror = () => {
+    URL.revokeObjectURL(objectUrl);
+    reject(new Error("Image optimization failed"));
+  };
+  image.src = objectUrl;
+});
+
+const canvasToBlob = (canvas, type, quality) => new Promise((resolve, reject) => {
+  canvas.toBlob((blob) => {
+    if(blob){
+      resolve(blob);
+      return;
+    }
+
+    reject(new Error("Image optimization failed"));
+  }, type, quality);
+});
+
+const optimizeImageFile = async (file) => {
+  if(file.type === "image/gif"){
+    return file;
+  }
+
+  try{
+    const image = await loadImageForOptimization(file);
+    const scale = Math.min(
+      1,
+      OPTIMIZED_IMAGE_MAX_EDGE / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height)
+    );
+    const width = Math.max(1, Math.round((image.naturalWidth || image.width) * scale));
+    const height = Math.max(1, Math.round((image.naturalHeight || image.height) * scale));
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d", {alpha:false});
+
+    if(!context){
+      return file;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    context.drawImage(image, 0, 0, width, height);
+
+    const blob = await canvasToBlob(canvas, "image/webp", OPTIMIZED_IMAGE_QUALITY);
+
+    if(blob.size >= file.size){
+      return file;
+    }
+
+    const optimizedName = file.name.replace(/\.[^.]+$/, "") || "memory-image";
+
+    return new File([blob], `${optimizedName}.webp`, {
+      type:"image/webp",
+      lastModified:Date.now()
+    });
+  }catch{
+    return file;
+  }
+};
+
+const optimizeImages = async (files) => Promise.all(files.map(optimizeImageFile));
+
 function AddMemory() {
 
   const navigate = useNavigate();
@@ -58,6 +129,7 @@ function AddMemory() {
   const [reminderDate, setReminderDate] = useState(editingMemory?.reminderDate?.split("T")[0] || "");
   const [images, setImages] = useState([]);
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const categories = ["Personal","Family","Friends","Travel","School","Work","Other"];
 
   const validateImages = (files) => {
@@ -131,6 +203,9 @@ function AddMemory() {
 
     e.preventDefault();
 
+    setIsSubmitting(true);
+    setMessage(images.length ? "Optimizing images..." : "");
+
     try{
 
       const formData = new FormData();
@@ -147,7 +222,15 @@ function AddMemory() {
         return;
       }
 
-      images.forEach((image)=>{
+      const optimizedImages = await optimizeImages(images);
+      const optimizedValidationMessage = validateImages(optimizedImages);
+
+      if(optimizedValidationMessage){
+        setMessage(optimizedValidationMessage);
+        return;
+      }
+
+      optimizedImages.forEach((image)=>{
         formData.append("images",image);
       });
 
@@ -186,6 +269,8 @@ function AddMemory() {
       console.error(err);
       setMessage(getUploadErrorMessage(err));
 
+    }finally{
+      setIsSubmitting(false);
     }
 
   };
@@ -300,8 +385,8 @@ function AddMemory() {
           </div>
         )}
 
-        <button type="submit">
-          {isEditing ? "Update Memory" : "Add Memory"}
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : (isEditing ? "Update Memory" : "Add Memory")}
         </button>
 
         <button

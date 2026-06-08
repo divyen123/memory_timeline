@@ -141,7 +141,7 @@ const createDeliverySignature = (resourcePath) => {
     .slice(0, 8);
 };
 
-const signCloudinaryImageUrl = (image) => {
+const signCloudinaryImageUrl = (image, transformation = "") => {
   if(!image || !isCloudinaryConfigured()){
     return image;
   }
@@ -161,8 +161,11 @@ const signCloudinaryImageUrl = (image) => {
       return image;
     }
 
-    const signature = createDeliverySignature(resourcePath);
-    return `${url.origin}${marker}s--${signature}--/${resourcePath}`;
+    const transformedResourcePath = transformation
+      ? `${transformation}/${resourcePath}`
+      : resourcePath;
+    const signature = createDeliverySignature(transformedResourcePath);
+    return `${url.origin}${marker}s--${signature}--/${transformedResourcePath}`;
   }catch{
     return image;
   }
@@ -244,11 +247,15 @@ const withSignedImages = async (memory) => {
   const data = memory.toObject ? memory.toObject() : memory;
   const images = data.images?.length ? data.images : (data.image ? [data.image] : []);
   const signedImages = await Promise.all(images.map(signImageUrl));
+  const signedThumbnails = isCloudinaryConfigured()
+    ? images.map((image) => signCloudinaryImageUrl(image, "c_fill,w_720,h_560,q_auto,f_auto"))
+    : signedImages;
 
   return {
     ...data,
     image:signedImages[0] || data.image || "",
-    images:signedImages
+    images:signedImages,
+    thumbnails:signedThumbnails
   };
 };
 
@@ -324,7 +331,8 @@ exports.getMemories = async (req, res) => {
       Memory.find(query)
         .sort({ date: sortOrder })
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Memory.countDocuments(query)
     ]);
 

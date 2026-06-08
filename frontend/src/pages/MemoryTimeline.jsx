@@ -1123,6 +1123,7 @@ function MemoryTimeline() {
                   {items.map((memory)=>{
                     const memoryDate = new Date(memory.date);
                     const memoryImages = getMemoryImages(memory);
+                    const calendarImages = memory.thumbnails?.length ? memory.thumbnails : memoryImages;
                     const formattedCalendarDate = memoryDate.toLocaleDateString("en-GB", {
                       day:"2-digit",
                       month:"short",
@@ -1144,10 +1145,10 @@ function MemoryTimeline() {
                       {exportPanel === "selected" && (
                         <i aria-hidden="true">{selectedMemoryIds.includes(memory._id) ? "\u2713" : ""}</i>
                       )}
-                      <span className={`calendar-memory-thumbnail ${memoryImages[0] ? "" : "empty"}`}>
-                        {memoryImages[0] ? (
+                      <span className={`calendar-memory-thumbnail ${calendarImages[0] ? "" : "empty"}`}>
+                        {calendarImages[0] ? (
                           <SmartImage
-                            src={getImageUrl(memoryImages[0])}
+                            src={getImageUrl(calendarImages[0])}
                             alt=""
                           />
                         ) : (

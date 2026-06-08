@@ -1429,6 +1429,8 @@ body.top-actions-left .reminder-popover{
   padding:34px 0 0;
   position:relative;
   width:100%;
+  content-visibility:auto;
+  contain-intrinsic-size:320px;
 }
 
 .timeline-item.left,
@@ -5076,6 +5078,8 @@ select{
   padding:22px;
   overflow:hidden;
   border-radius:24px;
+  content-visibility:auto;
+  contain-intrinsic-size:290px;
   background:
     linear-gradient(145deg,rgba(255,255,255,0.12),rgba(255,255,255,0.065));
   border:1px solid rgba(255,255,255,0.18);

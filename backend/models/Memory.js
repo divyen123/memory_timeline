@@ -55,4 +55,9 @@ const memorySchema = new mongoose.Schema({
   }
 });
 
+memorySchema.index({userId:1, date:-1});
+memorySchema.index({userId:1, category:1, date:-1});
+memorySchema.index({userId:1, favorite:1, date:-1});
+memorySchema.index({publicToken:1}, {sparse:true});
+
 module.exports = mongoose.model("Memory",memorySchema);

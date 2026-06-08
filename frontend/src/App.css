@@ -4074,6 +4074,12 @@ body.light .days-counter{
     gap:10px;
   }
 
+  .timeline-controls > :nth-child(5),
+  .timeline-controls > :nth-child(6),
+  .timeline-controls > :nth-child(7){
+    margin-left:29px;
+  }
+
   .timeline-search-shell{
     width:48px;
     height:48px;
@@ -4440,6 +4446,12 @@ body.light .days-counter{
   .timeline-controls{
     grid-template-columns:repeat(4,46px);
     gap:8px;
+  }
+
+  .timeline-controls > :nth-child(5),
+  .timeline-controls > :nth-child(6),
+  .timeline-controls > :nth-child(7){
+    margin-left:27px;
   }
 
   .timeline-search-shell{

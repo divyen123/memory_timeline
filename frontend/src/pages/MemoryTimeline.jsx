@@ -1066,6 +1066,12 @@ function MemoryTimeline() {
                 <div className="calendar-grid">
                   {items.map((memory)=>{
                     const memoryDate = new Date(memory.date);
+                    const memoryImages = getMemoryImages(memory);
+                    const formattedCalendarDate = memoryDate.toLocaleDateString("en-GB", {
+                      day:"2-digit",
+                      month:"short",
+                      year:"numeric"
+                    });
 
                     return (
                     <button
@@ -1082,13 +1088,22 @@ function MemoryTimeline() {
                       {exportPanel === "selected" && (
                         <i aria-hidden="true">{selectedMemoryIds.includes(memory._id) ? "\u2713" : ""}</i>
                       )}
-                      <span className="calendar-date-badge">
-                        <strong>{memoryDate.getDate()}</strong>
-                        <small>{memoryDate.toLocaleDateString("en-GB", {weekday:"short"})}</small>
+                      <span className={`calendar-memory-thumbnail ${memoryImages[0] ? "" : "empty"}`}>
+                        {memoryImages[0] ? (
+                          <SmartImage
+                            src={getImageUrl(memoryImages[0])}
+                            alt=""
+                          />
+                        ) : (
+                          <strong>{memory.title?.slice(0,1) || "M"}</strong>
+                        )}
                       </span>
                       <span className="calendar-memory-copy">
                         <strong>{memory.title}</strong>
-                        <small>{memory.category || "Personal"}</small>
+                        <span className="calendar-memory-meta">
+                          <small>{memory.category || "Personal"}</small>
+                          <time dateTime={memory.date}>{formattedCalendarDate}</time>
+                        </span>
                       </span>
                       <span className="calendar-memory-arrow" aria-hidden="true">&#8594;</span>
                     </button>

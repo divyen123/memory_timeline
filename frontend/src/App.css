@@ -4736,7 +4736,7 @@ select{
   margin:0;
   padding:10px 38px 10px 10px;
   display:grid;
-  grid-template-columns:48px minmax(0,1fr);
+  grid-template-columns:58px minmax(0,1fr);
   align-items:center;
   gap:11px;
   overflow:hidden;
@@ -4758,32 +4758,40 @@ select{
   box-shadow:0 14px 30px rgba(4,5,22,0.24);
 }
 
-.calendar-date-badge{
-  width:48px;
-  height:54px;
+.calendar-memory-thumbnail{
+  position:relative;
+  width:58px;
+  height:58px;
   margin:0;
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
   border:1px solid rgba(255,255,255,0.16);
   border-radius:12px;
-  background:linear-gradient(145deg,rgba(255,75,125,0.92),rgba(108,99,255,0.88));
+  overflow:hidden;
+  background:linear-gradient(145deg,rgba(255,75,125,0.86),rgba(108,99,255,0.86));
   box-shadow:0 8px 18px rgba(16,12,48,0.28);
 }
 
-.calendar-date-badge strong{
-  font-size:21px;
-  line-height:1;
+.calendar-memory-thumbnail::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.12);
 }
 
-.calendar-date-badge small{
-  margin-top:4px;
-  color:rgba(255,255,255,0.78);
-  font-size:8px;
-  font-weight:800;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
+.calendar-memory-thumbnail img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+
+.calendar-memory-thumbnail.empty strong{
+  color:white;
+  font-size:24px;
+  line-height:1;
 }
 
 .calendar-memory-copy{
@@ -4804,11 +4812,36 @@ select{
   line-height:1.25;
 }
 
-.calendar-memory-copy small{
-  margin-top:5px;
-  color:rgba(255,255,255,0.55);
-  font-size:10px;
-  font-weight:700;
+.calendar-memory-meta{
+  margin-top:7px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  overflow:hidden;
+}
+
+.calendar-memory-meta small,
+.calendar-memory-meta time{
+  min-width:0;
+  padding:4px 7px;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:999px;
+  background:rgba(255,255,255,0.09);
+  color:rgba(255,255,255,0.68);
+  font-size:8px;
+  font-weight:800;
+  line-height:1;
+  white-space:nowrap;
+}
+
+.calendar-memory-meta small{
+  max-width:46%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.calendar-memory-meta time{
+  color:rgba(255,255,255,0.82);
 }
 
 .calendar-memory-arrow{
@@ -4905,32 +4938,34 @@ body.light .calendar-memory{
   .calendar-memory{
     min-height:68px;
     padding:8px 27px 8px 8px;
-    grid-template-columns:41px minmax(0,1fr);
+    grid-template-columns:48px minmax(0,1fr);
     gap:8px;
     border-radius:13px;
   }
 
-  .calendar-date-badge{
-    width:41px;
-    height:48px;
+  .calendar-memory-thumbnail{
+    width:48px;
+    height:52px;
     border-radius:10px;
   }
 
-  .calendar-date-badge strong{
-    font-size:18px;
-  }
-
-  .calendar-date-badge small{
-    font-size:7px;
+  .calendar-memory-thumbnail.empty strong{
+    font-size:20px;
   }
 
   .calendar-memory-copy strong{
     font-size:12px;
   }
 
-  .calendar-memory-copy small{
-    margin-top:4px;
-    font-size:9px;
+  .calendar-memory-meta{
+    margin-top:5px;
+    gap:4px;
+  }
+
+  .calendar-memory-meta small,
+  .calendar-memory-meta time{
+    padding:3px 5px;
+    font-size:7px;
   }
 
   .calendar-memory-arrow{
@@ -4953,13 +4988,13 @@ body.light .calendar-memory{
   }
 
   .calendar-memory{
-    grid-template-columns:38px minmax(0,1fr);
+    grid-template-columns:44px minmax(0,1fr);
     padding-right:8px;
   }
 
-  .calendar-date-badge{
-    width:38px;
-    height:46px;
+  .calendar-memory-thumbnail{
+    width:44px;
+    height:48px;
   }
 
   .calendar-memory-arrow{

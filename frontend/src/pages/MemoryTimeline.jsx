@@ -44,6 +44,7 @@ function MemoryTimeline() {
   const lastSoundReminderRef = useRef("");
   const reminderMenuRef = useRef(null);
   const filterMenuRef = useRef(null);
+  const previewHistoryGuardRef = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
   const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
@@ -641,6 +642,11 @@ function MemoryTimeline() {
     setPreviewImageIndex(index => (index + 1) % images.length);
   };
 
+  const closePreviewToTimeline = () => {
+    setPreviewMemory(null);
+    navigate("/timeline", {replace:true});
+  };
+
   useEffect(() => {
 
     if(message){
@@ -676,6 +682,30 @@ function MemoryTimeline() {
   useEffect(() => {
     setPreviewImageIndex(0);
   }, [previewMemory?._id]);
+
+  useEffect(() => {
+    if(!previewMemory){
+      previewHistoryGuardRef.current = false;
+      return;
+    }
+
+    if(!previewHistoryGuardRef.current){
+      previewHistoryGuardRef.current = true;
+      window.history.pushState({memoryPreviewBackGuard:true}, "", window.location.href);
+    }
+
+    const handlePreviewBrowserBack = () => {
+      previewHistoryGuardRef.current = false;
+      setPreviewMemory(null);
+      navigate("/timeline", {replace:true});
+    };
+
+    window.addEventListener("popstate", handlePreviewBrowserBack);
+
+    return () => {
+      window.removeEventListener("popstate", handlePreviewBrowserBack);
+    };
+  }, [navigate, previewMemory]);
 
   useEffect(() => {
     if(showSearch){
@@ -1260,11 +1290,20 @@ function MemoryTimeline() {
         className="preview-overlay"
         onClick={()=>{
           if(!previewDeleteActive){
-            setPreviewMemory(null);
+            closePreviewToTimeline();
           }
         }}
       >
         <div className="preview-dialog" onClick={(event)=>event.stopPropagation()}>
+          <button
+            type="button"
+            className="preview-back-btn"
+            aria-label="Back to all memories"
+            onClick={closePreviewToTimeline}
+          >
+            &#8592;
+          </button>
+
           <div className="preview-media">
             {currentPreviewImage && (
               <SmartImage

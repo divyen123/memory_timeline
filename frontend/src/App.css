@@ -272,6 +272,15 @@ body.light .login-brand p{
   animation:introSheen 2.4s ease both;
 }
 
+.remotion-intro-content{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+
 .remotion-intro-logo-wrap{
   width:132px;
   height:132px;
@@ -401,6 +410,12 @@ body.light .login-brand p{
   border-radius:50%;
   background:white;
   border:4px solid #ff4b7d;
+}
+
+.remotion-intro-kicker,
+.remotion-intro-footer,
+.remotion-intro-ambient{
+  display:none;
 }
 
 @keyframes introSheen{
@@ -3136,6 +3151,169 @@ body.light .rich-editor:empty:before{
     grid-template-columns:1fr;
   }
 
+}
+
+@media (max-width:760px){
+  .login-intro-overlay.mobile{
+    background:#08081d;
+  }
+
+  .login-intro-overlay.mobile > div{
+    width:100% !important;
+    height:100% !important;
+  }
+
+  .remotion-intro-frame.mobile{
+    padding:
+      calc(34px + env(safe-area-inset-top))
+      24px
+      calc(28px + env(safe-area-inset-bottom));
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-sheen{
+    inset:-10% -80%;
+    opacity:0.72;
+    background:linear-gradient(118deg,transparent 36%,rgba(255,255,255,0.07) 45%,transparent 54%);
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-content{
+    width:100%;
+    margin-top:-2vh;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-logo-wrap{
+    width:126px;
+    height:126px;
+    border-radius:34px;
+    box-shadow:
+      0 28px 72px rgba(255,75,125,0.35),
+      0 0 0 10px rgba(255,255,255,0.025),
+      0 0 0 1px rgba(255,255,255,0.28) inset;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-logo{
+    width:78px;
+    height:78px;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-heart{
+    font-size:52px;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-timeline{
+    bottom:13px;
+    height:5px;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-dot{
+    bottom:6px;
+    width:18px;
+    height:18px;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-title{
+    max-width:330px;
+    margin:34px 0 10px;
+    font-size:42px;
+    line-height:1.04;
+    letter-spacing:-1px;
+    text-wrap:balance;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-subtitle{
+    max-width:290px;
+    font-size:15px;
+    line-height:1.55;
+    letter-spacing:0.01em;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-line{
+    width:min(280px,76vw);
+    height:4px;
+    margin-top:34px;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-line i{
+    width:15px;
+    height:15px;
+    border-width:3px;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-kicker{
+    position:absolute;
+    top:calc(34px + env(safe-area-inset-top));
+    left:0;
+    right:0;
+    z-index:2;
+    display:block;
+    margin:0;
+    color:rgba(255,255,255,0.54);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:0.16em;
+    text-align:center;
+    text-transform:uppercase;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-footer{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:calc(30px + env(safe-area-inset-bottom));
+    z-index:2;
+    display:block;
+    color:rgba(255,255,255,0.38);
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:0.22em;
+    text-align:center;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-ambient{
+    position:absolute;
+    display:block;
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:50%;
+    pointer-events:none;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-ambient.top{
+    width:310px;
+    height:310px;
+    top:-156px;
+    right:-148px;
+    background:radial-gradient(circle,rgba(108,99,255,0.12),transparent 66%);
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-ambient.bottom{
+    width:360px;
+    height:360px;
+    left:-205px;
+    bottom:-196px;
+    background:radial-gradient(circle,rgba(255,75,125,0.1),transparent 68%);
+  }
+}
+
+@media (max-width:380px){
+  .remotion-intro-frame.mobile .remotion-intro-logo-wrap{
+    width:112px;
+    height:112px;
+    border-radius:30px;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-logo{
+    width:70px;
+    height:70px;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-heart{
+    font-size:46px;
+  }
+
+  .remotion-intro-frame.mobile .remotion-intro-title{
+    margin-top:30px;
+    font-size:36px;
+  }
 }
 
 /* ================= SCROLL ANIMATION ================= */

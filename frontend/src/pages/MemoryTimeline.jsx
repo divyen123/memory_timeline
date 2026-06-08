@@ -1054,9 +1054,20 @@ function MemoryTimeline() {
           <div className="calendar-view">
             {Object.entries(memoriesByMonth).map(([month, items])=>(
               <div className="calendar-month" key={month}>
-                <h3>{month}</h3>
+                <div className="calendar-month-heading">
+                  <div>
+                    <span className="calendar-month-kicker">Memory collection</span>
+                    <h3>{month}</h3>
+                  </div>
+                  <span className="calendar-month-count">
+                    {items.length} {items.length === 1 ? "memory" : "memories"}
+                  </span>
+                </div>
                 <div className="calendar-grid">
-                  {items.map((memory)=>(
+                  {items.map((memory)=>{
+                    const memoryDate = new Date(memory.date);
+
+                    return (
                     <button
                       key={memory._id}
                       className={`calendar-memory ${selectedMemoryIds.includes(memory._id) ? "selected" : ""}`}
@@ -1071,10 +1082,18 @@ function MemoryTimeline() {
                       {exportPanel === "selected" && (
                         <i aria-hidden="true">{selectedMemoryIds.includes(memory._id) ? "\u2713" : ""}</i>
                       )}
-                      <span>{new Date(memory.date).getDate()}</span>
-                      {memory.title}
+                      <span className="calendar-date-badge">
+                        <strong>{memoryDate.getDate()}</strong>
+                        <small>{memoryDate.toLocaleDateString("en-GB", {weekday:"short"})}</small>
+                      </span>
+                      <span className="calendar-memory-copy">
+                        <strong>{memory.title}</strong>
+                        <small>{memory.category || "Personal"}</small>
+                      </span>
+                      <span className="calendar-memory-arrow" aria-hidden="true">&#8594;</span>
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}

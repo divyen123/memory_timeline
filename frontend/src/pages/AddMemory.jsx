@@ -9,10 +9,9 @@ const MAX_IMAGE_MB = 8;
 const ACCEPTED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
-  "image/webp",
-  "image/gif"
+  "image/webp"
 ]);
-const ACCEPTED_IMAGE_EXTENSIONS = [".jpg",".jpeg",".png",".webp",".gif"];
+const ACCEPTED_IMAGE_EXTENSIONS = [".jpg",".jpeg",".png",".webp"];
 const OPTIMIZED_IMAGE_MAX_EDGE = 1920;
 const OPTIMIZED_IMAGE_QUALITY = 0.82;
 
@@ -69,10 +68,6 @@ const canvasToBlob = (canvas, type, quality) => new Promise((resolve, reject) =>
 });
 
 const optimizeImageFile = async (file) => {
-  if(file.type === "image/gif"){
-    return file;
-  }
-
   try{
     const image = await loadImageForOptimization(file);
     const scale = Math.min(
@@ -139,7 +134,7 @@ function AddMemory() {
 
     const invalidFile = files.find((file)=>!isAcceptedImage(file));
     if(invalidFile){
-      return "Only JPG, PNG, WebP, and GIF images are allowed";
+      return "Only JPG, PNG, and WebP images are allowed";
     }
 
     const oversizedFile = files.find((file)=>file.size > MAX_IMAGE_MB * 1024 * 1024);
@@ -353,14 +348,14 @@ function AddMemory() {
         <input
           ref={fileInputRef}
           type="file"
-          accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
           multiple
           onChange={handleImagesChange}
           required={!isEditing}
         />
 
         <div className="upload-helper">
-          <span>Upload up to {MAX_MEMORY_IMAGES} images. JPG, PNG, WebP, and GIF are supported.</span>
+          <span>Upload up to {MAX_MEMORY_IMAGES} images. JPG, PNG, and WebP are supported.</span>
           {images.length > 0 && (
             <button type="button" onClick={clearImages}>
               Clear

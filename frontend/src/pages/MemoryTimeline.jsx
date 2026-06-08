@@ -38,8 +38,19 @@ function MemoryTimeline() {
   const [exportFavoritesOnly, setExportFavoritesOnly] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [settings, setSettings] = useState(()=>loadSettings());
+  const [virtualRange, setVirtualRange] = useState({
+    start:0,
+    end:30,
+    beforeHeight:0,
+    afterHeight:0
+  });
+  const [virtualMetrics, setVirtualMetrics] = useState({
+    columns:5,
+    rowHeight:330
+  });
 
   const loadMoreRef = useRef(null);
+  const timelineRef = useRef(null);
   const searchInputRef = useRef(null);
   const lastSoundReminderRef = useRef("");
   const reminderMenuRef = useRef(null);
@@ -48,6 +59,7 @@ function MemoryTimeline() {
   const navigate = useNavigate();
   const location = useLocation();
   const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
+  const shouldVirtualizeTimeline = viewMode === "timeline" && memories.length > 30;
 
   const loadMemories = useCallback(async (nextPage = 1, replace = false) => {
     setLoading(true);
@@ -75,6 +87,96 @@ function MemoryTimeline() {
   useEffect(() => {
     loadMemories(1, true);
   }, [loadMemories]);
+
+  const measureTimeline = useCallback(() => {
+    const timeline = timelineRef.current;
+
+    if(!timeline){
+      return;
+    }
+
+    const styles = window.getComputedStyle(timeline);
+    const columns = styles.gridTemplateColumns
+      .split(" ")
+      .filter(Boolean)
+      .length || 1;
+    const rowGap = Number.parseFloat(styles.rowGap) || 0;
+    const firstItem = timeline.querySelector(".timeline-item");
+    const itemHeight = firstItem?.getBoundingClientRect().height || 300;
+
+    setVirtualMetrics({
+      columns,
+      rowHeight:Math.max(160, itemHeight + rowGap)
+    });
+  }, []);
+
+  const updateVirtualRange = useCallback(() => {
+    if(!shouldVirtualizeTimeline || !timelineRef.current){
+      setVirtualRange({
+        start:0,
+        end:memories.length,
+        beforeHeight:0,
+        afterHeight:0
+      });
+      return;
+    }
+
+    const timelineTop = timelineRef.current.getBoundingClientRect().top + window.scrollY;
+    const viewportTop = window.scrollY;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 800;
+    const bufferHeight = viewportHeight * 1.35;
+    const firstVisibleY = Math.max(0, viewportTop - timelineTop - bufferHeight);
+    const lastVisibleY = Math.max(firstVisibleY, viewportTop - timelineTop + viewportHeight + bufferHeight);
+    const totalRows = Math.ceil(memories.length / virtualMetrics.columns);
+    const startRow = Math.max(0, Math.floor(firstVisibleY / virtualMetrics.rowHeight));
+    const endRow = Math.min(totalRows, Math.ceil(lastVisibleY / virtualMetrics.rowHeight) + 1);
+
+    setVirtualRange({
+      start:startRow * virtualMetrics.columns,
+      end:Math.min(memories.length, endRow * virtualMetrics.columns),
+      beforeHeight:startRow * virtualMetrics.rowHeight,
+      afterHeight:Math.max(0, (totalRows - endRow) * virtualMetrics.rowHeight)
+    });
+  }, [memories.length, shouldVirtualizeTimeline, virtualMetrics.columns, virtualMetrics.rowHeight]);
+
+  useEffect(() => {
+    measureTimeline();
+    updateVirtualRange();
+
+    const handleResize = () => {
+      measureTimeline();
+      updateVirtualRange();
+    };
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
+  }, [measureTimeline, updateVirtualRange, settings.cardSize]);
+
+  useEffect(() => {
+    if(!shouldVirtualizeTimeline){
+      updateVirtualRange();
+      return;
+    }
+
+    let frameId = 0;
+    const handleScroll = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(updateVirtualRange);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, {passive:true});
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [shouldVirtualizeTimeline, updateVirtualRange]);
 
   useEffect(() => {
     if(!showReminderPanel && !showFilterMenu){
@@ -734,6 +836,9 @@ function MemoryTimeline() {
   );
   const previewImages = previewMemory ? getMemoryImages(previewMemory) : [];
   const currentPreviewImage = previewImages[previewImageIndex] || previewImages[0];
+  const visibleTimelineMemories = shouldVirtualizeTimeline
+    ? memories.slice(virtualRange.start, virtualRange.end)
+    : memories;
 
   const getReminderKey = (memory) => (
     `memory-reminder-${memory._id}-${memory.reminderDate?.split("T")[0] || ""}`
@@ -1172,12 +1277,20 @@ function MemoryTimeline() {
           </div>
         ) : (
 
-          <div className="timeline">
-            {memories.map((memory, index) => (
+          <div className="timeline" ref={timelineRef}>
+            {shouldVirtualizeTimeline && virtualRange.beforeHeight > 0 && (
+              <div
+                className="timeline-virtual-spacer"
+                style={{height:virtualRange.beforeHeight}}
+                aria-hidden="true"
+              />
+            )}
+
+            {visibleTimelineMemories.map((memory, index) => (
               <MemoryCard
-                key={`${memory._id}-${index}`}
+                key={memory._id}
                 memory={memory}
-                index={index}
+                index={virtualRange.start + index}
                 onDelete={handleDeleteRequest}
                 onFavorite={handleFavorite}
                 onPreview={setPreviewMemory}
@@ -1186,6 +1299,14 @@ function MemoryTimeline() {
                 onSelect={toggleMemorySelection}
               />
             ))}
+
+            {shouldVirtualizeTimeline && virtualRange.afterHeight > 0 && (
+              <div
+                className="timeline-virtual-spacer"
+                style={{height:virtualRange.afterHeight}}
+                aria-hidden="true"
+              />
+            )}
           </div>
 
         )}

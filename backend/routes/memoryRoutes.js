@@ -38,8 +38,7 @@ const storage = multer.diskStorage({
 const allowedImageTypes = new Set([
   "image/jpeg",
   "image/png",
-  "image/webp",
-  "image/gif"
+  "image/webp"
 ]);
 
 const upload = multer({
@@ -54,7 +53,7 @@ const upload = multer({
       return;
     }
 
-    cb(new Error("Only JPG, PNG, WebP, and GIF images are allowed"));
+    cb(new Error("Only JPG, PNG, and WebP images are allowed"));
   }
 });
 

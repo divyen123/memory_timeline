@@ -201,15 +201,23 @@ function Profile() {
             <h1>{name || "Name not set"}</h1>
 
             <div className="profile-info-list">
-              <div>
+              <div className="profile-info-tile">
                 <span>Name</span>
                 <strong>{name || "Not set"}</strong>
               </div>
-              <div>
+              <div className="profile-info-tile">
                 <span>Age</span>
                 <strong>{age !== "" ? `${age}` : "Not set"}</strong>
               </div>
-              <div>
+              <div className="profile-info-tile">
+                <span>Total memories</span>
+                <strong>{memoryCount}</strong>
+              </div>
+              <div className="profile-info-tile">
+                <span>Favorites</span>
+                <strong>{favoriteCount}</strong>
+              </div>
+              <div className="profile-info-tile profile-info-email">
                 <span>Email</span>
                 <strong>{email || "Not set"}</strong>
               </div>
@@ -527,10 +535,6 @@ function Profile() {
 
           <div className="profile-card">
             <h2>Profile</h2>
-            <div className="profile-stats">
-              <span>{memoryCount} memories</span>
-              <span>{favoriteCount} favorites</span>
-            </div>
 
             <form onSubmit={handleProfileUpdate}>
               <input

@@ -1491,6 +1491,7 @@ body.top-actions-left .reminder-popover{
   grid-template-columns:repeat(5,minmax(0,1fr));
   column-gap:18px;
   row-gap:54px;
+  overflow:visible;
 }
 
 .timeline::after{
@@ -1507,8 +1508,12 @@ body.top-actions-left .reminder-popover{
   padding:34px 0 0;
   position:relative;
   width:100%;
-  content-visibility:auto;
+  overflow:visible;
   contain-intrinsic-size:320px;
+}
+
+.timeline-item:hover{
+  z-index:20;
 }
 
 .timeline-item.left,
@@ -2586,6 +2591,9 @@ body.light .rich-editor:empty:before{
   top:50%;
   width:auto;
   height:auto;
+  min-width:0;
+  min-height:0;
+  margin:0;
   padding:0;
   overflow:visible;
   display:flex;
@@ -2593,13 +2601,17 @@ body.light .rich-editor:empty:before{
   justify-content:center;
   border-radius:0;
   background:transparent;
+  background-color:transparent !important;
   border:0;
+  outline:0;
   color:white;
   font-size:44px;
   font-family:Arial, sans-serif;
   line-height:1;
   text-shadow:0 8px 20px rgba(0,0,0,0.45);
   box-shadow:none;
+  appearance:none;
+  -webkit-appearance:none;
   backdrop-filter:none;
   opacity:0;
   pointer-events:none;
@@ -2627,6 +2639,20 @@ body.light .rich-editor:empty:before{
 
 .preview-image-nav.right{
   right:16px;
+}
+
+body.button-glass-on .preview-image-nav,
+body.button-glass-on .carousel-nav,
+.preview-image-nav,
+.carousel-nav{
+  width:auto !important;
+  min-width:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
 }
 
 .preview-image-count{
@@ -2765,14 +2791,21 @@ body.light .rich-editor:empty:before{
   transform:translateY(-50%);
   width:auto;
   height:auto;
+  min-width:0;
+  min-height:0;
+  margin:0;
   border-radius:0;
   background:transparent;
+  background-color:transparent !important;
   border:0;
+  outline:0;
   color:white;
   font-size:58px;
   line-height:1;
   padding:0;
   box-shadow:none;
+  appearance:none;
+  -webkit-appearance:none;
   text-shadow:0 10px 24px rgba(0,0,0,0.48);
   transition:color 0.22s ease, transform 0.22s ease;
 }

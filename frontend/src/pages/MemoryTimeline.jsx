@@ -1163,7 +1163,6 @@ function MemoryTimeline() {
             aria-expanded={Boolean(exportPanel)}
             onClick={()=>setExportPanel(exportPanel ? null : "menu")}
           >
-            📤
           </button>
           <button
             type="button"

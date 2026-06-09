@@ -1,4 +1,4 @@
-import React,{Suspense,useEffect,useState} from "react";
+import React,{Suspense,useCallback,useEffect,useRef,useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 
@@ -10,8 +10,18 @@ const [email,setEmail] = useState("");
 const [password,setPassword] = useState("");
 const [message,setMessage] = useState("");
 const [showIntro,setShowIntro] = useState(false);
+const introCompletedRef = useRef(false);
 
 const navigate = useNavigate();
+
+const finishIntro = useCallback(() => {
+  if(introCompletedRef.current){
+    return;
+  }
+
+  introCompletedRef.current = true;
+  navigate("/timeline");
+}, [navigate]);
 
 const handleLogin = async () => {
 
@@ -21,6 +31,7 @@ const handleLogin = async () => {
 
     localStorage.setItem("token", res.data.token);   // IMPORTANT
 
+    introCompletedRef.current = false;
     setShowIntro(true);
 
   } catch (err) {
@@ -37,11 +48,11 @@ useEffect(() => {
   }
 
   const timer = setTimeout(() => {
-    navigate("/timeline");
-  }, 3200);
+    finishIntro();
+  }, 3800);
 
   return () => clearTimeout(timer);
-}, [showIntro, navigate]);
+}, [finishIntro, showIntro]);
 
 return(
 
@@ -49,7 +60,7 @@ return(
 
 {showIntro && (
   <Suspense fallback={<div className="login-intro-overlay" />}>
-    <LoginIntroMotion />
+    <LoginIntroMotion onComplete={finishIntro} />
   </Suspense>
 )}
 

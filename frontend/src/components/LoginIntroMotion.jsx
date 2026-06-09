@@ -132,7 +132,7 @@ function MemoryTimelineIntro({mobile = false}){
   );
 }
 
-function LoginIntroMotion(){
+function LoginIntroMotion({onComplete}){
   const [mobile,setMobile] = useState(()=>window.matchMedia("(max-width: 760px)").matches);
   const [viewportSize,setViewportSize] = useState(()=>({
     width:window.innerWidth,
@@ -179,6 +179,7 @@ function LoginIntroMotion(){
         compositionHeight={compositionHeight}
         autoPlay
         controls={false}
+        onEnded={onComplete}
         style={{
           width:"100%",
           height:"100%"

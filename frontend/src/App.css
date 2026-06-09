@@ -4886,7 +4886,7 @@ select{
 
 @media (max-width:760px){
   :root{
-    --mobile-action-size:clamp(42px, var(--top-action-size), 62px);
+    --mobile-action-size:42px;
   }
 
   body{
@@ -4948,7 +4948,10 @@ select{
     right:auto;
   }
 
-  .timeline-container,
+  .timeline-container{
+    padding-top:calc(var(--mobile-action-size) + 18px);
+  }
+
   .profile-page,
   .details-page,
   .add-memory-page{
@@ -4957,7 +4960,7 @@ select{
 
   .timeline-title{
     --heading-font-size:30px;
-    margin:0 0 20px;
+    margin:0 0 12px;
     line-height:1.12;
   }
 

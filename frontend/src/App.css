@@ -5584,6 +5584,25 @@ body.light .calendar-memory{
   }
 }
 
+/* Desktop profile alignment: keep summary and lower cards on one centered frame. */
+@media (min-width:1200px){
+  .profile-page{
+    --profile-desktop-width:min(1470px, calc(100vw - 420px));
+  }
+
+  .profile-summary-card,
+  .profile-grid{
+    width:var(--profile-desktop-width);
+    max-width:calc(100vw - 160px);
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .profile-summary-card{
+    transform:none;
+  }
+}
+
 /* Final mobile polish: compact popovers and balanced medium cards. */
 @media (max-width:760px){
   .timeline-filter-popover{

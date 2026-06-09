@@ -88,19 +88,6 @@ function MemoryTimeline() {
     loadMemories(1, true);
   }, [loadMemories]);
 
-  useEffect(() => {
-    if(!location.state?.favoritesOnly){
-      return;
-    }
-
-    setShowFavorites(true);
-    setCategoryFilter("All");
-    setSearchText("");
-    setViewMode("timeline");
-    setMessage("Showing favorite memories");
-    navigate(location.pathname, {replace:true, state:null});
-  }, [location.pathname, location.state, navigate]);
-
   const measureTimeline = useCallback(() => {
     const timeline = timelineRef.current;
 

@@ -2073,16 +2073,6 @@ body.light .profile-info-tile{
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.32), 0 10px 24px rgba(83,45,130,0.08);
 }
 
-body.light .profile-info-link:hover{
-  background:linear-gradient(145deg,rgba(255,255,255,0.62),rgba(255,255,255,0.32));
-  border-color:rgba(255,255,255,0.58);
-}
-
-body.light .profile-info-arrow{
-  background:rgba(255,75,125,0.2);
-  color:#2f2440;
-}
-
 body.light .profile-info-list strong{
   color:#2c2c2c;
 }
@@ -2322,49 +2312,6 @@ body.light .settings-section-title{
   background:linear-gradient(145deg,rgba(255,255,255,0.17),rgba(255,255,255,0.09));
   border:1px solid rgba(255,255,255,0.16);
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.16);
-}
-
-.profile-info-link{
-  position:relative;
-  width:100%;
-  margin:0;
-  color:inherit;
-  font:inherit;
-  cursor:pointer;
-  text-align:center;
-  appearance:none;
-  -webkit-appearance:none;
-  transition:transform 0.2s ease,border-color 0.2s ease,background 0.2s ease,box-shadow 0.2s ease;
-}
-
-.profile-info-link:hover{
-  transform:translateY(-2px);
-  background:linear-gradient(145deg,rgba(255,255,255,0.22),rgba(255,255,255,0.11));
-  border-color:rgba(255,255,255,0.28);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 18px 36px rgba(0,0,0,0.16);
-}
-
-.profile-info-link:focus-visible{
-  outline:2px solid rgba(255,75,125,0.9);
-  outline-offset:3px;
-}
-
-.profile-info-arrow{
-  position:absolute;
-  right:14px;
-  top:50%;
-  width:26px;
-  height:26px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:50%;
-  background:rgba(255,255,255,0.14);
-  color:#fff;
-  font-size:15px;
-  font-style:normal;
-  line-height:1;
-  transform:translateY(-50%);
 }
 
 .profile-info-email{
@@ -4355,17 +4302,6 @@ body.light .days-counter{
     min-height:82px;
     padding:12px 10px;
     border-radius:14px;
-  }
-
-  .profile-info-link{
-    padding-right:32px;
-  }
-
-  .profile-info-arrow{
-    right:8px;
-    width:22px;
-    height:22px;
-    font-size:13px;
   }
 
   .profile-info-email{

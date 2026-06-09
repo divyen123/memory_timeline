@@ -213,16 +213,10 @@ function Profile() {
                 <span>Total memories</span>
                 <strong>{memoryCount}</strong>
               </div>
-              <button
-                type="button"
-                className="profile-info-tile profile-info-link"
-                onClick={()=>navigate("/timeline", {state:{favoritesOnly:true}})}
-                aria-label="View favorite memories"
-              >
+              <div className="profile-info-tile">
                 <span>Favorites</span>
                 <strong>{favoriteCount}</strong>
-                <i className="profile-info-arrow" aria-hidden="true">→</i>
-              </button>
+              </div>
               <div className="profile-info-tile profile-info-email">
                 <span>Email</span>
                 <strong>{email || "Not set"}</strong>

@@ -28,6 +28,7 @@ function Profile() {
   const [newPassword,setNewPassword] = useState("");
   const [message,setMessage] = useState("");
   const deviceProfile = getDeviceProfile();
+  const isMobileProfile = deviceProfile === "mobile";
   const [appSettings,setAppSettings] = useState(()=>loadSettings(deviceProfile));
   const backupFileRef = useRef(null);
 
@@ -292,17 +293,19 @@ function Profile() {
                   </select>
                 </label>
 
-                <label className="settings-field">
-                  <span>Top buttons size</span>
-                  <input
-                    type="range"
-                    min="42"
-                    max="78"
-                    step="2"
-                    value={appSettings.topButtonsSize}
-                    onChange={(e)=>updateSetting("topButtonsSize", Number(e.target.value))}
-                  />
-                </label>
+                {!isMobileProfile && (
+                  <label className="settings-field">
+                    <span>Top buttons size</span>
+                    <input
+                      type="range"
+                      min="42"
+                      max="78"
+                      step="2"
+                      value={appSettings.topButtonsSize}
+                      onChange={(e)=>updateSetting("topButtonsSize", Number(e.target.value))}
+                    />
+                  </label>
+                )}
               </div>
 
               <div className="settings-row">

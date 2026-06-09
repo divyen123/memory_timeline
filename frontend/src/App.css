@@ -4091,12 +4091,30 @@ body.light .days-counter{
     overflow:auto;
   }
 
+  :root{
+    --top-action-size:42px;
+  }
+
+  .top-buttons .toggle-btn,
+  .top-buttons .logout-btn,
+  .reminder-icon-btn{
+    width:42px;
+    height:42px;
+    min-height:42px;
+    font-size:19px;
+  }
+
+  .top-buttons .toggle-btn::before,
+  .top-buttons .logout-btn::before{
+    font-size:19px;
+  }
+
   .timeline-container{
-    padding-top:58px;
+    padding-top:38px;
   }
 
   .timeline-title{
-    margin:8px 0 16px;
+    margin:0 0 10px;
     font-size:clamp(28px,8vw,34px);
     line-height:1.15;
     text-align:center;
@@ -4104,29 +4122,49 @@ body.light .days-counter{
 
   .timeline-controls-shell{
     width:100%;
-    max-width:360px;
+    max-width:304px;
   }
 
   .timeline-controls{
     width:100%;
     margin:0;
     display:grid;
-    grid-template-columns:repeat(4,48px);
+    grid-template-columns:repeat(4,44px);
     justify-content:center;
-    gap:10px;
+    gap:9px;
   }
 
-  .timeline-controls > :nth-child(5),
-  .timeline-controls > :nth-child(6),
+  .timeline-controls > :nth-child(5){
+    grid-column:2;
+  }
+
+  .timeline-controls > :nth-child(6){
+    grid-column:3;
+  }
+
   .timeline-controls > :nth-child(7){
-    margin-left:29px;
+    grid-column:4;
+  }
+
+  .timeline-controls:has(.timeline-search-shell.open){
+    grid-template-columns:repeat(6,44px);
+    max-width:304px;
+  }
+
+  .timeline-controls:has(.timeline-search-shell.open) > :nth-child(2),
+  .timeline-controls:has(.timeline-search-shell.open) > :nth-child(3),
+  .timeline-controls:has(.timeline-search-shell.open) > :nth-child(4),
+  .timeline-controls:has(.timeline-search-shell.open) > :nth-child(5),
+  .timeline-controls:has(.timeline-search-shell.open) > :nth-child(6),
+  .timeline-controls:has(.timeline-search-shell.open) > :nth-child(7){
+    grid-column:auto;
   }
 
   .timeline-search-shell{
-    width:48px;
-    height:48px;
-    grid-template-columns:48px 0fr;
-    border-radius:14px;
+    width:44px;
+    height:44px;
+    grid-template-columns:44px 0fr;
+    border-radius:13px;
   }
 
   .timeline-search-shell.open{
@@ -4134,12 +4172,12 @@ body.light .days-counter{
     min-width:0;
     grid-column:1 / -1;
     grid-row:1;
-    grid-template-columns:48px 1fr;
+    grid-template-columns:44px 1fr;
   }
 
   .timeline-search{
-    height:48px;
-    min-height:48px;
+    height:44px;
+    min-height:44px;
     padding:0 14px 0 6px;
     font-size:16px;
   }
@@ -4148,11 +4186,11 @@ body.light .days-counter{
   .timeline-icon-control,
   .timeline-action-btn,
   .timeline-toolbar button{
-    width:48px;
-    height:48px;
-    min-height:48px;
-    border-radius:14px;
-    font-size:21px;
+    width:44px;
+    height:44px;
+    min-height:44px;
+    border-radius:13px;
+    font-size:20px;
   }
 
   .filter-funnel-icon{
@@ -4161,7 +4199,7 @@ body.light .days-counter{
 
   .timeline-filter-popover{
     position:fixed;
-    top:126px;
+    top:108px;
     left:16px;
     right:16px;
     width:auto;
@@ -4494,32 +4532,30 @@ body.light .days-counter{
   }
 
   .timeline-controls{
-    grid-template-columns:repeat(4,46px);
+    grid-template-columns:repeat(4,43px);
     gap:8px;
   }
 
-  .timeline-controls > :nth-child(5),
-  .timeline-controls > :nth-child(6),
-  .timeline-controls > :nth-child(7){
-    margin-left:27px;
+  .timeline-controls:has(.timeline-search-shell.open){
+    grid-template-columns:repeat(6,43px);
   }
 
   .timeline-search-shell{
-    width:46px;
-    height:46px;
-    grid-template-columns:46px 0fr;
+    width:43px;
+    height:43px;
+    grid-template-columns:43px 0fr;
   }
 
   .timeline-search-shell.open{
-    grid-template-columns:46px 1fr;
+    grid-template-columns:43px 1fr;
   }
 
   .filter-toggle,
   .timeline-icon-control,
   .timeline-action-btn{
-    width:46px;
-    height:46px;
-    min-height:46px;
+    width:43px;
+    height:43px;
+    min-height:43px;
   }
 
   .calendar-grid{

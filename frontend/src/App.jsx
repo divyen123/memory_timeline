@@ -43,6 +43,7 @@ function App(){
 
   const [deviceProfile,setDeviceProfile] = useState(()=>getDeviceProfile());
   const [settings,setSettings] = useState(()=>loadSettings(deviceProfile));
+  const [loggingOut,setLoggingOut] = useState(false);
   const darkMode = settings.defaultTheme === "dark";
 
   const navigate = useNavigate();
@@ -192,11 +193,18 @@ function App(){
   /* LOGOUT FUNCTION */
 
   const handleLogout = () => {
+    if(loggingOut){
+      return;
+    }
 
-    localStorage.removeItem("token");
+    setLoggingOut(true);
 
-    setSettings(loadSettings(deviceProfile));
-    navigate("/");
+    window.setTimeout(() => {
+      localStorage.removeItem("token");
+      setSettings(loadSettings(deviceProfile));
+      setLoggingOut(false);
+      navigate("/");
+    }, 900);
 
   };
 
@@ -241,6 +249,14 @@ function App(){
 </div>
   )}
       {showSharedReminder && <ReminderWidget />}
+      {loggingOut && (
+        <div className="logout-overlay" role="status" aria-live="polite">
+          <div className="logout-card">
+            <span className="logout-spinner" />
+            <strong>Logging out...</strong>
+          </div>
+        </div>
+      )}
       <Routes>
 
         <Route path="/" element={<Login />} />

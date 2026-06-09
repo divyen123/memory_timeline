@@ -660,6 +660,55 @@ transform:scale(1.1);
   content:"\1F513";
 }
 
+.logout-overlay{
+  position:fixed;
+  inset:0;
+  z-index:30000;
+  display:grid;
+  place-items:center;
+  background:rgba(5,6,20,0.52);
+  backdrop-filter:blur(10px);
+  animation:logoutOverlayIn 0.22s ease both;
+}
+
+.logout-card{
+  min-width:210px;
+  padding:22px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  border-radius:22px;
+  background:rgba(31,32,56,0.78);
+  border:1px solid rgba(255,255,255,0.22);
+  color:white;
+  box-shadow:0 24px 70px rgba(0,0,0,0.42);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+}
+
+.logout-card strong{
+  font-size:14px;
+}
+
+.logout-spinner{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,0.22);
+  border-top-color:#ff4b7d;
+  animation:logoutSpin 0.8s linear infinite;
+}
+
+@keyframes logoutOverlayIn{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+
+@keyframes logoutSpin{
+  to{transform:rotate(360deg);}
+}
+
 .toggle-btn,
 .logout-btn{
   color:transparent;
@@ -865,7 +914,7 @@ body.light .toggle-btn::before{
 }
 
 .export-image-btn::before{
-  content:"\2913";
+  content:"\1F4E5";
   font-size:28px;
   font-weight:800;
 }
@@ -2450,6 +2499,13 @@ body.light .rich-editor:empty:before{
   justify-content:center;
   background:rgba(5,5,18,0.84);
   padding:28px;
+  touch-action:pan-y;
+  cursor:grab;
+  user-select:none;
+}
+
+.carousel-overlay:active{
+  cursor:grabbing;
 }
 
 .carousel-overlay img{
@@ -2504,6 +2560,13 @@ body.light .rich-editor:empty:before{
   justify-content:center;
   background:rgba(0,0,0,0.24);
   overflow:hidden;
+  touch-action:pan-y;
+  cursor:grab;
+  user-select:none;
+}
+
+.preview-media:active{
+  cursor:grabbing;
 }
 
 .preview-media img{
@@ -2521,26 +2584,27 @@ body.light .rich-editor:empty:before{
 .preview-image-nav{
   position:absolute;
   top:50%;
-  width:38px;
-  height:38px;
+  width:auto;
+  height:auto;
   padding:0;
-  overflow:hidden;
+  overflow:visible;
   display:flex;
   align-items:center;
   justify-content:center;
-  border-radius:50%;
-  background:rgba(8,8,24,0.48);
-  border:1px solid rgba(255,255,255,0.24);
+  border-radius:0;
+  background:transparent;
+  border:0;
   color:white;
-  font-size:28px;
+  font-size:44px;
   font-family:Arial, sans-serif;
-  line-height:38px;
-  box-shadow:0 12px 26px rgba(0,0,0,0.28);
-  backdrop-filter:blur(12px);
+  line-height:1;
+  text-shadow:0 8px 20px rgba(0,0,0,0.45);
+  box-shadow:none;
+  backdrop-filter:none;
   opacity:0;
   pointer-events:none;
   transform:translateY(-50%) scale(0.92);
-  transition:opacity 0.24s ease, background 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
+  transition:opacity 0.24s ease, color 0.24s ease, transform 0.24s ease;
 }
 
 .preview-media:hover .preview-image-nav,
@@ -2551,8 +2615,9 @@ body.light .rich-editor:empty:before{
 }
 
 .preview-image-nav:hover{
-  background:#ff2f6d;
-  box-shadow:0 16px 32px rgba(255,47,109,0.34);
+  background:transparent;
+  color:#ff5f8f;
+  box-shadow:none;
   transform:translateY(-50%) scale(1.06);
 }
 
@@ -2698,11 +2763,25 @@ body.light .rich-editor:empty:before{
 .carousel-nav{
   top:50%;
   transform:translateY(-50%);
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  font-size:38px;
+  width:auto;
+  height:auto;
+  border-radius:0;
+  background:transparent;
+  border:0;
+  color:white;
+  font-size:58px;
+  line-height:1;
   padding:0;
+  box-shadow:none;
+  text-shadow:0 10px 24px rgba(0,0,0,0.48);
+  transition:color 0.22s ease, transform 0.22s ease;
+}
+
+.carousel-nav:hover{
+  background:transparent;
+  color:#ff5f8f;
+  box-shadow:none;
+  transform:translateY(-50%) scale(1.08);
 }
 
 .carousel-nav.left{
@@ -4213,8 +4292,26 @@ body.light .days-counter{
   }
 
   .timeline-export-popover{
-    top:calc(100% + 10px);
-    width:min(292px, calc(100vw - 32px));
+    top:calc(100% + 8px);
+    width:min(252px, calc(100vw - 36px));
+    padding:6px;
+    gap:5px;
+    border-radius:15px;
+  }
+
+  .timeline-export-popover button{
+    min-height:42px;
+    padding:7px 10px;
+    border-radius:10px;
+  }
+
+  .timeline-export-popover strong{
+    font-size:12px;
+  }
+
+  .timeline-export-popover small{
+    font-size:9px;
+    line-height:1.15;
   }
 
   .timeline{
@@ -4314,8 +4411,8 @@ body.light .days-counter{
   .profile-summary-card{
     width:100%;
     margin:0 auto 18px;
-    padding:24px 18px;
-    gap:16px;
+    padding:20px 16px;
+    gap:12px;
     border-radius:22px;
   }
 
@@ -4332,25 +4429,25 @@ body.light .days-counter{
   }
 
   .profile-summary-content h1{
-    margin-bottom:16px;
-    font-size:28px;
+    margin-bottom:12px;
+    font-size:26px;
   }
 
   .profile-info-list{
     width:100%;
     grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:10px;
+    gap:8px;
   }
 
   .profile-info-tile{
-    min-height:82px;
-    padding:12px 10px;
-    border-radius:14px;
+    min-height:66px;
+    padding:9px 8px;
+    border-radius:13px;
   }
 
   .profile-info-email{
     grid-column:1 / -1;
-    min-height:76px;
+    min-height:64px;
   }
 
   .profile-info-list strong{
@@ -4372,7 +4469,7 @@ body.light .days-counter{
   .details-panel{
     width:100%;
     margin:0;
-    padding:22px 18px;
+    padding:18px 16px;
     border-radius:22px;
   }
 
@@ -4382,11 +4479,27 @@ body.light .days-counter{
   }
 
   .settings-field{
-    margin-bottom:14px;
+    margin-bottom:10px;
+  }
+
+  .settings-field span{
+    margin-bottom:6px;
+    font-size:14px;
+  }
+
+  .profile-card input,
+  .settings-field input,
+  .settings-field select{
+    min-height:46px;
+    padding:10px 12px;
+    font-size:15px;
   }
 
   .settings-toggle{
-    padding:11px 12px;
+    min-height:52px;
+    margin-bottom:10px;
+    padding:9px 11px;
+    gap:10px;
   }
 
   .settings-row,
@@ -4397,12 +4510,24 @@ body.light .days-counter{
   }
 
   .settings-color-grid{
-    gap:12px;
+    gap:9px;
   }
 
   .settings-color-grid label{
-    grid-template-columns:1fr 72px;
+    grid-template-columns:1fr 58px;
     align-items:center;
+    gap:8px;
+  }
+
+  .settings-color-grid input[type="color"],
+  .settings-color-field input[type="color"]{
+    height:40px;
+  }
+
+  .settings-section-title{
+    margin:16px 0 9px;
+    padding-top:12px;
+    font-size:12px;
   }
 
   .settings-actions{

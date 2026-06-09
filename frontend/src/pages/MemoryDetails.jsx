@@ -13,6 +13,7 @@ function MemoryDetails() {
   const [showDeleteConfirm,setShowDeleteConfirm] = useState(false);
   const [carouselIndex,setCarouselIndex] = useState(null);
   const backGuardRef = useRef(false);
+  const carouselDragRef = useRef(null);
 
   useEffect(()=>{
     let active = true;
@@ -121,6 +122,39 @@ function MemoryDetails() {
     setCarouselIndex((current)=> current === images.length - 1 ? 0 : current + 1);
   };
 
+  const handleCarouselDragStart = (event) => {
+    if(images.length < 2){
+      return;
+    }
+
+    carouselDragRef.current = {
+      x:event.clientX,
+      y:event.clientY
+    };
+  };
+
+  const handleCarouselDragEnd = (event) => {
+    if(!carouselDragRef.current || images.length < 2){
+      carouselDragRef.current = null;
+      return;
+    }
+
+    const deltaX = event.clientX - carouselDragRef.current.x;
+    const deltaY = event.clientY - carouselDragRef.current.y;
+    carouselDragRef.current = null;
+
+    if(Math.abs(deltaX) < 42 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2){
+      return;
+    }
+
+    if(deltaX > 0){
+      showPreviousImage();
+    }
+    else{
+      showNextImage();
+    }
+  };
+
   const goBackToTimeline = () => {
     navigate("/timeline", {replace:true});
   };
@@ -215,22 +249,28 @@ function MemoryDetails() {
     </PageTransition>
 
     {carouselIndex !== null && (
-      <div className="carousel-overlay">
+      <div
+        className="carousel-overlay"
+        onPointerDown={handleCarouselDragStart}
+        onPointerUp={handleCarouselDragEnd}
+        onPointerCancel={()=>{ carouselDragRef.current = null; }}
+      >
         <button className="carousel-close" onClick={()=>setCarouselIndex(null)}>
           Close
         </button>
         {images.length > 1 && (
           <button className="carousel-nav left" onClick={showPreviousImage}>
-            Prev
+            &#8249;
           </button>
         )}
         <SmartImage
           src={getImageUrl(images[carouselIndex])}
           alt={memory.title}
+          draggable={false}
         />
         {images.length > 1 && (
           <button className="carousel-nav right" onClick={showNextImage}>
-            Next
+            &#8250;
           </button>
         )}
       </div>

@@ -56,6 +56,7 @@ function MemoryTimeline() {
   const reminderMenuRef = useRef(null);
   const filterMenuRef = useRef(null);
   const previewHistoryGuardRef = useRef(false);
+  const previewDragRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
@@ -744,6 +745,39 @@ function MemoryTimeline() {
     setPreviewImageIndex(index => (index + 1) % images.length);
   };
 
+  const handlePreviewDragStart = (event) => {
+    if(previewImages.length < 2){
+      return;
+    }
+
+    previewDragRef.current = {
+      x:event.clientX,
+      y:event.clientY
+    };
+  };
+
+  const handlePreviewDragEnd = (event) => {
+    if(!previewDragRef.current || previewImages.length < 2){
+      previewDragRef.current = null;
+      return;
+    }
+
+    const deltaX = event.clientX - previewDragRef.current.x;
+    const deltaY = event.clientY - previewDragRef.current.y;
+    previewDragRef.current = null;
+
+    if(Math.abs(deltaX) < 42 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2){
+      return;
+    }
+
+    if(deltaX > 0){
+      showPreviousPreviewImage();
+    }
+    else{
+      showNextPreviewImage();
+    }
+  };
+
   const closePreviewToTimeline = () => {
     setPreviewMemory(null);
     navigate("/timeline", {replace:true});
@@ -1426,13 +1460,19 @@ function MemoryTimeline() {
             &#8592;
           </button>
 
-          <div className="preview-media">
+          <div
+            className="preview-media"
+            onPointerDown={handlePreviewDragStart}
+            onPointerUp={handlePreviewDragEnd}
+            onPointerCancel={()=>{ previewDragRef.current = null; }}
+          >
             {currentPreviewImage && (
               <SmartImage
                 key={`${currentPreviewImage}-preview-${previewImageIndex}`}
                 className="preview-carousel-image"
                 src={getImageUrl(currentPreviewImage)}
                 alt={previewMemory.title}
+                draggable={false}
               />
             )}
 

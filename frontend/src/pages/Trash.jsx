@@ -20,9 +20,11 @@ function Trash() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [pendingAction, setPendingAction] = useState(null);
+  const [showInfo, setShowInfo] = useState(false);
 
   const selectedCount = selectedIds.length;
   const allSelected = memories.length > 0 && selectedIds.length === memories.length;
+  const hasTrashMemories = memories.length > 0;
 
   const selectedTitle = useMemo(() => {
     if(selectedIds.length !== 1){
@@ -128,49 +130,66 @@ function Trash() {
 
   return (
     <PageTransition>
-      <main className="trash-page">
+      <main className={`trash-page ${hasTrashMemories ? "has-trash" : "trash-is-empty"}`}>
         {message && <div className="toast">{message}</div>}
 
-        <section className="trash-hero">
-          <button
-            type="button"
-            className="trash-back-btn"
-            onClick={()=>navigate("/timeline")}
-          >
-            &#8592; Back to timeline
-          </button>
-          <div>
-            <p className="trash-kicker">Bin</p>
+        <section className="trash-hero" aria-label="Trash overview">
+          {hasTrashMemories && (
+            <button
+              type="button"
+              className="trash-back-btn"
+              aria-label="Back to timeline"
+              onClick={()=>navigate("/timeline")}
+            >
+              &#8592;
+            </button>
+          )}
+          <div className="trash-title-wrap">
             <h1>Trash</h1>
-            <span>Deleted memories stay here for 30 days. Recover them anytime before they are permanently removed.</span>
+            <div className="trash-info-wrap">
+              <button
+                type="button"
+                className="trash-info-btn"
+                aria-label="Trash information"
+                aria-expanded={showInfo}
+                onClick={()=>setShowInfo(!showInfo)}
+                onBlur={()=>setShowInfo(false)}
+              >
+                i
+              </button>
+              <span className={`trash-info-bubble ${showInfo ? "show" : ""}`} role="tooltip">
+                Deleted memories stay here for 30 days. Recover them anytime before they are permanently removed.
+              </span>
+            </div>
           </div>
         </section>
 
-        <section className="trash-actions-panel">
-          <div>
-            <strong>{memories.length}</strong>
-            <span>{memories.length === 1 ? "memory in bin" : "memories in bin"}</span>
-          </div>
-          <div className="trash-actions">
-            <button type="button" onClick={()=>askRecover(memories.map((memory)=>memory._id))} disabled={!memories.length}>
-              Recover all
-            </button>
-            <button type="button" onClick={()=>askDelete(memories.map((memory)=>memory._id))} disabled={!memories.length}>
-              Empty bin now
-            </button>
-            <button
-              type="button"
-              className={selectionMode ? "active" : ""}
-              onClick={()=>{
-                setSelectionMode(!selectionMode);
-                setSelectedIds([]);
-              }}
-              disabled={!memories.length}
-            >
-              {selectionMode ? "Done" : "Select"}
-            </button>
-          </div>
-        </section>
+        {hasTrashMemories && (
+          <section className="trash-actions-panel">
+            <div className="trash-count">
+              <strong>{memories.length}</strong>
+              <span>{memories.length === 1 ? "memory in bin" : "memories in bin"}</span>
+            </div>
+            <div className="trash-actions">
+              <button type="button" onClick={()=>askRecover(memories.map((memory)=>memory._id))}>
+                Recover all
+              </button>
+              <button type="button" onClick={()=>askDelete(memories.map((memory)=>memory._id))}>
+                Empty bin now
+              </button>
+              <button
+                type="button"
+                className={selectionMode ? "active" : ""}
+                onClick={()=>{
+                  setSelectionMode(!selectionMode);
+                  setSelectedIds([]);
+                }}
+              >
+                {selectionMode ? "Done" : "Select"}
+              </button>
+            </div>
+          </section>
+        )}
 
         {selectionMode && memories.length > 0 && (
           <section className="trash-selection-bar">
@@ -213,13 +232,6 @@ function Trash() {
                 month:"short",
                 year:"numeric"
               });
-              const expiresAt = memory.trashExpiresAt
-                ? new Date(memory.trashExpiresAt).toLocaleDateString("en-GB", {
-                  day:"2-digit",
-                  month:"short"
-                })
-                : "soon";
-
               return (
                 <article className={`trash-card ${selectedIds.includes(memory._id) ? "selected" : ""}`} key={memory._id}>
                   {selectionMode && (
@@ -245,11 +257,14 @@ function Trash() {
                       <time>{memoryDate}</time>
                     </div>
                     <h2>{memory.title}</h2>
-                    <p>Deletes permanently after {expiresAt}</p>
                   </div>
                   <div className="trash-card-actions">
-                    <button type="button" onClick={()=>askRecover([memory._id])}>Recover</button>
-                    <button type="button" className="danger" onClick={()=>askDelete([memory._id])}>Delete</button>
+                    <button type="button" aria-label={`Recover ${memory.title}`} title="Recover" onClick={()=>askRecover([memory._id])}>
+                      &#9851;
+                    </button>
+                    <button type="button" className="danger" aria-label={`Permanently delete ${memory.title}`} title="Permanently delete" onClick={()=>askDelete([memory._id])}>
+                      &#128465;
+                    </button>
                   </div>
                 </article>
               );

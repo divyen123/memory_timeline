@@ -5256,11 +5256,15 @@ body.light .trash-meta time{
 }
 
 .confirm-actions{
-  display:flex;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:12px;
 }
 
 .confirm-actions button{
+  width:100%;
+  min-width:0;
+  min-height:46px;
   padding:12px;
 }
 
@@ -7303,15 +7307,20 @@ body.light .calendar-memory{
 /* Desktop profile alignment: keep summary and lower cards on one centered frame. */
 @media (min-width:1200px){
   .profile-page{
-    --profile-desktop-width:min(1470px, calc(100vw - 420px));
+    width:100vw;
+    margin-left:calc(50% - 50vw);
+    padding-right:80px;
+    padding-left:80px;
   }
 
   .profile-summary-card,
   .profile-grid{
-    width:var(--profile-desktop-width);
-    max-width:calc(100vw - 160px);
+    width:min(1470px,100%);
+    max-width:1470px;
     margin-left:auto;
     margin-right:auto;
+    justify-self:center;
+    align-self:center;
   }
 
   .profile-summary-card{

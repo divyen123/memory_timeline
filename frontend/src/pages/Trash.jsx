@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
@@ -25,14 +25,6 @@ function Trash() {
   const selectedCount = selectedIds.length;
   const allSelected = memories.length > 0 && selectedIds.length === memories.length;
   const hasTrashMemories = memories.length > 0;
-
-  const selectedTitle = useMemo(() => {
-    if(selectedIds.length !== 1){
-      return `${selectedIds.length} memories`;
-    }
-
-    return memories.find((memory)=>memory._id === selectedIds[0])?.title || "this memory";
-  }, [memories, selectedIds]);
 
   const loadTrash = async () => {
     setLoading(true);
@@ -61,7 +53,7 @@ function Trash() {
     setSelectedIds(allSelected ? [] : memories.map((memory)=>memory._id));
   };
 
-  const askRecover = (ids) => {
+  const askRecover = (ids, restoreAll = false) => {
     if(!ids.length){
       setMessage("Select memories to recover");
       return;
@@ -70,13 +62,15 @@ function Trash() {
     setPendingAction({
       type:"recover",
       ids,
-      title:ids.length === memories.length ? "Restore all memories?" : `Restore ${ids.length === 1 ? selectedTitle : `${ids.length} memories`}?`,
+      title:restoreAll
+        ? "Restore all memories?"
+        : (ids.length === 1 ? "Restore memory?" : `Restore ${ids.length} memories?`),
       body:"Restored memories will return to your main timeline with their original details.",
       confirmLabel:"Restore"
     });
   };
 
-  const askDelete = (ids) => {
+  const askDelete = (ids, deleteAll = false) => {
     if(!ids.length){
       setMessage("Select memories to permanently delete");
       return;
@@ -85,9 +79,11 @@ function Trash() {
     setPendingAction({
       type:"delete",
       ids,
-      title:ids.length === memories.length ? "Empty bin now?" : `Permanently delete ${ids.length === 1 ? selectedTitle : `${ids.length} memories`}?`,
+      title:deleteAll
+        ? "Empty bin now?"
+        : (ids.length === 1 ? "Permanently delete memory?" : `Permanently delete ${ids.length} memories?`),
       body:"This deletes the memory from the database and stored images. This action cannot be undone.",
-      confirmLabel:ids.length === memories.length ? "Empty bin now" : "Permanently delete"
+      confirmLabel:deleteAll ? "Empty bin now" : "Permanently delete"
     });
   };
 
@@ -161,10 +157,10 @@ function Trash() {
               <span>{memories.length === 1 ? "memory in bin" : "memories in bin"}</span>
             </div>
             <div className="trash-actions">
-              <button type="button" onClick={()=>askRecover(memories.map((memory)=>memory._id))}>
+              <button type="button" onClick={()=>askRecover(memories.map((memory)=>memory._id), true)}>
                 Restore all
               </button>
-              <button type="button" onClick={()=>askDelete(memories.map((memory)=>memory._id))}>
+              <button type="button" onClick={()=>askDelete(memories.map((memory)=>memory._id), true)}>
                 Empty bin
               </button>
               <button

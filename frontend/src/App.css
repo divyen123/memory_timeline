@@ -4833,7 +4833,7 @@ body.button-glass-on .carousel-nav,
 .trash-page{
   width:100%;
   min-height:100vh;
-  padding:72px 24px 70px;
+  padding:58px 24px 70px;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -4975,12 +4975,12 @@ body.button-glass-on .carousel-nav,
 
 .trash-selection-bar{
   width:min(1180px,92vw);
-  padding:14px 16px;
-  border-radius:20px;
+  min-height:34px;
+  padding:2px 0;
   display:flex;
   align-items:center;
   flex-wrap:wrap;
-  gap:12px;
+  gap:10px;
 }
 
 .trash-selection-bar label,
@@ -5003,11 +5003,49 @@ body.button-glass-on .carousel-nav,
   background:#ff4d6d;
 }
 
+.trash-selection-dock{
+  position:fixed;
+  z-index:120;
+  left:50%;
+  bottom:24px;
+  transform:translateX(-50%);
+  padding:8px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-radius:16px;
+  background:rgba(18,19,48,0.9);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 16px 44px rgba(4,5,22,0.38);
+  backdrop-filter:blur(14px);
+}
+
+.trash-selection-dock button{
+  width:auto;
+  min-width:104px;
+  min-height:38px;
+  padding:0 18px;
+  border-radius:12px;
+  background:#22a65a;
+}
+
+.trash-selection-dock button.danger{
+  background:#ff4d6d;
+}
+
+.trash-selection-dock button:disabled{
+  opacity:0.48;
+  cursor:not-allowed;
+}
+
+.trash-page.selection-mode{
+  padding-bottom:110px;
+}
+
 .trash-grid{
   width:min(1180px,92vw);
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,220px));
-  justify-content:start;
+  grid-template-columns:repeat(5,minmax(0,1fr));
   gap:14px;
 }
 
@@ -5124,8 +5162,12 @@ body.button-glass-on .carousel-nav,
   min-height:34px;
   padding:0;
   border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
   font-size:17px;
   line-height:1;
+  text-align:center;
 }
 
 .trash-check{
@@ -5133,11 +5175,10 @@ body.button-glass-on .carousel-nav,
   z-index:2;
   top:10px;
   left:10px;
-  padding:7px 10px;
-  border-radius:999px;
-  background:rgba(8,9,28,0.68);
-  backdrop-filter:blur(10px);
-  font-size:12px;
+  padding:0;
+  border-radius:0;
+  background:none;
+  backdrop-filter:none;
 }
 
 .trash-empty{
@@ -5150,6 +5191,12 @@ body.button-glass-on .carousel-nav,
 
 body.light .trash-page{
   color:#2a2140;
+}
+
+body.light .trash-selection-dock{
+  background:rgba(255,255,255,0.9);
+  border-color:rgba(68,46,103,0.18);
+  box-shadow:0 16px 40px rgba(78,48,116,0.18);
 }
 
 body.light .trash-info-btn{
@@ -5614,16 +5661,16 @@ body.light .days-counter{
 
   .timeline-controls-shell{
     width:100%;
-    max-width:330px;
+    max-width:360px;
   }
 
   .timeline-controls{
     width:100%;
     margin:0;
     display:grid;
-    grid-template-columns:repeat(6,40px);
+    grid-template-columns:repeat(7,40px);
     justify-content:center;
-    gap:8px;
+    gap:7px;
   }
 
   .timeline-search-shell{
@@ -6053,12 +6100,12 @@ body.light .days-counter{
   }
 
   .timeline-controls{
-    grid-template-columns:repeat(6,38px);
-    gap:8px;
+    grid-template-columns:repeat(7,38px);
+    gap:6px;
   }
 
   .timeline-controls:has(.timeline-search-shell.open){
-    grid-template-columns:repeat(6,38px);
+    grid-template-columns:repeat(7,38px);
   }
 
   .timeline-search-shell{
@@ -7442,7 +7489,7 @@ body.light .calendar-memory{
 
   .trash-page{
     min-height:100dvh;
-    padding:74px 10px 34px;
+    padding:56px 10px 34px;
     gap:12px;
   }
 
@@ -7519,16 +7566,43 @@ body.light .calendar-memory{
   }
 
   .trash-selection-bar{
-    padding:10px;
-    gap:8px;
-    border-radius:14px;
-    background:rgba(255,255,255,0.09);
-    border:1px solid rgba(255,255,255,0.18);
+    width:auto;
+    min-height:28px;
+    padding:0;
+    gap:7px;
+    align-self:center;
+    background:none;
+    border:0;
   }
 
   .trash-selection-bar span,
   .trash-selection-bar label{
     font-size:12px;
+  }
+
+  .trash-selection-bar input{
+    width:16px;
+    height:16px;
+  }
+
+  .trash-selection-dock{
+    bottom:max(14px, env(safe-area-inset-bottom));
+    width:auto;
+    padding:6px;
+    gap:6px;
+    border-radius:14px;
+  }
+
+  .trash-selection-dock button{
+    min-width:78px;
+    min-height:34px;
+    padding:0 13px;
+    border-radius:10px;
+    font-size:12px;
+  }
+
+  .trash-page.selection-mode{
+    padding-bottom:94px;
   }
 
   .trash-grid{
@@ -7588,14 +7662,14 @@ body.light .calendar-memory{
     height:28px;
     min-height:28px;
     flex-basis:28px;
+    padding:0;
     font-size:14px;
   }
 
   .trash-check{
     top:6px;
     left:6px;
-    padding:4px 5px;
-    font-size:0;
+    padding:0;
   }
 
   .trash-check input{

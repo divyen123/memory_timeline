@@ -70,9 +70,9 @@ function Trash() {
     setPendingAction({
       type:"recover",
       ids,
-      title:ids.length === memories.length ? "Recover all memories?" : `Recover ${ids.length === 1 ? selectedTitle : `${ids.length} memories`}?`,
-      body:"Recovered memories will return to your main timeline with their original details.",
-      confirmLabel:"Recover"
+      title:ids.length === memories.length ? "Restore all memories?" : `Restore ${ids.length === 1 ? selectedTitle : `${ids.length} memories`}?`,
+      body:"Restored memories will return to your main timeline with their original details.",
+      confirmLabel:"Restore"
     });
   };
 
@@ -106,7 +106,7 @@ function Trash() {
           await restoreMemories(ids);
         }
 
-        setMessage(ids.length === 1 ? "Memory recovered" : "Memories recovered");
+        setMessage(ids.length === 1 ? "Memory restored" : "Memories restored");
       }else if(type === "delete"){
         if(ids.length === memories.length){
           await emptyTrash();
@@ -130,7 +130,7 @@ function Trash() {
 
   return (
     <PageTransition>
-      <main className={`trash-page ${hasTrashMemories ? "has-trash" : "trash-is-empty"}`}>
+      <main className={`trash-page ${hasTrashMemories ? "has-trash" : "trash-is-empty"} ${selectionMode ? "selection-mode" : ""}`}>
         {message && <div className="toast">{message}</div>}
 
         <section className="trash-hero" aria-label="Trash overview">
@@ -162,10 +162,10 @@ function Trash() {
             </div>
             <div className="trash-actions">
               <button type="button" onClick={()=>askRecover(memories.map((memory)=>memory._id))}>
-                Recover all
+                Restore all
               </button>
               <button type="button" onClick={()=>askDelete(memories.map((memory)=>memory._id))}>
-                Empty bin now
+                Empty bin
               </button>
               <button
                 type="button"
@@ -182,23 +182,27 @@ function Trash() {
         )}
 
         {selectionMode && memories.length > 0 && (
-          <section className="trash-selection-bar">
-            <label>
-              <input
-                type="checkbox"
-                checked={allSelected}
-                onChange={toggleSelectAll}
-              />
-              Select all
-            </label>
-            <span>{selectedCount} selected</span>
-            <button type="button" onClick={()=>askRecover(selectedIds)} disabled={!selectedCount}>
-              Recover selected
-            </button>
-            <button type="button" className="danger" onClick={()=>askDelete(selectedIds)} disabled={!selectedCount}>
-              Delete selected
-            </button>
-          </section>
+          <>
+            <section className="trash-selection-bar">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleSelectAll}
+                />
+                Select all
+              </label>
+              <span>{selectedCount} selected</span>
+            </section>
+            <div className="trash-selection-dock" aria-label="Selected memory actions">
+              <button type="button" className="danger" onClick={()=>askDelete(selectedIds)} disabled={!selectedCount}>
+                Delete
+              </button>
+              <button type="button" onClick={()=>askRecover(selectedIds)} disabled={!selectedCount}>
+                Restore
+              </button>
+            </div>
+          </>
         )}
 
         {loading ? (
@@ -225,13 +229,12 @@ function Trash() {
               return (
                 <article className={`trash-card ${selectedIds.includes(memory._id) ? "selected" : ""}`} key={memory._id}>
                   {selectionMode && (
-                    <label className="trash-check">
+                    <label className="trash-check" aria-label={`Select ${memory.title}`}>
                       <input
                         type="checkbox"
                         checked={selectedIds.includes(memory._id)}
                         onChange={()=>toggleSelection(memory._id)}
                       />
-                      <span>Select</span>
                     </label>
                   )}
                   <div className="trash-thumb">

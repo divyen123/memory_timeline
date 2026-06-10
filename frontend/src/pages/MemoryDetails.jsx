@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { createMemoryShare, deleteMemory, getImageUrl, getMemory, toggleFavorite } from "../services/api";
+import { createMemoryShare, deleteMemory, getMemory, getMemoryImageUrl, toggleFavorite } from "../services/api";
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
 import { shareUrl } from "../share";
@@ -179,7 +179,7 @@ function MemoryDetails() {
 
           <div className="story-hero">
             {images[0] ? (
-              <SmartImage src={getImageUrl(images[0])} alt={memory.title} />
+              <SmartImage src={getMemoryImageUrl(memory, "images", 0)} alt={memory.title} />
             ) : (
               <div className="memory-photo-placeholder">{memory.title?.slice(0,1) || "M"}</div>
             )}
@@ -215,18 +215,22 @@ function MemoryDetails() {
 
           {galleryImages.length > 0 && (
             <div className="details-gallery">
-              {galleryImages.map((image,index)=>(
+              {galleryImages.map((image,index)=>{
+                const imageIndex = images.length > 1 ? index + 1 : index;
+
+                return (
                 <button
                   className="gallery-image-button"
                   key={image}
-                  onClick={()=>setCarouselIndex(images.length > 1 ? index + 1 : index)}
+                  onClick={()=>setCarouselIndex(imageIndex)}
                 >
                   <SmartImage
-                    src={getImageUrl(image)}
+                    src={getMemoryImageUrl(memory, "images", imageIndex)}
                     alt={memory.title}
                   />
                 </button>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -264,7 +268,7 @@ function MemoryDetails() {
           </button>
         )}
         <SmartImage
-          src={getImageUrl(images[carouselIndex])}
+          src={getMemoryImageUrl(memory, "images", carouselIndex)}
           alt={memory.title}
           draggable={false}
         />

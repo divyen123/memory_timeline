@@ -8,6 +8,7 @@ const ShareLink = require("../models/ShareLink");
 
 const TRASH_RETENTION_DAYS = 30;
 const TRASH_RETENTION_MS = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+const UPLOADS_ROOT = path.resolve("uploads");
 
 const getS3Client = () => new S3Client({
   region:process.env.AWS_REGION,
@@ -237,6 +238,37 @@ const deleteS3Image = async (image) => {
   }));
 };
 
+const isLocalImage = (image = "") => (
+  image &&
+  !image.startsWith("http://") &&
+  !image.startsWith("https://") &&
+  !image.startsWith("s3://")
+);
+
+const getLocalUploadPath = (image) => {
+  if(!isLocalImage(image)){
+    return null;
+  }
+
+  const resolvedPath = path.resolve(UPLOADS_ROOT, path.basename(image));
+
+  if(!resolvedPath.startsWith(`${UPLOADS_ROOT}${path.sep}`)){
+    return null;
+  }
+
+  return resolvedPath;
+};
+
+const deleteLocalImage = async (image) => {
+  const localPath = getLocalUploadPath(image);
+
+  if(!localPath){
+    return;
+  }
+
+  await fs.unlink(localPath).catch(()=>{});
+};
+
 const deleteStoredImages = async (memory) => {
   const images = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
   const thumbnails = memory.thumbnails || [];
@@ -245,6 +277,7 @@ const deleteStoredImages = async (memory) => {
   await Promise.all(uniqueImages.map(async (image) => {
     try{
       await deleteS3Image(image);
+      await deleteLocalImage(image);
     }catch(error){
       console.error(`Failed to delete stored image: ${image}`, error.message);
     }
@@ -276,6 +309,41 @@ const withSignedImages = async (memory) => {
     images:signedImages,
     thumbnails:signedThumbnails
   };
+};
+
+const getMemoryImageList = (memory, kind = "images") => {
+  if(kind === "thumbnails"){
+    return memory.thumbnails || [];
+  }
+
+  return memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
+};
+
+const streamStoredImage = async (image, res, options = {}) => {
+  if(!image){
+    return res.status(404).json({message:"Image not found"});
+  }
+
+  if(image.startsWith("s3://")){
+    return res.redirect(await signS3ImageUrl(image));
+  }
+
+  if(image.startsWith("http://") || image.startsWith("https://")){
+    return res.redirect(signCloudinaryImageUrl(image));
+  }
+
+  const localPath = getLocalUploadPath(image);
+
+  if(!localPath){
+    return res.status(404).json({message:"Image not found"});
+  }
+
+  res.setHeader("Cache-Control", options.public ? "public, max-age=300" : "private, max-age=300");
+  return res.sendFile(localPath, (error) => {
+    if(error && !res.headersSent){
+      res.status(error.statusCode || 404).json({message:"Image not found"});
+    }
+  });
 };
 
 const sanitizeDescription = (html = "") => {
@@ -464,7 +532,13 @@ exports.downloadMemoryImage = async (req,res)=>{
     const fileName = `${safeTitle}-${imageIndex + 1}.${extension}`;
 
     if(!image.startsWith("http") && !image.startsWith("s3://")){
-      return res.download(path.resolve("uploads", image), fileName);
+      const localPath = getLocalUploadPath(image);
+
+      if(!localPath){
+        return res.status(404).json({message:"Image not found"});
+      }
+
+      return res.download(localPath, fileName);
     }
 
     const imageUrl = image.startsWith("s3://")
@@ -484,6 +558,71 @@ exports.downloadMemoryImage = async (req,res)=>{
     res.send(bytes);
   }catch(error){
     res.status(500).json({message:error.message || "Image download failed"});
+  }
+};
+
+exports.viewMemoryImage = async (req,res)=>{
+  try{
+    const memory = await Memory.findOne({
+      _id:req.params.id,
+      userId:req.user.userId
+    });
+
+    if(!memory){
+      return res.status(404).json({message:"Memory not found"});
+    }
+
+    const images = getMemoryImageList(memory, req.params.kind);
+    const imageIndex = Number(req.params.index || 0);
+
+    if(!Number.isInteger(imageIndex) || imageIndex < 0 || imageIndex >= images.length){
+      return res.status(404).json({message:"Image not found"});
+    }
+
+    return streamStoredImage(images[imageIndex], res);
+  }catch(error){
+    res.status(500).json({message:error.message || "Image failed"});
+  }
+};
+
+exports.viewPublicShareImage = async (req,res)=>{
+  try{
+    const {token, memoryId} = req.params;
+    let memory = await Memory.findOne({
+      _id:memoryId,
+      publicToken:token,
+      deletedAt:null
+    });
+
+    if(!memory){
+      const share = await ShareLink.findOne({token});
+
+      if(!share){
+        return res.status(404).json({message:"Share not found"});
+      }
+
+      memory = await Memory.findOne({
+        _id:memoryId,
+        userId:share.userId,
+        category:share.category,
+        deletedAt:null
+      });
+    }
+
+    if(!memory){
+      return res.status(404).json({message:"Memory not found"});
+    }
+
+    const images = getMemoryImageList(memory, "images");
+    const imageIndex = Number(req.params.index || 0);
+
+    if(!Number.isInteger(imageIndex) || imageIndex < 0 || imageIndex >= images.length){
+      return res.status(404).json({message:"Image not found"});
+    }
+
+    return streamStoredImage(images[imageIndex], res, {public:true});
+  }catch(error){
+    res.status(500).json({message:error.message || "Image failed"});
   }
 };
 

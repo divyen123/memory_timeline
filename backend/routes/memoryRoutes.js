@@ -10,6 +10,8 @@ const {
   getMemory,
   getTrashMemories,
   downloadMemoryImage,
+  viewMemoryImage,
+  viewPublicShareImage,
   addMemory,
   deleteMemory,
   restoreMemory,
@@ -103,6 +105,7 @@ router.get("/memories/trash", authMiddleware, getTrashMemories);
 router.post("/memories/trash/restore", authMiddleware, restoreMemories);
 router.post("/memories/trash/permanent-delete", authMiddleware, permanentlyDeleteMemories);
 router.delete("/memories/trash/empty", authMiddleware, emptyTrash);
+router.get("/memories/:id/images/:kind/:index/view", authMiddleware, viewMemoryImage);
 router.get("/memories/:id/images/:index/download", authMiddleware, downloadMemoryImage);
 router.get("/memories/:id", authMiddleware, getMemory);
 router.post("/memories", authMiddleware, memoryImagesUpload, addMemory);
@@ -112,6 +115,7 @@ router.patch("/memories/:id/restore", authMiddleware, restoreMemory);
 router.delete("/memories/:id/permanent", authMiddleware, permanentlyDeleteMemory);
 router.post("/memories/:id/share", authMiddleware, createMemoryShare);
 router.post("/share/category", authMiddleware, createCategoryShare);
+router.get("/public/share/:token/images/:memoryId/:index/view", viewPublicShareImage);
 router.get("/public/share/:token", getPublicShare);
 router.delete("/memories/:id", authMiddleware, deleteMemory);
 

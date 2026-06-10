@@ -2,9 +2,64 @@ import axios from "axios";
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL;
 export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/,"");
+const isRemoteImage = (image = "") => {
+  const imageUrl = String(image || "");
+
+  return (
+    imageUrl.startsWith("http://") ||
+    imageUrl.startsWith("https://") ||
+    imageUrl.startsWith("blob:") ||
+    imageUrl.startsWith("data:")
+  );
+};
+
+const getMemoryImageList = (memory, kind = "images") => {
+  if(kind === "thumbnails"){
+    return memory?.thumbnails || [];
+  }
+
+  return memory?.images?.length ? memory.images : (memory?.image ? [memory.image] : []);
+};
+
 export const getImageUrl = (image) => (
-  image?.startsWith("http") ? image : `${API_ORIGIN}/uploads/${image}`
+  isRemoteImage(image || "") ? image : ""
 );
+
+export const getMemoryImageUrl = (memory, kind = "images", index = 0) => {
+  const images = getMemoryImageList(memory, kind);
+  const image = images[index];
+
+  if(!image){
+    return "";
+  }
+
+  if(isRemoteImage(image)){
+    return image;
+  }
+
+  return `${API_BASE_URL}/memories/${memory._id}/images/${kind}/${index}/view`;
+};
+
+export const getPublicMemoryImageUrl = (token, memory, index = 0) => {
+  const images = getMemoryImageList(memory, "images");
+  const image = images[index];
+
+  if(!image){
+    return "";
+  }
+
+  if(isRemoteImage(image)){
+    return image;
+  }
+
+  return `${API_BASE_URL}/public/share/${token}/images/${memory._id}/${index}/view`;
+};
+
+export const requiresAuthenticatedImageFetch = (url = "") => {
+  const imageUrl = String(url || "");
+
+  return imageUrl.startsWith(API_BASE_URL) && imageUrl.includes("/memories/") && imageUrl.includes("/view");
+};
 
 const API = axios.create({
 baseURL:API_BASE_URL

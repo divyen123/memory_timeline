@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import JSZip from "jszip";
 import MemoryCard from "../components/MemoryCard";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createCategoryShare, createMemoryShare, downloadMemoryImage, getImageUrl, getMemories, deleteMemory, toggleFavorite } from "../services/api";
+import { createCategoryShare, createMemoryShare, downloadMemoryImage, getImageUrl, getMemories, getMemoryImageUrl, deleteMemory, toggleFavorite } from "../services/api";
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
 import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
@@ -1280,6 +1280,7 @@ function MemoryTimeline() {
                     const memoryDate = new Date(memory.date);
                     const memoryImages = getMemoryImages(memory);
                     const calendarImages = memory.thumbnails?.length ? memory.thumbnails : memoryImages;
+                    const calendarImageKind = memory.thumbnails?.length ? "thumbnails" : "images";
                     const formattedCalendarDate = memoryDate.toLocaleDateString("en-GB", {
                       day:"2-digit",
                       month:"short",
@@ -1304,7 +1305,7 @@ function MemoryTimeline() {
                       <span className={`calendar-memory-thumbnail ${calendarImages[0] ? "" : "empty"}`}>
                         {calendarImages[0] ? (
                           <SmartImage
-                            src={getImageUrl(calendarImages[0])}
+                            src={getMemoryImageUrl(memory, calendarImageKind, 0)}
                             alt=""
                             detectFaces={false}
                           />
@@ -1488,7 +1489,7 @@ function MemoryTimeline() {
               <SmartImage
                 key={`${currentPreviewImage}-preview-${previewImageIndex}`}
                 className="preview-carousel-image"
-                src={getImageUrl(currentPreviewImage)}
+                src={getMemoryImageUrl(previewMemory, "images", previewImageIndex)}
                 alt={previewMemory.title}
                 draggable={false}
               />

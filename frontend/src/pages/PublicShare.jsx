@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getImageUrl, getPublicShare } from "../services/api";
+import { getPublicMemoryImageUrl, getPublicShare } from "../services/api";
 
 function PublicShare() {
   const { token } = useParams();
@@ -94,7 +94,7 @@ function PublicShare() {
                   {images.map((image,index)=>(
                     <img
                       key={`${memory._id}-${index}`}
-                      src={getImageUrl(image)}
+                      src={getPublicMemoryImageUrl(token, memory, index)}
                       alt={`${memory.title}${images.length > 1 ? ` ${index + 1}` : ""}`}
                       loading={index === 0 ? "eager" : "lazy"}
                       decoding="async"

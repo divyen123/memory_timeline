@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { requiresAuthenticatedImageFetch } from "../services/api";
 
 const facePositionCache = new Map();
 
@@ -32,6 +33,61 @@ function getFacePosition(face, image) {
 
 function SmartImage({ src, alt, className = "", style, loading = "lazy", decoding = "async", detectFaces = true, ...props }) {
   const [objectPosition, setObjectPosition] = useState(facePositionCache.get(src) || "50% 35%");
+  const [resolvedSrc, setResolvedSrc] = useState(src);
+
+  useEffect(()=>{
+    let active = true;
+    let objectUrl = "";
+
+    if(!requiresAuthenticatedImageFetch(src)){
+      setResolvedSrc(src);
+      return () => {};
+    }
+
+    const token = localStorage.getItem("token");
+
+    if(!token){
+      setResolvedSrc("");
+      return () => {};
+    }
+
+    setResolvedSrc("");
+
+    fetch(src, {
+      headers:{
+        Authorization:`Bearer ${token}`
+      }
+    })
+      .then((response)=>{
+        if(!response.ok){
+          throw new Error("Image failed");
+        }
+
+        return response.blob();
+      })
+      .then((blob)=>{
+        objectUrl = URL.createObjectURL(blob);
+
+        if(active){
+          setResolvedSrc(objectUrl);
+        }else{
+          URL.revokeObjectURL(objectUrl);
+        }
+      })
+      .catch(()=>{
+        if(active){
+          setResolvedSrc("");
+        }
+      });
+
+    return () => {
+      active = false;
+
+      if(objectUrl){
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [src]);
 
   const handleLoad = async (event) => {
     const image = event.currentTarget;
@@ -78,7 +134,7 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
 
   return (
     <img
-      src={src}
+      src={resolvedSrc}
       alt={alt}
       loading={loading}
       decoding={decoding}

@@ -152,12 +152,6 @@ app.use(expressRateLimit({
 
 app.use(express.json({limit:"1mb"}));
 
-/* SERVE UPLOADED IMAGES */
-app.use("/uploads", express.static("uploads", {
-  maxAge:"30d",
-  immutable:true
-}));
-
 /* AUTH ROUTES */
 
 /* REGISTER */

@@ -4,7 +4,7 @@ import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
 import {
   emptyTrash,
-  getImageUrl,
+  getMemoryImageUrl,
   getTrashMemories,
   permanentlyDeleteMemories,
   permanentlyDeleteMemory,
@@ -214,6 +214,7 @@ function Trash() {
         ) : (
           <section className="trash-grid">
             {memories.map((memory)=> {
+              const imageKind = memory.thumbnails?.length ? "thumbnails" : "images";
               const images = memory.thumbnails?.length
                 ? memory.thumbnails
                 : (memory.images?.length ? memory.images : (memory.image ? [memory.image] : []));
@@ -235,7 +236,7 @@ function Trash() {
                   )}
                   <div className="trash-thumb">
                     {images[0] ? (
-                      <SmartImage src={getImageUrl(images[0])} alt={memory.title} detectFaces={false} />
+                      <SmartImage src={getMemoryImageUrl(memory, imageKind, 0)} alt={memory.title} detectFaces={false} />
                     ) : (
                       <strong>{memory.title?.slice(0,1) || "M"}</strong>
                     )}

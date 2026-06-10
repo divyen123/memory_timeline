@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getImageUrl } from "../services/api";
+import { getMemoryImageUrl } from "../services/api";
 import SmartImage from "./SmartImage";
 
 function MemoryCard({
@@ -25,6 +25,7 @@ function MemoryCard({
   const navigate = useNavigate();
   const displayImages = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
   const cardImages = memory.thumbnails?.length ? memory.thumbnails : displayImages;
+  const cardImageKind = memory.thumbnails?.length ? "thumbnails" : "images";
 
   useEffect(() => {
 
@@ -106,7 +107,7 @@ function MemoryCard({
             cardImages.slice(0,4).map((image, imageIndex)=>(
               <SmartImage
                 key={`${image}-${imageIndex}`}
-                src={getImageUrl(image)}
+                src={getMemoryImageUrl(memory, cardImageKind, imageIndex)}
                 alt={memory.title || "memory"}
                 detectFaces={false}
               />

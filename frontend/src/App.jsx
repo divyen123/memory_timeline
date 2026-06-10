@@ -1,4 +1,4 @@
-import React,{ useState,useEffect } from "react";
+import React,{ useState,useEffect,useRef } from "react";
 import { Routes,Route,useNavigate,useLocation } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -43,7 +43,9 @@ function App(){
 
   const [deviceProfile,setDeviceProfile] = useState(()=>getDeviceProfile());
   const [settings,setSettings] = useState(()=>loadSettings(deviceProfile));
+  const [showLogoutConfirm,setShowLogoutConfirm] = useState(false);
   const [loggingOut,setLoggingOut] = useState(false);
+  const logoutCancelRef = useRef(null);
   const darkMode = settings.defaultTheme === "dark";
 
   const navigate = useNavigate();
@@ -192,11 +194,28 @@ function App(){
 
   /* LOGOUT FUNCTION */
 
+  const requestLogout = () => {
+    if(loggingOut){
+      return;
+    }
+
+    setShowLogoutConfirm(true);
+  };
+
+  const cancelLogout = () => {
+    if(loggingOut){
+      return;
+    }
+
+    setShowLogoutConfirm(false);
+  };
+
   const handleLogout = () => {
     if(loggingOut){
       return;
     }
 
+    setShowLogoutConfirm(false);
     setLoggingOut(true);
 
     window.setTimeout(() => {
@@ -207,6 +226,29 @@ function App(){
     }, 900);
 
   };
+
+  useEffect(()=>{
+    if(!showLogoutConfirm){
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    logoutCancelRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if(event.key === "Escape"){
+        setShowLogoutConfirm(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return ()=>{
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  },[showLogoutConfirm]);
 
   return(
 
@@ -240,7 +282,9 @@ function App(){
   {showLogout && (
     <button
       className="logout-btn"
-      onClick={handleLogout}
+      onClick={requestLogout}
+      title="Log out"
+      aria-label="Log out"
     >
       🔓
     </button>
@@ -249,6 +293,51 @@ function App(){
 </div>
   )}
       {showSharedReminder && <ReminderWidget />}
+      {showLogoutConfirm && !loggingOut && (
+        <div
+          className="logout-confirm-overlay"
+          role="presentation"
+          onMouseDown={(event)=>{
+            if(event.target === event.currentTarget){
+              cancelLogout();
+            }
+          }}
+        >
+          <section
+            className="logout-confirm-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logout-confirm-title"
+            aria-describedby="logout-confirm-description"
+          >
+            <div className="logout-confirm-icon" aria-hidden="true">🔓</div>
+            <div className="logout-confirm-copy">
+              <p>Session</p>
+              <h2 id="logout-confirm-title">Log out of Memory Timeline?</h2>
+              <span id="logout-confirm-description">
+                You will return to the login page. Your memories and settings will remain safely stored.
+              </span>
+            </div>
+            <div className="logout-confirm-actions">
+              <button
+                ref={logoutCancelRef}
+                type="button"
+                className="logout-cancel-btn"
+                onClick={cancelLogout}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="logout-confirm-btn"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
       {loggingOut && (
         <div className="logout-overlay" role="status" aria-live="polite">
           <div className="logout-card">

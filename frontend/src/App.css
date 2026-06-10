@@ -915,7 +915,7 @@ body.light .toggle-btn::before{
 
 .export-image-btn::before{
   content:"\1F4E5";
-  font-size:28px;
+  font-size:22px;
   font-weight:800;
 }
 
@@ -4309,6 +4309,10 @@ body.light .days-counter{
     font-size:18px;
   }
 
+  .export-image-btn::before{
+    font-size:20px;
+  }
+
   .filter-funnel-icon{
     transform:scale(0.76);
   }
@@ -4721,6 +4725,10 @@ body.light .days-counter{
     width:38px;
     height:38px;
     min-height:38px;
+  }
+
+  .export-image-btn::before{
+    font-size:19px;
   }
 
   .calendar-grid{

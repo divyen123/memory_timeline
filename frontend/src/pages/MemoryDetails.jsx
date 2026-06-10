@@ -279,9 +279,9 @@ function MemoryDetails() {
     {showDeleteConfirm && (
       <div className="confirm-overlay">
         <div className="confirm-dialog">
-          <h3>Delete Memory?</h3>
+          <h3>Move to bin?</h3>
           <p>
-            Are you sure you want to delete "{memory.title}"?
+            "{memory.title}" will stay in trash for 30 days before it is permanently deleted.
           </p>
           <div className="confirm-actions">
             <button
@@ -296,7 +296,7 @@ function MemoryDetails() {
               className="confirm-delete-btn"
               onClick={confirmDelete}
             >
-              Delete
+              Move to bin
             </button>
           </div>
         </div>

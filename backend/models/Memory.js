@@ -54,6 +54,16 @@ const memorySchema = new mongoose.Schema({
     type: String
   },
 
+  deletedAt: {
+    type: Date,
+    default: null
+  },
+
+  trashExpiresAt: {
+    type: Date,
+    default: null
+  },
+
   createdAt: {
     type: Date,
     default: Date.now
@@ -63,6 +73,7 @@ const memorySchema = new mongoose.Schema({
 memorySchema.index({userId:1, date:-1});
 memorySchema.index({userId:1, category:1, date:-1});
 memorySchema.index({userId:1, favorite:1, date:-1});
+memorySchema.index({userId:1, deletedAt:1, trashExpiresAt:1});
 memorySchema.index({publicToken:1}, {sparse:true});
 
 module.exports = mongoose.model("Memory",memorySchema);

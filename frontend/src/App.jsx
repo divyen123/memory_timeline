@@ -8,6 +8,7 @@ import AddMemory from "./pages/AddMemory";
 import MemoryTimeline from "./pages/MemoryTimeline";
 import MemoryDetails from "./pages/MemoryDetails";
 import Profile from "./pages/Profile";
+import Trash from "./pages/Trash";
 import PublicShare from "./pages/PublicShare";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReminderWidget from "./components/ReminderWidget";
@@ -53,6 +54,7 @@ function App(){
   const showLogout = localStorage.getItem("token") &&
     (
       ["/add","/timeline","/profile"].includes(location.pathname) ||
+      location.pathname === "/trash" ||
       location.pathname.startsWith("/memory/")
     );
   const authPages = ["/", "/register", "/forgot-password"];
@@ -254,7 +256,7 @@ function App(){
 
     <div className={`container ${isPublicSharePage ? "public-route-container" : ""}`}>
 
-      {!isPublicSharePage && <div className="hearts">
+      {!isPublicSharePage && deviceProfile !== "mobile" && <div className="hearts">
         <span>❤️</span>
         <span>💖</span>
         <span>💕</span>
@@ -377,6 +379,12 @@ function App(){
         <Route path="/profile" element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/trash" element={
+          <ProtectedRoute>
+            <Trash />
           </ProtectedRoute>
         } />
 

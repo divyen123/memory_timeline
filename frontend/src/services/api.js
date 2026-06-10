@@ -41,6 +41,12 @@ export const addMemory = (data)=>API.post("/memories",data);
 
 /* DELETE MEMORY */
 export const deleteMemory = (id)=>API.delete(`/memories/${id}`);
+export const getTrashMemories = ()=>API.get("/memories/trash");
+export const restoreMemory = (id)=>API.patch(`/memories/${id}/restore`);
+export const restoreMemories = (ids)=>API.post("/memories/trash/restore", {ids});
+export const permanentlyDeleteMemory = (id)=>API.delete(`/memories/${id}/permanent`);
+export const permanentlyDeleteMemories = (ids)=>API.post("/memories/trash/permanent-delete", {ids});
+export const emptyTrash = ()=>API.delete("/memories/trash/empty");
 
 /* UPDATE MEMORY */
 export const updateMemory = (id,data)=>API.put(`/memories/${id}`,data);

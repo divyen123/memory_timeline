@@ -6,6 +6,9 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const Memory = require("../models/Memory");
 const ShareLink = require("../models/ShareLink");
 
+const TRASH_RETENTION_DAYS = 30;
+const TRASH_RETENTION_MS = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
 const getS3Client = () => new S3Client({
   region:process.env.AWS_REGION,
   credentials:process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
@@ -299,6 +302,48 @@ const buildMemoryPayload = (req, images, thumbnails = []) => ({
 
 const createToken = () => crypto.randomBytes(18).toString("hex");
 
+const activeMemoryQuery = (extra = {}) => ({
+  ...extra,
+  deletedAt:null
+});
+
+const trashMemoryQuery = (extra = {}) => ({
+  ...extra,
+  deletedAt:{$exists:true, $ne:null}
+});
+
+const purgeExpiredTrash = async () => {
+  const expiredMemories = await Memory.find({
+    deletedAt:{$exists:true, $ne:null},
+    trashExpiresAt:{$lte:new Date()}
+  });
+
+  if(!expiredMemories.length){
+    return 0;
+  }
+
+  await Promise.all(expiredMemories.map(deleteStoredImages));
+  await Memory.deleteMany({_id:{$in:expiredMemories.map((memory)=>memory._id)}});
+  return expiredMemories.length;
+};
+
+let trashPurgeIntervalStarted = false;
+
+const startTrashPurgeInterval = () => {
+  if(trashPurgeIntervalStarted){
+    return;
+  }
+
+  trashPurgeIntervalStarted = true;
+  setInterval(() => {
+    purgeExpiredTrash().catch((error)=>{
+      console.error("Expired trash purge failed", error.message);
+    });
+  }, 6 * 60 * 60 * 1000).unref?.();
+};
+
+startTrashPurgeInterval();
+
 // Add Memory
 exports.addMemory = async (req, res) => {
   try {
@@ -324,10 +369,12 @@ exports.addMemory = async (req, res) => {
 // Get All Memories
 exports.getMemories = async (req, res) => {
   try {
+    await purgeExpiredTrash();
+
     const page = Math.max(Number(req.query.page || 1), 1);
     const limit = Math.min(Math.max(Number(req.query.limit || 12), 1), 30);
     const sortOrder = req.query.sort === "oldest" ? 1 : -1;
-    const query = {userId:req.user.userId};
+    const query = activeMemoryQuery({userId:req.user.userId});
 
     if(req.query.category && req.query.category !== "All"){
       query.category = req.query.category;
@@ -374,7 +421,8 @@ exports.getMemory = async (req, res) => {
   try {
     const memory = await Memory.findOne({
       _id:req.params.id,
-      userId:req.user.userId
+      userId:req.user.userId,
+      deletedAt:null
     });
 
     if(!memory){
@@ -392,7 +440,8 @@ exports.downloadMemoryImage = async (req,res)=>{
   try{
     const memory = await Memory.findOne({
       _id:req.params.id,
-      userId:req.user.userId
+      userId:req.user.userId,
+      deletedAt:null
     });
 
     if(!memory){
@@ -443,18 +492,24 @@ exports.deleteMemory = async (req,res)=>{
 
   try{
 
-    const deleted = await Memory.findOneAndDelete({
+    const memory = await Memory.findOne({
       _id:req.params.id,
-      userId:req.user.userId
+      userId:req.user.userId,
+      deletedAt:null
     });
 
-    if(!deleted){
+    if(!memory){
       return res.status(404).json({message:"Memory not found"});
     }
 
-    await deleteStoredImages(deleted);
+    memory.deletedAt = new Date();
+    memory.trashExpiresAt = new Date(Date.now() + TRASH_RETENTION_MS);
+    await memory.save();
 
-    res.json({message:"Memory deleted"});
+    res.json({
+      message:"Memory moved to bin",
+      memory:await withSignedImages(memory)
+    });
 
   }
   catch(err){
@@ -475,7 +530,8 @@ exports.updateMemory = async (req,res)=>{
     const updated = await Memory.findOneAndUpdate(
       {
         _id:req.params.id,
-        userId:req.user.userId
+        userId:req.user.userId,
+        deletedAt:null
       },
       updateData,
       {new:true}
@@ -501,7 +557,8 @@ exports.toggleFavorite = async (req,res)=>{
 
     const memory = await Memory.findOne({
       _id:req.params.id,
-      userId:req.user.userId
+      userId:req.user.userId,
+      deletedAt:null
     });
 
     if(!memory){
@@ -524,7 +581,8 @@ exports.createMemoryShare = async (req,res)=>{
   try{
     const memory = await Memory.findOne({
       _id:req.params.id,
-      userId:req.user.userId
+      userId:req.user.userId,
+      deletedAt:null
     });
 
     if(!memory){
@@ -573,7 +631,10 @@ exports.createCategoryShare = async (req,res)=>{
 
 exports.getPublicShare = async (req,res)=>{
   try{
-    const memory = await Memory.findOne({publicToken:req.params.token});
+    const memory = await Memory.findOne({
+      publicToken:req.params.token,
+      deletedAt:null
+    });
 
     if(memory){
       return res.json({
@@ -590,7 +651,8 @@ exports.getPublicShare = async (req,res)=>{
 
     const memories = await Memory.find({
       userId:share.userId,
-      category:share.category
+      category:share.category,
+      deletedAt:null
     }).sort({date:-1});
 
     res.json({
@@ -600,5 +662,133 @@ exports.getPublicShare = async (req,res)=>{
     });
   }catch(err){
     res.status(500).json(err);
+  }
+};
+
+exports.getTrashMemories = async (req,res)=>{
+  try{
+    await purgeExpiredTrash();
+
+    const memories = await Memory.find(trashMemoryQuery({
+      userId:req.user.userId
+    })).sort({deletedAt:-1});
+
+    res.json({
+      memories:await Promise.all(memories.map(withSignedImages)),
+      retentionDays:TRASH_RETENTION_DAYS
+    });
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to load trash"});
+  }
+};
+
+exports.restoreMemory = async (req,res)=>{
+  try{
+    const memory = await Memory.findOne(trashMemoryQuery({
+      _id:req.params.id,
+      userId:req.user.userId
+    }));
+
+    if(!memory){
+      return res.status(404).json({message:"Memory not found in trash"});
+    }
+
+    memory.deletedAt = null;
+    memory.trashExpiresAt = null;
+    await memory.save();
+
+    res.json({
+      message:"Memory recovered",
+      memory:await withSignedImages(memory)
+    });
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to recover memory"});
+  }
+};
+
+exports.restoreMemories = async (req,res)=>{
+  try{
+    const ids = Array.isArray(req.body.ids) ? req.body.ids : [];
+
+    if(!ids.length){
+      return res.status(400).json({message:"Select memories to recover"});
+    }
+
+    const result = await Memory.updateMany(
+      trashMemoryQuery({
+        _id:{$in:ids},
+        userId:req.user.userId
+      }),
+      {$set:{deletedAt:null, trashExpiresAt:null}}
+    );
+
+    res.json({
+      message:"Memories recovered",
+      restored:result.modifiedCount || 0
+    });
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to recover memories"});
+  }
+};
+
+exports.permanentlyDeleteMemory = async (req,res)=>{
+  try{
+    const deleted = await Memory.findOneAndDelete(trashMemoryQuery({
+      _id:req.params.id,
+      userId:req.user.userId
+    }));
+
+    if(!deleted){
+      return res.status(404).json({message:"Memory not found in trash"});
+    }
+
+    await deleteStoredImages(deleted);
+
+    res.json({message:"Memory permanently deleted"});
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to permanently delete memory"});
+  }
+};
+
+exports.permanentlyDeleteMemories = async (req,res)=>{
+  try{
+    const ids = Array.isArray(req.body.ids) ? req.body.ids : [];
+
+    if(!ids.length){
+      return res.status(400).json({message:"Select memories to permanently delete"});
+    }
+
+    const memories = await Memory.find(trashMemoryQuery({
+      _id:{$in:ids},
+      userId:req.user.userId
+    }));
+
+    await Promise.all(memories.map(deleteStoredImages));
+    await Memory.deleteMany({_id:{$in:memories.map((memory)=>memory._id)}});
+
+    res.json({
+      message:"Memories permanently deleted",
+      deleted:memories.length
+    });
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to permanently delete memories"});
+  }
+};
+
+exports.emptyTrash = async (req,res)=>{
+  try{
+    const memories = await Memory.find(trashMemoryQuery({
+      userId:req.user.userId
+    }));
+
+    await Promise.all(memories.map(deleteStoredImages));
+    await Memory.deleteMany({_id:{$in:memories.map((memory)=>memory._id)}});
+
+    res.json({
+      message:"Bin emptied",
+      deleted:memories.length
+    });
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to empty bin"});
   }
 };

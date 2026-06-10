@@ -8,9 +8,15 @@ const authMiddleware = require("../middleware/authMiddleware");
 const {
   getMemories,
   getMemory,
+  getTrashMemories,
   downloadMemoryImage,
   addMemory,
   deleteMemory,
+  restoreMemory,
+  restoreMemories,
+  permanentlyDeleteMemory,
+  permanentlyDeleteMemories,
+  emptyTrash,
   updateMemory,
   toggleFavorite,
   createMemoryShare,
@@ -93,11 +99,17 @@ const memoryImagesUpload = (req, res, next) => {
 };
 
 router.get("/memories", authMiddleware, getMemories);
+router.get("/memories/trash", authMiddleware, getTrashMemories);
+router.post("/memories/trash/restore", authMiddleware, restoreMemories);
+router.post("/memories/trash/permanent-delete", authMiddleware, permanentlyDeleteMemories);
+router.delete("/memories/trash/empty", authMiddleware, emptyTrash);
 router.get("/memories/:id/images/:index/download", authMiddleware, downloadMemoryImage);
 router.get("/memories/:id", authMiddleware, getMemory);
 router.post("/memories", authMiddleware, memoryImagesUpload, addMemory);
 router.put("/memories/:id", authMiddleware, memoryImagesUpload, updateMemory);
 router.patch("/memories/:id/favorite", authMiddleware, toggleFavorite);
+router.patch("/memories/:id/restore", authMiddleware, restoreMemory);
+router.delete("/memories/:id/permanent", authMiddleware, permanentlyDeleteMemory);
 router.post("/memories/:id/share", authMiddleware, createMemoryShare);
 router.post("/share/category", authMiddleware, createCategoryShare);
 router.get("/public/share/:token", getPublicShare);

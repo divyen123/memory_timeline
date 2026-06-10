@@ -309,7 +309,7 @@ function MemoryTimeline() {
       if(deletingPreviewMemory){
         setPreviewMemory(null);
       }
-      setMessage("Memory deleted");
+      setMessage("Memory moved to bin");
 
     } catch (error) {
 
@@ -1175,6 +1175,15 @@ function MemoryTimeline() {
           </button>
           <button
             type="button"
+            className="timeline-action-btn trash-nav-btn"
+            title="Trash"
+            aria-label="Trash"
+            onClick={() => navigate("/trash")}
+          >
+            &#128465;
+          </button>
+          <button
+            type="button"
             className="timeline-action-btn"
             title="Settings"
             aria-label="Settings"
@@ -1574,9 +1583,9 @@ function MemoryTimeline() {
           {previewDeleteActive && (
             <div className="preview-confirm">
               <div className="preview-confirm-dialog">
-                <h3>Delete Memory?</h3>
+                <h3>Move to bin?</h3>
                 <p>
-                  Are you sure you want to delete "{memoryToDelete.title}"?
+                  "{memoryToDelete.title}" will stay in trash for 30 days before it is permanently deleted.
                 </p>
                 <div className="confirm-actions">
                   <button
@@ -1591,7 +1600,7 @@ function MemoryTimeline() {
                     className="confirm-delete-btn"
                     onClick={confirmDelete}
                   >
-                    Delete
+                    Move to bin
                   </button>
                 </div>
               </div>
@@ -1604,9 +1613,9 @@ function MemoryTimeline() {
     {memoryToDelete && !previewDeleteActive && (
       <div className="confirm-overlay">
         <div className="confirm-dialog">
-          <h3>Delete Memory?</h3>
+          <h3>Move to bin?</h3>
           <p>
-            Are you sure you want to delete "{memoryToDelete.title}"?
+            "{memoryToDelete.title}" will stay in trash for 30 days before it is permanently deleted.
           </p>
           <div className="confirm-actions">
             <button
@@ -1621,7 +1630,7 @@ function MemoryTimeline() {
               className="confirm-delete-btn"
               onClick={confirmDelete}
             >
-              Delete
+              Move to bin
             </button>
           </div>
         </div>

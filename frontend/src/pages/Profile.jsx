@@ -403,18 +403,20 @@ function Profile() {
                 />
               </label>
 
-              <label className="settings-field">
-                <span>Floating hearts speed</span>
-                <select
-                  value={appSettings.heartsSpeed}
-                  onChange={(e)=>updateSetting("heartsSpeed", e.target.value)}
-                >
-                  <option value="slow">Slow</option>
-                  <option value="normal">Normal</option>
-                  <option value="fast">Fast</option>
-                  <option value="fixed">Fixed</option>
-                </select>
-              </label>
+              {!isMobileProfile && (
+                <label className="settings-field">
+                  <span>Floating hearts speed</span>
+                  <select
+                    value={appSettings.heartsSpeed}
+                    onChange={(e)=>updateSetting("heartsSpeed", e.target.value)}
+                  >
+                    <option value="slow">Slow</option>
+                    <option value="normal">Normal</option>
+                    <option value="fast">Fast</option>
+                    <option value="fixed">Fixed</option>
+                  </select>
+                </label>
+              )}
 
               <div className="settings-section-title">Background Colors</div>
 

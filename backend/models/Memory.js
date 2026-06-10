@@ -31,6 +31,11 @@ const memorySchema = new mongoose.Schema({
     default: []
   },
 
+  thumbnails: {
+    type: [String],
+    default: []
+  },
+
   category: {
     type: String,
     default: "Personal"

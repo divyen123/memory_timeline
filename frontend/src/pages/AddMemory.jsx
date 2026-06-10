@@ -12,8 +12,10 @@ const ACCEPTED_IMAGE_TYPES = new Set([
   "image/webp"
 ]);
 const ACCEPTED_IMAGE_EXTENSIONS = [".jpg",".jpeg",".png",".webp"];
-const OPTIMIZED_IMAGE_MAX_EDGE = 1920;
-const OPTIMIZED_IMAGE_QUALITY = 0.82;
+const FULL_IMAGE_MAX_EDGE = 1200;
+const FULL_IMAGE_QUALITY = 0.82;
+const THUMBNAIL_MAX_EDGE = 400;
+const THUMBNAIL_QUALITY = 0.72;
 
 const formatFileSize = (bytes) => {
   if(bytes < 1024 * 1024){
@@ -67,12 +69,12 @@ const canvasToBlob = (canvas, type, quality) => new Promise((resolve, reject) =>
   }, type, quality);
 });
 
-const optimizeImageFile = async (file) => {
+const createOptimizedImageVariant = async (file, maxEdge, quality, suffix) => {
   try{
     const image = await loadImageForOptimization(file);
     const scale = Math.min(
       1,
-      OPTIMIZED_IMAGE_MAX_EDGE / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height)
+      maxEdge / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height)
     );
     const width = Math.max(1, Math.round((image.naturalWidth || image.width) * scale));
     const height = Math.max(1, Math.round((image.naturalHeight || image.height) * scale));
@@ -87,21 +89,26 @@ const optimizeImageFile = async (file) => {
     canvas.height = height;
     context.drawImage(image, 0, 0, width, height);
 
-    const blob = await canvasToBlob(canvas, "image/webp", OPTIMIZED_IMAGE_QUALITY);
-
-    if(blob.size >= file.size){
-      return file;
-    }
+    const blob = await canvasToBlob(canvas, "image/webp", quality);
 
     const optimizedName = file.name.replace(/\.[^.]+$/, "") || "memory-image";
 
-    return new File([blob], `${optimizedName}.webp`, {
+    return new File([blob], `${optimizedName}-${suffix}.webp`, {
       type:"image/webp",
       lastModified:Date.now()
     });
   }catch{
     return file;
   }
+};
+
+const optimizeImageFile = async (file) => {
+  const [full, thumbnail] = await Promise.all([
+    createOptimizedImageVariant(file, FULL_IMAGE_MAX_EDGE, FULL_IMAGE_QUALITY, "full"),
+    createOptimizedImageVariant(file, THUMBNAIL_MAX_EDGE, THUMBNAIL_QUALITY, "thumb")
+  ]);
+
+  return {full, thumbnail};
 };
 
 const optimizeImages = async (files) => Promise.all(files.map(optimizeImageFile));
@@ -218,15 +225,21 @@ function AddMemory() {
       }
 
       const optimizedImages = await optimizeImages(images);
-      const optimizedValidationMessage = validateImages(optimizedImages);
+      const fullImages = optimizedImages.map(({full})=>full);
+      const thumbnailImages = optimizedImages.map(({thumbnail})=>thumbnail);
+      const optimizedValidationMessage = validateImages(fullImages);
 
       if(optimizedValidationMessage){
         setMessage(optimizedValidationMessage);
         return;
       }
 
-      optimizedImages.forEach((image)=>{
+      fullImages.forEach((image)=>{
         formData.append("images",image);
+      });
+
+      thumbnailImages.forEach((image)=>{
+        formData.append("thumbnails",image);
       });
 
       if(isEditing){
@@ -355,7 +368,7 @@ function AddMemory() {
         />
 
         <div className="upload-helper">
-          <span>Upload up to {MAX_MEMORY_IMAGES} images. JPG, PNG, and WebP are supported.</span>
+          <span>Upload up to {MAX_MEMORY_IMAGES} images. JPG, PNG, and WebP are optimized into fast thumbnails and full-view images.</span>
           {images.length > 0 && (
             <button type="button" onClick={clearImages}>
               Clear

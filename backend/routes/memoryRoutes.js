@@ -45,7 +45,7 @@ const upload = multer({
   storage,
   limits:{
     fileSize:Number(process.env.MAX_UPLOAD_MB || 8) * 1024 * 1024,
-    files:MAX_MEMORY_IMAGES
+    files:MAX_MEMORY_IMAGES * 2
   },
   fileFilter(req, file, cb){
     if(allowedImageTypes.has(file.mimetype)){
@@ -58,13 +58,20 @@ const upload = multer({
 });
 
 const memoryImagesUpload = (req, res, next) => {
-  upload.array("images", MAX_MEMORY_IMAGES)(req, res, (error) => {
+  upload.fields([
+    {name:"images", maxCount:MAX_MEMORY_IMAGES},
+    {name:"thumbnails", maxCount:MAX_MEMORY_IMAGES}
+  ])(req, res, (error) => {
     if(!error){
       next();
       return;
     }
 
-    (req.files || []).forEach((file) => {
+    const uploadedFiles = Array.isArray(req.files)
+      ? req.files
+      : Object.values(req.files || {}).flat();
+
+    uploadedFiles.forEach((file) => {
       if(file?.path){
         fs.rmSync(file.path, {force:true});
       }

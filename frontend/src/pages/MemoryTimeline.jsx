@@ -38,6 +38,7 @@ function MemoryTimeline() {
   const [exportFavoritesOnly, setExportFavoritesOnly] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [settings, setSettings] = useState(()=>loadSettings());
+  const [isMobileTimeline, setIsMobileTimeline] = useState(()=>window.matchMedia("(max-width: 760px)").matches);
   const [virtualRange, setVirtualRange] = useState({
     start:0,
     end:30,
@@ -60,7 +61,7 @@ function MemoryTimeline() {
   const navigate = useNavigate();
   const location = useLocation();
   const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
-  const shouldVirtualizeTimeline = viewMode === "timeline" && memories.length > 30;
+  const shouldVirtualizeTimeline = viewMode === "timeline" && memories.length > (isMobileTimeline ? 12 : 30);
 
   const loadMemories = useCallback(async (nextPage = 1, replace = false) => {
     setLoading(true);
@@ -68,7 +69,7 @@ function MemoryTimeline() {
     try{
       const res = await getMemories({
         page:nextPage,
-        limit:12,
+        limit:isMobileTimeline ? 9 : 12,
         search:searchText || undefined,
         sort:sortOrder,
         category:categoryFilter,
@@ -83,7 +84,15 @@ function MemoryTimeline() {
     }finally{
       setLoading(false);
     }
-  }, [categoryFilter, searchText, showFavorites, sortOrder]);
+  }, [categoryFilter, isMobileTimeline, searchText, showFavorites, sortOrder]);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 760px)");
+    const handleChange = (event) => setIsMobileTimeline(event.matches);
+
+    query.addEventListener("change", handleChange);
+    return () => query.removeEventListener("change", handleChange);
+  }, []);
 
   useEffect(() => {
     loadMemories(1, true);
@@ -125,7 +134,7 @@ function MemoryTimeline() {
     const timelineTop = timelineRef.current.getBoundingClientRect().top + window.scrollY;
     const viewportTop = window.scrollY;
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 800;
-    const bufferHeight = viewportHeight * 1.35;
+    const bufferHeight = viewportHeight * (isMobileTimeline ? 0.55 : 1.2);
     const firstVisibleY = Math.max(0, viewportTop - timelineTop - bufferHeight);
     const lastVisibleY = Math.max(firstVisibleY, viewportTop - timelineTop + viewportHeight + bufferHeight);
     const totalRows = Math.ceil(memories.length / virtualMetrics.columns);
@@ -138,7 +147,7 @@ function MemoryTimeline() {
       beforeHeight:startRow * virtualMetrics.rowHeight,
       afterHeight:Math.max(0, (totalRows - endRow) * virtualMetrics.rowHeight)
     });
-  }, [memories.length, shouldVirtualizeTimeline, virtualMetrics.columns, virtualMetrics.rowHeight]);
+  }, [isMobileTimeline, memories.length, shouldVirtualizeTimeline, virtualMetrics.columns, virtualMetrics.rowHeight]);
 
   useEffect(() => {
     measureTimeline();
@@ -1288,6 +1297,7 @@ function MemoryTimeline() {
                           <SmartImage
                             src={getImageUrl(calendarImages[0])}
                             alt=""
+                            detectFaces={false}
                           />
                         ) : (
                           <strong>{memory.title?.slice(0,1) || "M"}</strong>

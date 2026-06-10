@@ -111,12 +111,24 @@ const uploadImage = async (file) => {
 };
 
 const getUploadedImages = async (req) => {
-  if(req.files?.length){
+  if(Array.isArray(req.files)){
     return Promise.all(req.files.map(uploadImage));
+  }
+
+  if(req.files?.images?.length){
+    return Promise.all(req.files.images.map(uploadImage));
   }
 
   if(req.file){
     return [await uploadImage(req.file)];
+  }
+
+  return [];
+};
+
+const getUploadedThumbnails = async (req) => {
+  if(req.files?.thumbnails?.length){
+    return Promise.all(req.files.thumbnails.map(uploadImage));
   }
 
   return [];
@@ -224,7 +236,8 @@ const deleteS3Image = async (image) => {
 
 const deleteStoredImages = async (memory) => {
   const images = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
-  const uniqueImages = [...new Set(images)];
+  const thumbnails = memory.thumbnails || [];
+  const uniqueImages = [...new Set([...images, ...thumbnails])];
 
   await Promise.all(uniqueImages.map(async (image) => {
     try{
@@ -247,9 +260,12 @@ const withSignedImages = async (memory) => {
   const data = memory.toObject ? memory.toObject() : memory;
   const images = data.images?.length ? data.images : (data.image ? [data.image] : []);
   const signedImages = await Promise.all(images.map(signImageUrl));
-  const signedThumbnails = isCloudinaryConfigured()
-    ? images.map((image) => signCloudinaryImageUrl(image, "c_fill,w_720,h_560,q_auto,f_auto"))
-    : signedImages;
+  const thumbnails = data.thumbnails?.length ? data.thumbnails : [];
+  const signedThumbnails = thumbnails.length
+    ? await Promise.all(thumbnails.map(signImageUrl))
+    : isCloudinaryConfigured()
+      ? images.map((image) => signCloudinaryImageUrl(image, "c_fill,w_400,h_320,q_auto:eco,f_auto"))
+      : signedImages;
 
   return {
     ...data,
@@ -268,7 +284,7 @@ const sanitizeDescription = (html = "") => {
     .replace(/javascript:/gi, "");
 };
 
-const buildMemoryPayload = (req, images) => ({
+const buildMemoryPayload = (req, images, thumbnails = []) => ({
   title:req.body.title,
   description:sanitizeDescription(req.body.description),
   date:req.body.date,
@@ -276,7 +292,8 @@ const buildMemoryPayload = (req, images) => ({
   reminderDate:req.body.reminderDate || undefined,
   ...(images.length ? {
     image:images[0],
-    images
+    images,
+    thumbnails
   } : {})
 });
 
@@ -286,12 +303,14 @@ const createToken = () => crypto.randomBytes(18).toString("hex");
 exports.addMemory = async (req, res) => {
   try {
     const images = await getUploadedImages(req);
+    const thumbnails = await getUploadedThumbnails(req);
 
     const newMemory = new Memory({
       userId:req.user.userId,
-      ...buildMemoryPayload(req, images),
+      ...buildMemoryPayload(req, images, thumbnails),
       image:images[0] || "",
-      images
+      images,
+      thumbnails
     });
 
     const savedMemory = await newMemory.save();
@@ -450,7 +469,8 @@ exports.updateMemory = async (req,res)=>{
   try{
 
     const images = await getUploadedImages(req);
-    const updateData = buildMemoryPayload(req, images);
+    const thumbnails = await getUploadedThumbnails(req);
+    const updateData = buildMemoryPayload(req, images, thumbnails);
 
     const updated = await Memory.findOneAndUpdate(
       {

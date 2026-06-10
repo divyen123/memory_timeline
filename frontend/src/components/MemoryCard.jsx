@@ -108,6 +108,7 @@ function MemoryCard({
                 key={`${image}-${imageIndex}`}
                 src={getImageUrl(image)}
                 alt={memory.title || "memory"}
+                detectFaces={false}
               />
             ))
           ) : (

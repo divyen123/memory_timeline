@@ -30,7 +30,7 @@ function getFacePosition(face, image) {
   return `${Math.min(85, Math.max(15, x)).toFixed(1)}% ${Math.min(48, Math.max(0, y)).toFixed(1)}%`;
 }
 
-function SmartImage({ src, alt, className = "", style, loading = "lazy", decoding = "async", ...props }) {
+function SmartImage({ src, alt, className = "", style, loading = "lazy", decoding = "async", detectFaces = true, ...props }) {
   const [objectPosition, setObjectPosition] = useState(facePositionCache.get(src) || "50% 35%");
 
   const handleLoad = async (event) => {
@@ -45,7 +45,7 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
     setObjectPosition(fallbackPosition);
 
     try{
-      if(!("FaceDetector" in window)){
+      if(!detectFaces || !("FaceDetector" in window)){
         facePositionCache.set(src, fallbackPosition);
         return;
       }

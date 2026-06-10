@@ -5624,6 +5624,40 @@ body.light .calendar-memory{
 }
 
 @media (max-width:760px){
+  body.memory-hover-off .timeline-card,
+  .timeline-card{
+    box-shadow:0 10px 24px rgba(3,4,18,0.28);
+    transition:border-color 0.22s ease;
+  }
+
+  .timeline-card:hover,
+  body.memory-hover-off .timeline-card:hover{
+    box-shadow:0 10px 24px rgba(3,4,18,0.28);
+    transform:none;
+  }
+
+  .glass-card,
+  .timeline-filter-popover,
+  .timeline-export-popover,
+  .reminder-popover,
+  .profile-summary-card,
+  .profile-card,
+  .settings-card,
+  .preview-dialog,
+  .calendar-month,
+  .export-selection-bar{
+    backdrop-filter:none;
+  }
+
+  .hearts span:nth-child(n+4){
+    display:none;
+  }
+
+  .hearts span{
+    animation-duration:24s !important;
+    opacity:0.46;
+  }
+
   .calendar-view{
     width:100%;
     margin-top:26px;

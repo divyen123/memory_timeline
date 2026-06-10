@@ -134,16 +134,6 @@ function Trash() {
         {message && <div className="toast">{message}</div>}
 
         <section className="trash-hero" aria-label="Trash overview">
-          {hasTrashMemories && (
-            <button
-              type="button"
-              className="trash-back-btn"
-              aria-label="Back to timeline"
-              onClick={()=>navigate("/timeline")}
-            >
-              &#8592;
-            </button>
-          )}
           <div className="trash-title-wrap">
             <h1>Trash</h1>
             <div className="trash-info-wrap">

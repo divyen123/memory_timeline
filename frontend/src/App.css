@@ -4833,11 +4833,11 @@ body.button-glass-on .carousel-nav,
 .trash-page{
   width:100%;
   min-height:100vh;
-  padding:108px 24px 70px;
+  padding:72px 24px 70px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:20px;
+  gap:12px;
   color:white;
 }
 
@@ -4849,27 +4849,12 @@ body.button-glass-on .carousel-nav,
 
 .trash-hero{
   position:relative;
-  min-height:96px;
-  padding:4px 0 10px;
+  min-height:72px;
+  padding:0 0 4px;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-}
-
-.trash-back-btn{
-  position:absolute;
-  left:0;
-  top:50%;
-  width:42px;
-  height:42px;
-  min-height:42px;
-  padding:0;
-  border-radius:50%;
-  background:rgba(55,36,168,0.82);
-  font-size:22px;
-  line-height:1;
-  transform:translateY(-50%);
 }
 
 .trash-title-wrap{
@@ -4936,7 +4921,7 @@ body.button-glass-on .carousel-nav,
 }
 
 .trash-actions-panel{
-  padding:0;
+  padding:0 0 4px;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -5021,8 +5006,9 @@ body.button-glass-on .carousel-nav,
 .trash-grid{
   width:min(1180px,92vw);
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:16px;
+  grid-template-columns:repeat(4,minmax(0,220px));
+  justify-content:start;
+  gap:14px;
 }
 
 .trash-card{
@@ -7477,10 +7463,6 @@ body.light .calendar-memory{
   .trash-hero{
     min-height:76px;
     padding:0 0 6px;
-  }
-
-  .trash-back-btn{
-    display:none;
   }
 
   .trash-hero h1{

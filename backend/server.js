@@ -70,8 +70,12 @@ const sanitizeSettings = (settings = {}) => (
 );
 
 const validateProductionConfig = () => {
-  if(!JWT_SECRET || JWT_SECRET.length < 32){
-    throw new Error("JWT_SECRET must be at least 32 characters");
+  if(!JWT_SECRET){
+    throw new Error("JWT_SECRET is required");
+  }
+
+  if(isProduction && JWT_SECRET.length < 32){
+    console.warn("JWT_SECRET is shorter than 32 characters. Rotate it to a longer secret when active sessions can be refreshed.");
   }
 
   if(isProduction){

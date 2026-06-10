@@ -1,6 +1,7 @@
 import React,{Suspense,useCallback,useEffect,useRef,useState} from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../services/api";
+import { completeOnboarding, loginUser } from "../services/api";
+import OnboardingTour from "../components/OnboardingTour";
 
 const LoginIntroMotion = React.lazy(()=>import("../components/LoginIntroMotion"));
 
@@ -10,7 +11,9 @@ const [email,setEmail] = useState("");
 const [password,setPassword] = useState("");
 const [message,setMessage] = useState("");
 const [showIntro,setShowIntro] = useState(false);
+const [showOnboarding,setShowOnboarding] = useState(false);
 const introCompletedRef = useRef(false);
+const onboardingRequiredRef = useRef(false);
 
 const navigate = useNavigate();
 
@@ -20,7 +23,14 @@ const finishIntro = useCallback(() => {
   }
 
   introCompletedRef.current = true;
-  navigate("/timeline");
+  setShowIntro(false);
+
+  if(onboardingRequiredRef.current){
+    setShowOnboarding(true);
+    return;
+  }
+
+  navigate("/timeline", {replace:true});
 }, [navigate]);
 
 const handleLogin = async () => {
@@ -31,6 +41,7 @@ const handleLogin = async () => {
 
     localStorage.setItem("token", res.data.token);   // IMPORTANT
 
+    onboardingRequiredRef.current = Boolean(res.data.onboardingRequired);
     introCompletedRef.current = false;
     setShowIntro(true);
 
@@ -40,6 +51,13 @@ const handleLogin = async () => {
 
   }
 
+};
+
+const handleOnboardingComplete = async () => {
+  await completeOnboarding();
+  onboardingRequiredRef.current = false;
+  setShowOnboarding(false);
+  navigate("/timeline", {replace:true});
 };
 
 useEffect(() => {
@@ -64,6 +82,10 @@ return(
   <Suspense fallback={<div className="login-intro-overlay" />}>
     <LoginIntroMotion onComplete={finishIntro} />
   </Suspense>
+)}
+
+{showOnboarding && (
+  <OnboardingTour onComplete={handleOnboardingComplete} />
 )}
 
 <div className="glass-card login-card">

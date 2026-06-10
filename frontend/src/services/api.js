@@ -59,6 +59,7 @@ export const getPublicShare = (token)=>API.get(`/public/share/${token}`);
 /* AUTH */
 export const loginUser = (data)=>API.post("/login",data);
 export const registerUser = (data)=>API.post("/register",data);
+export const completeOnboarding = ()=>API.patch("/onboarding/complete");
 export const requestResetCode = (data)=>API.post("/request-reset-code",data);
 export const resetPassword = (data)=>API.post("/reset-password",data);
 export const getProfile = ()=>API.get("/profile");

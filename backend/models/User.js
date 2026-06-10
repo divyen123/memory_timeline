@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
     required:true
   },
 
+  onboardingCompleted:{
+    type:Boolean,
+    default:true
+  },
+
   settingsProfiles:{
     mobile:{
       type:mongoose.Schema.Types.Mixed,

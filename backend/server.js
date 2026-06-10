@@ -186,7 +186,8 @@ app.post("/api/register", async(req,res)=>{
 
     const user = new User({
       email:normalizedEmail,
-      password:hashedPassword
+      password:hashedPassword,
+      onboardingCompleted:false
     });
 
     await user.save();
@@ -334,11 +335,41 @@ app.post("/api/login", async(req,res)=>{
       {expiresIn:"7d"}
     );
 
-    res.json({token});
+    res.json({
+      token,
+      onboardingRequired:user.onboardingCompleted === false
+    });
 
   }catch(err){
 
     res.status(500).json({error:"Login failed"});
+
+  }
+
+});
+
+app.patch("/api/onboarding/complete", authMiddleware, async(req,res)=>{
+
+  try{
+
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      {$set:{onboardingCompleted:true}},
+      {new:true}
+    ).select("_id onboardingCompleted");
+
+    if(!user){
+      return res.status(404).json({message:"User not found"});
+    }
+
+    res.json({
+      message:"Onboarding completed",
+      onboardingCompleted:true
+    });
+
+  }catch(err){
+
+    res.status(500).json({error:"Unable to complete onboarding"});
 
   }
 

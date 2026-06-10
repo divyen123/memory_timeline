@@ -47,9 +47,11 @@ useEffect(() => {
     return;
   }
 
+  // Remotion's onEnded callback controls normal navigation. This is only a
+  // recovery path in case playback is interrupted by a browser-level issue.
   const timer = setTimeout(() => {
     finishIntro();
-  }, 3800);
+  }, 6500);
 
   return () => clearTimeout(timer);
 }, [finishIntro, showIntro]);

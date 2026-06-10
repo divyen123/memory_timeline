@@ -21,16 +21,16 @@ function MemoryTimelineIntro({mobile = false}){
     extrapolateLeft:"clamp",
     extrapolateRight:"clamp"
   });
-  const lineProgress = interpolate(frame, [34, 68], [0, 100], {
+  const lineProgress = interpolate(frame, [34, 78], [0, 100], {
     extrapolateLeft:"clamp",
     extrapolateRight:"clamp"
   });
-  const exitOpacity = interpolate(frame, [82, 96], [1, 0], {
+  const exitOpacity = interpolate(frame, [108, 120], [1, 0], {
     extrapolateLeft:"clamp",
     extrapolateRight:"clamp"
   });
-  const dotFrames = [38, 48, 58, 68];
-  const logoRotation = interpolate(frame, [0, 82], [0, 1440], {
+  const dotFrames = [40, 52, 65, 78];
+  const logoRotation = interpolate(frame, [0, 108], [0, 1440], {
     extrapolateLeft:"clamp",
     extrapolateRight:"clamp"
   });
@@ -39,7 +39,7 @@ function MemoryTimelineIntro({mobile = false}){
     extrapolateLeft:"clamp",
     extrapolateRight:"clamp"
   });
-  const ambientScale = interpolate(frame, [0, 82], [0.88, 1.08], {
+  const ambientScale = interpolate(frame, [0, 108], [0.88, 1.08], {
     extrapolateLeft:"clamp",
     extrapolateRight:"clamp"
   });
@@ -173,7 +173,7 @@ function LoginIntroMotion({onComplete}){
       <Player
         component={MemoryTimelineIntro}
         inputProps={{mobile}}
-        durationInFrames={96}
+        durationInFrames={120}
         fps={30}
         compositionWidth={compositionWidth}
         compositionHeight={compositionHeight}

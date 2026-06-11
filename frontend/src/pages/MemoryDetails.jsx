@@ -54,6 +54,10 @@ function MemoryDetails() {
   };
 
   const handleShare = async () => {
+    if(!window.confirm("Public share warning: anyone with this link can view this memory until the link expires. Continue?")){
+      return;
+    }
+
     try{
       const res = await createMemoryShare(id);
       const url = `${window.location.origin}/share/${res.data.token}`;

@@ -36,23 +36,7 @@ const numberOrDefault = (value, fallback) => {
   return Number.isFinite(number) ? number : fallback;
 };
 
-const parseTokenUserId = () => {
-  try{
-    const token = localStorage.getItem("token");
-
-    if(!token){
-      return "guest";
-    }
-
-    const payload = token.split(".")[1]
-      .replaceAll("-", "+")
-      .replaceAll("_", "/");
-    const decoded = JSON.parse(atob(payload));
-    return decoded.userId || decoded.id || "user";
-  }catch{
-    return "user";
-  }
-};
+const getStoredUserId = () => localStorage.getItem("memory-app-user-id") || "guest";
 
 export const getDeviceProfile = () => {
   if(typeof navigator === "undefined"){
@@ -67,7 +51,7 @@ export const getDeviceProfile = () => {
 };
 
 export const getSettingsStorageKey = (profile = getDeviceProfile()) => (
-  `${SETTINGS_STORAGE_KEY}:${parseTokenUserId()}:${profile}`
+  `${SETTINGS_STORAGE_KEY}:${getStoredUserId()}:${profile}`
 );
 
 export const normalizeSettings = (settings = {}) => ({
@@ -103,7 +87,7 @@ export const saveSettings = (settings, profile = getDeviceProfile()) => {
 
   localStorage.setItem(getSettingsStorageKey(profile), JSON.stringify(nextSettings));
 
-  if(parseTokenUserId() !== "guest"){
+  if(getStoredUserId() !== "guest"){
     localStorage.removeItem(SETTINGS_STORAGE_KEY);
   }
 

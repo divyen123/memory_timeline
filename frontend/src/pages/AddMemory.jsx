@@ -27,8 +27,10 @@ const formatFileSize = (bytes) => {
 
 const isAcceptedImage = (file) => {
   const fileName = file.name.toLowerCase();
-  return ACCEPTED_IMAGE_TYPES.has(file.type) ||
-    ACCEPTED_IMAGE_EXTENSIONS.some((extension)=>fileName.endsWith(extension));
+  const hasAllowedExtension = ACCEPTED_IMAGE_EXTENSIONS.some((extension)=>fileName.endsWith(extension));
+  const hasAllowedMime = !file.type || ACCEPTED_IMAGE_TYPES.has(file.type);
+
+  return hasAllowedExtension && hasAllowedMime;
 };
 
 const getUploadErrorMessage = (err) => {

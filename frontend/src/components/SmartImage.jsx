@@ -44,19 +44,10 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
       return () => {};
     }
 
-    const token = localStorage.getItem("token");
-
-    if(!token){
-      setResolvedSrc("");
-      return () => {};
-    }
-
     setResolvedSrc("");
 
     fetch(src, {
-      headers:{
-        Authorization:`Bearer ${token}`
-      }
+      credentials:"include"
     })
       .then((response)=>{
         if(!response.ok){

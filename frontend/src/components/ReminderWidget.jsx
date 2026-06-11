@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { getMemories } from "../services/api";
 import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
 import { playAppSound } from "../sound";
+import { AUTH_UPDATED_EVENT, getAuthenticatedUserId } from "../auth";
 
 function ReminderWidget(){
   const [memories,setMemories] = useState([]);
@@ -12,10 +13,10 @@ function ReminderWidget(){
   const [reminderActionVersion,setReminderActionVersion] = useState(0);
   const lastSoundReminderRef = useRef("");
   const reminderMenuRef = useRef(null);
-  const token = localStorage.getItem("token");
+  const [authenticatedUserId,setAuthenticatedUserId] = useState(()=>getAuthenticatedUserId());
 
   useEffect(() => {
-    if(!token){
+    if(!authenticatedUserId){
       setMemories([]);
       return;
     }
@@ -34,21 +35,26 @@ function ReminderWidget(){
     };
 
     loadReminderMemories();
-  }, [token]);
+  }, [authenticatedUserId]);
 
   useEffect(() => {
     const handleSettingsUpdated = (event) => {
       setSettings(event.detail || loadSettings());
     };
+    const handleAuthUpdated = (event) => {
+      setAuthenticatedUserId(event.detail?.userId || "");
+    };
 
     window.addEventListener(SETTINGS_UPDATED_EVENT, handleSettingsUpdated);
     window.addEventListener(SETTINGS_PREVIEW_EVENT, handleSettingsUpdated);
     window.addEventListener("storage", handleSettingsUpdated);
+    window.addEventListener(AUTH_UPDATED_EVENT, handleAuthUpdated);
 
     return () => {
       window.removeEventListener(SETTINGS_UPDATED_EVENT, handleSettingsUpdated);
       window.removeEventListener(SETTINGS_PREVIEW_EVENT, handleSettingsUpdated);
       window.removeEventListener("storage", handleSettingsUpdated);
+      window.removeEventListener(AUTH_UPDATED_EVENT, handleAuthUpdated);
     };
   }, []);
 
@@ -103,7 +109,7 @@ function ReminderWidget(){
   }, [reminderPage, reminderPageCount]);
 
   useEffect(() => {
-    if(!token){
+    if(!authenticatedUserId){
       setActiveReminder(null);
       return;
     }
@@ -133,7 +139,7 @@ function ReminderWidget(){
     });
 
     setActiveReminder(reminder || null);
-  }, [memories, reminderActionVersion, settings.reminderLeadDays, token]);
+  }, [memories, reminderActionVersion, settings.reminderLeadDays, authenticatedUserId]);
 
   const dismissReminderToday = () => {
     if(!activeReminder){
@@ -211,7 +217,7 @@ function ReminderWidget(){
         {showReminderPanel && (
           <div className="reminder-popover">
             <h3>Reminders</h3>
-            {!token ? (
+            {!authenticatedUserId ? (
               <p>Log in to see reminders</p>
             ) : upcomingReminders.length > 0 ? (
               <>

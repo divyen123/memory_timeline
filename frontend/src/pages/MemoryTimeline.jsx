@@ -372,6 +372,10 @@ function MemoryTimeline() {
       return;
     }
 
+    if(!window.confirm("Public share warning: anyone with this link can view these memories until the link expires. Continue?")){
+      return;
+    }
+
     try{
       const res = await createCategoryShare({category:categoryFilter});
       const url = `${window.location.origin}/share/${res.data.token}`;
@@ -680,6 +684,10 @@ function MemoryTimeline() {
   void exportMemoriesAsHtml;
 
   const shareMemory = async (memory) => {
+    if(!window.confirm("Public share warning: anyone with this link can view this memory until the link expires. Continue?")){
+      return;
+    }
+
     try{
       const res = await createMemoryShare(memory._id);
       const url = `${window.location.origin}/share/${res.data.token}`;

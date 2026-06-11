@@ -12,7 +12,12 @@ import Trash from "./pages/Trash";
 import PublicShare from "./pages/PublicShare";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReminderWidget from "./components/ReminderWidget";
-import { getAppearanceSettings, updateAppearanceSettings } from "./services/api";
+import { getAppearanceSettings, logoutUser, updateAppearanceSettings } from "./services/api";
+import {
+  AUTH_UPDATED_EVENT,
+  clearAuthenticatedUser,
+  getAuthenticatedUserId
+} from "./auth";
 import {
   getDeviceProfile,
   loadSettings,
@@ -46,12 +51,13 @@ function App(){
   const [settings,setSettings] = useState(()=>loadSettings(deviceProfile));
   const [showLogoutConfirm,setShowLogoutConfirm] = useState(false);
   const [loggingOut,setLoggingOut] = useState(false);
+  const [authenticatedUserId,setAuthenticatedUserId] = useState(()=>getAuthenticatedUserId());
   const logoutCancelRef = useRef(null);
   const darkMode = settings.defaultTheme === "dark";
 
   const navigate = useNavigate();
   const location = useLocation();
-  const showLogout = localStorage.getItem("token") &&
+  const showLogout = authenticatedUserId &&
     (
       ["/add","/timeline","/profile"].includes(location.pathname) ||
       location.pathname === "/trash" ||
@@ -108,6 +114,18 @@ function App(){
   },[darkMode, settings]);
 
   useEffect(()=>{
+    const handleAuthUpdated = (event) => {
+      setAuthenticatedUserId(event.detail?.userId || getAuthenticatedUserId());
+    };
+
+    window.addEventListener(AUTH_UPDATED_EVENT, handleAuthUpdated);
+
+    return () => {
+      window.removeEventListener(AUTH_UPDATED_EVENT, handleAuthUpdated);
+    };
+  },[]);
+
+  useEffect(()=>{
     const handleSettingsUpdated = (event) => {
       setSettings(event.detail || loadSettings());
     };
@@ -143,10 +161,9 @@ function App(){
   },[deviceProfile]);
 
   useEffect(()=>{
-    const token = localStorage.getItem("token");
     const localSettings = loadSettings(deviceProfile);
 
-    if(!token){
+    if(!authenticatedUserId){
       return;
     }
 
@@ -175,7 +192,7 @@ function App(){
     return ()=>{
       active = false;
     };
-  },[deviceProfile, location.pathname]);
+  },[deviceProfile, location.pathname, authenticatedUserId]);
 
   const toggleTheme = async() => {
     const nextSettings = saveSettings({
@@ -185,7 +202,7 @@ function App(){
 
     setSettings(nextSettings);
 
-    if(localStorage.getItem("token")){
+    if(authenticatedUserId){
       try{
         await updateAppearanceSettings(deviceProfile, nextSettings);
       }catch{
@@ -220,8 +237,14 @@ function App(){
     setShowLogoutConfirm(false);
     setLoggingOut(true);
 
-    window.setTimeout(() => {
-      localStorage.removeItem("token");
+    window.setTimeout(async() => {
+      try{
+        await logoutUser();
+      }catch{
+        // Local state is still cleared if the network is interrupted.
+      }
+
+      clearAuthenticatedUser();
       setSettings(loadSettings(deviceProfile));
       setLoggingOut(false);
       navigate("/");

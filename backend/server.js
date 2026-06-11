@@ -5,15 +5,24 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
+const crypto = require("crypto");
 const { rateLimit: expressRateLimit } = require("express-rate-limit");
 
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 
 const memoryRoutes = require("./routes/memoryRoutes");
 const User = require("./models/User");
 const Memory = require("./models/Memory");
+const Session = require("./models/Session");
 const authMiddleware = require("./middleware/authMiddleware");
+const {
+  createSession,
+  rotateSession,
+  revokeCurrentSession,
+  clearSessionCookies
+} = require("./authSessions");
+const { securityInfo, securityWarn, securityError } = require("./securityLogger");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -95,8 +104,9 @@ const validateProductionConfig = () => {
 
 const isStrongPassword = (password) => (
   typeof password === "string" &&
-  password.length >= 8 &&
-  /[A-Za-z]/.test(password) &&
+  password.length >= 10 &&
+  /[a-z]/.test(password) &&
+  /[A-Z]/.test(password) &&
   /\d/.test(password)
 );
 
@@ -138,7 +148,7 @@ app.use(cors({
   },
   methods:["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders:["Content-Type", "Authorization"],
-  credentials:false,
+  credentials:true,
   maxAge:600
 }));
 
@@ -151,14 +161,28 @@ app.use(expressRateLimit({
 }));
 
 app.use(express.json({limit:"1mb"}));
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+  if(!["POST", "PUT", "PATCH", "DELETE"].includes(req.method)){
+    return next();
+  }
+
+  const origin = req.get("origin");
+
+  if(origin && !getAllowedOrigins().includes(origin)){
+    securityWarn("origin_rejected", {ip:req.ip, method:req.method});
+    return res.status(403).json({message:"Origin is not allowed"});
+  }
+
+  next();
+});
 
 /* AUTH ROUTES */
 
 /* REGISTER */
 app.post("/api/register", async(req,res)=>{
-
   try{
-
     const {email,password} = req.body;
     const normalizedEmail = normalizeEmail(email);
 
@@ -167,7 +191,7 @@ app.post("/api/register", async(req,res)=>{
     }
 
     if(!isStrongPassword(password)){
-      return res.status(400).json({message:"Password must be at least 8 characters and include a number"});
+      return res.status(400).json({message:"Password must be at least 10 characters and include uppercase, lowercase, and a number"});
     }
 
     const existingUser = await User.findOne({email:normalizedEmail});
@@ -176,32 +200,24 @@ app.post("/api/register", async(req,res)=>{
       return res.status(400).json({message:"Email already registered"});
     }
 
-    const hashedPassword = await bcrypt.hash(password,10);
-
     const user = new User({
       email:normalizedEmail,
-      password:hashedPassword,
+      password:await bcrypt.hash(password,10),
       onboardingCompleted:false
     });
 
     await user.save();
+    securityInfo("registration_success", {userId:String(user._id), ip:req.ip});
 
     res.json({message:"User registered successfully"});
-
   }catch(err){
-
     res.status(500).json({error:"Registration failed"});
-
   }
-
 });
 
 /* REQUEST PASSWORD RESET CODE */
-
 app.post("/api/request-reset-code", async(req,res)=>{
-
   try{
-
     const {email} = req.body;
     const normalizedEmail = normalizeEmail(email);
 
@@ -214,39 +230,32 @@ app.post("/api/request-reset-code", async(req,res)=>{
     }
 
     const user = await User.findOne({email:normalizedEmail});
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    if(!user){
-      return res.status(400).json({message:"User not found"});
+    if(user){
+      resetCodes.set(normalizedEmail, {
+        codeHash:crypto.createHash("sha256").update(code).digest("hex"),
+        expiresAt:Date.now() + RESET_CODE_EXPIRY_MINUTES * 60 * 1000
+      });
+      securityInfo("password_reset_requested", {userId:String(user._id), ip:req.ip});
     }
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + RESET_CODE_EXPIRY_MINUTES * 60 * 1000;
-
-    resetCodes.set(normalizedEmail, {code, expiresAt});
-
-    if(!isProduction){
+    if(!isProduction && user){
       console.log(`Password reset code for ${normalizedEmail}: ${code}`);
     }
 
     res.json({
-      message:"Verification code generated",
-      devCode: process.env.NODE_ENV === "production" ? undefined : code
+      message:"If that account exists, a verification code has been generated",
+      devCode: process.env.NODE_ENV === "production" || !user ? undefined : code
     });
-
   }catch(err){
-
     res.status(500).json({error:"Reset code request failed"});
-
   }
-
 });
 
 /* RESET PASSWORD */
-
 app.post("/api/reset-password", async(req,res)=>{
-
   try{
-
     const {email,code,password} = req.body;
     const normalizedEmail = normalizeEmail(email);
 
@@ -255,47 +264,40 @@ app.post("/api/reset-password", async(req,res)=>{
     }
 
     if(!isStrongPassword(password)){
-      return res.status(400).json({message:"Password must be at least 8 characters and include a number"});
+      return res.status(400).json({message:"Password must be at least 10 characters and include uppercase, lowercase, and a number"});
     }
 
     const savedCode = resetCodes.get(normalizedEmail);
+    const suppliedCodeHash = crypto.createHash("sha256").update(String(code)).digest("hex");
 
-    if(!savedCode || savedCode.code !== code || savedCode.expiresAt < Date.now()){
+    if(!savedCode || savedCode.codeHash !== suppliedCodeHash || savedCode.expiresAt < Date.now()){
       return res.status(400).json({message:"Invalid or expired verification code"});
     }
 
     const user = await User.findOne({email:normalizedEmail});
 
     if(!user){
-      return res.status(400).json({message:"User not found"});
+      return res.status(400).json({message:"Invalid or expired verification code"});
     }
 
     user.password = await bcrypt.hash(password,10);
-
     await user.save();
-
+    await Session.deleteMany({userId:user._id});
     resetCodes.delete(normalizedEmail);
+    securityInfo("password_reset", {userId:String(user._id), ip:req.ip});
 
-    res.json({message:"Password reset successfully"});
-
+    res.json({message:"Password reset successfully. Please log in again."});
   }catch(err){
-
     res.status(500).json({error:"Password reset failed"});
-
   }
-
 });
 
 /* LOGIN */
-
 app.post("/api/login", async(req,res)=>{
-
   try{
-
     const {email,password} = req.body;
     const normalizedEmail = normalizeEmail(email);
     const loginKey = normalizedEmail || req.ip;
-
     const existingAttempt = loginAttempts.get(loginKey);
     const attemptWindowMs = 15 * 60 * 1000;
 
@@ -308,38 +310,60 @@ app.post("/api/login", async(req,res)=>{
     }
 
     const user = await User.findOne({email:normalizedEmail});
+    const valid = user ? await bcrypt.compare(password,user.password) : false;
 
-    if(!user){
+    if(!user || !valid){
       rateLimit(loginAttempts, loginKey, 5, attemptWindowMs);
-      return res.status(400).json({message:"User not found"});
-    }
-
-    const valid = await bcrypt.compare(password,user.password);
-
-    if(!valid){
-      rateLimit(loginAttempts, loginKey, 5, attemptWindowMs);
-      return res.status(400).json({message:"Invalid password"});
+      securityWarn("login_failed", {ip:req.ip});
+      return res.status(400).json({message:"Invalid email or password"});
     }
 
     loginAttempts.delete(loginKey);
-
-    const token = jwt.sign(
-      {userId:user._id},
-      JWT_SECRET,
-      {expiresIn:"7d"}
-    );
+    await createSession(req, res, user._id);
+    securityInfo("login_success", {userId:String(user._id), ip:req.ip});
 
     res.json({
-      token,
+      authenticated:true,
+      userId:String(user._id),
       onboardingRequired:user.onboardingCompleted === false
     });
-
   }catch(err){
-
     res.status(500).json({error:"Login failed"});
-
   }
+});
 
+app.post("/api/auth/refresh", async(req,res)=>{
+  try{
+    const session = await rotateSession(req, res);
+
+    if(!session){
+      clearSessionCookies(res);
+      return res.status(401).json({message:"Session expired"});
+    }
+
+    res.json({authenticated:true, userId:String(session.userId)});
+  }catch(err){
+    securityError("session_refresh_error", {ip:req.ip});
+    res.status(500).json({message:"Unable to refresh session"});
+  }
+});
+
+app.get("/api/auth/session", authMiddleware, (req,res)=>{
+  res.json({authenticated:true, userId:String(req.user.userId)});
+});
+
+app.post("/api/logout", async(req,res)=>{
+  await revokeCurrentSession(req);
+  clearSessionCookies(res);
+  securityInfo("logout", {ip:req.ip});
+  res.json({message:"Logged out"});
+});
+
+app.post("/api/logout-all", authMiddleware, async(req,res)=>{
+  await Session.deleteMany({userId:req.user.userId});
+  clearSessionCookies(res);
+  securityInfo("logout_all", {userId:String(req.user.userId), ip:req.ip});
+  res.json({message:"All sessions revoked"});
 });
 
 app.patch("/api/onboarding/complete", authMiddleware, async(req,res)=>{
@@ -411,8 +435,9 @@ app.put("/api/profile", authMiddleware, async(req,res)=>{
   try{
 
     const {name,age,email} = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
-    if(!email){
+    if(!normalizedEmail){
       return res.status(400).json({message:"Email is required"});
     }
 
@@ -425,7 +450,7 @@ app.put("/api/profile", authMiddleware, async(req,res)=>{
     }
 
     const existingUser = await User.findOne({
-      email,
+      email:normalizedEmail,
       _id:{$ne:req.user.userId}
     });
 
@@ -438,7 +463,7 @@ app.put("/api/profile", authMiddleware, async(req,res)=>{
       {
         name:name?.trim() || "",
         age:parsedAge,
-        email
+        email:normalizedEmail
       },
       {new:true}
     ).select("-password");
@@ -468,7 +493,7 @@ app.put("/api/profile/password", authMiddleware, async(req,res)=>{
     }
 
     if(!isStrongPassword(newPassword)){
-      return res.status(400).json({message:"Password must be at least 8 characters and include a number"});
+      return res.status(400).json({message:"Password must be at least 10 characters and include uppercase, lowercase, and a number"});
     }
 
     const user = await User.findById(req.user.userId);
@@ -485,8 +510,11 @@ app.put("/api/profile/password", authMiddleware, async(req,res)=>{
 
     user.password = await bcrypt.hash(newPassword,10);
     await user.save();
+    await Session.deleteMany({userId:user._id});
+    clearSessionCookies(res);
+    securityInfo("password_changed", {userId:String(user._id), ip:req.ip});
 
-    res.json({message:"Password updated"});
+    res.json({message:"Password updated. Please log in again."});
 
   }catch(err){
 
@@ -562,10 +590,22 @@ app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
 /* MEMORY ROUTES */
 app.use("/api", memoryRoutes);
 
+app.get("/api/health", async(req,res)=>{
+  const databaseReady = mongoose.connection.readyState === 1;
+
+  res.status(databaseReady ? 200 : 503).json({
+    status:databaseReady ? "ok" : "degraded",
+    database:databaseReady ? "connected" : "unavailable",
+    timestamp:new Date().toISOString()
+  });
+});
+
 app.use((err, req, res, next) => {
   if(err.message === "Not allowed by CORS"){
     return res.status(403).json({message:"Origin is not allowed"});
   }
+
+  securityError("request_error", {path:req.path, method:req.method});
 
   return res.status(500).json({
     message:isProduction ? "Server error" : err.message
@@ -573,9 +613,17 @@ app.use((err, req, res, next) => {
 });
 
 /* MONGODB */
-mongoose.connect(process.env.MONGODB_URI)
-.then(()=>console.log("MongoDB Connected"))
-.catch(err=>console.log(err));
+mongoose.set("strictQuery", true);
+mongoose.set("sanitizeFilter", true);
+mongoose.connect(process.env.MONGODB_URI, {
+  maxPoolSize:Number(process.env.MONGODB_MAX_POOL_SIZE || 10),
+  serverSelectionTimeoutMS:10000
+})
+.then(()=>securityInfo("database_connected"))
+.catch(()=>securityError("database_connection_failed"));
+
+mongoose.connection.on("disconnected", ()=>securityWarn("database_disconnected"));
+mongoose.connection.on("error", ()=>securityError("database_error"));
 
 /* SERVER */
 

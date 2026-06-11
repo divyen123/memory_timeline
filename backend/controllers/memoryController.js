@@ -5,10 +5,12 @@ const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = re
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const Memory = require("../models/Memory");
 const ShareLink = require("../models/ShareLink");
+const { securityInfo, securityWarn } = require("../securityLogger");
 
 const TRASH_RETENTION_DAYS = 30;
 const TRASH_RETENTION_MS = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 const UPLOADS_ROOT = path.resolve("uploads");
+const PUBLIC_SHARE_EXPIRY_DAYS = Number(process.env.PUBLIC_SHARE_EXPIRY_DAYS || 7);
 
 const getS3Client = () => new S3Client({
   region:process.env.AWS_REGION,
@@ -45,7 +47,9 @@ const uploadToS3 = async (file) => {
       Bucket:process.env.AWS_S3_BUCKET,
       Key:key,
       Body:bytes,
-      ContentType:file.mimetype
+      ContentType:file.mimetype,
+      ServerSideEncryption:"AES256",
+      CacheControl:"private, max-age=31536000, immutable"
     }));
 
     await fs.unlink(file.path).catch(()=>{});
@@ -203,7 +207,7 @@ const signS3ImageUrl = async (image) => {
       Bucket:bucket,
       Key:key
     }),
-    {expiresIn:Number(process.env.AWS_SIGNED_URL_EXPIRY_SECONDS || 3600)}
+    {expiresIn:Number(process.env.AWS_SIGNED_URL_EXPIRY_SECONDS || 300)}
   );
 };
 
@@ -368,7 +372,8 @@ const buildMemoryPayload = (req, images, thumbnails = []) => ({
   } : {})
 });
 
-const createToken = () => crypto.randomBytes(18).toString("hex");
+const createToken = () => crypto.randomBytes(32).toString("base64url");
+const createShareExpiry = () => new Date(Date.now() + PUBLIC_SHARE_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
 const activeMemoryQuery = (extra = {}) => ({
   ...extra,
@@ -591,13 +596,20 @@ exports.viewPublicShareImage = async (req,res)=>{
     let memory = await Memory.findOne({
       _id:memoryId,
       publicToken:token,
+      publicShareRevokedAt:null,
+      publicShareExpiresAt:{$gt:new Date()},
       deletedAt:null
     });
 
     if(!memory){
-      const share = await ShareLink.findOne({token});
+      const share = await ShareLink.findOne({
+        token,
+        revokedAt:null,
+        expiresAt:{$gt:new Date()}
+      });
 
       if(!share){
+        securityWarn("public_share_image_rejected", {tokenPrefix:String(token).slice(0, 8)});
         return res.status(404).json({message:"Share not found"});
       }
 
@@ -728,12 +740,17 @@ exports.createMemoryShare = async (req,res)=>{
       return res.status(404).json({message:"Memory not found"});
     }
 
-    if(!memory.publicToken){
-      memory.publicToken = createToken();
-      await memory.save();
-    }
+    memory.publicToken = createToken();
+    memory.publicShareExpiresAt = createShareExpiry();
+    memory.publicShareRevokedAt = null;
+    await memory.save();
+    securityInfo("memory_share_created", {userId:String(req.user.userId), memoryId:String(memory._id)});
 
-    res.json({token:memory.publicToken});
+    res.json({
+      token:memory.publicToken,
+      expiresAt:memory.publicShareExpiresAt,
+      warning:`Anyone with this link can view this memory until ${memory.publicShareExpiresAt.toISOString()}.`
+    });
   }catch(err){
     res.status(500).json(err);
   }
@@ -747,24 +764,68 @@ exports.createCategoryShare = async (req,res)=>{
       return res.status(400).json({message:"Category is required"});
     }
 
-    let share = await ShareLink.findOne({
+    await ShareLink.updateMany(
+      {userId:req.user.userId, type:"category", category, revokedAt:null},
+      {$set:{revokedAt:new Date()}}
+    );
+
+    const share = await ShareLink.create({
       userId:req.user.userId,
       type:"category",
-      category
+      category,
+      token:createToken(),
+      expiresAt:createShareExpiry()
     });
+    securityInfo("category_share_created", {userId:String(req.user.userId), category});
 
-    if(!share){
-      share = await ShareLink.create({
-        userId:req.user.userId,
-        type:"category",
-        category,
-        token:createToken()
-      });
-    }
-
-    res.json({token:share.token});
+    res.json({
+      token:share.token,
+      expiresAt:share.expiresAt,
+      warning:`Anyone with this link can view this category until ${share.expiresAt.toISOString()}.`
+    });
   }catch(err){
     res.status(500).json(err);
+  }
+};
+
+exports.revokeMemoryShare = async (req,res)=>{
+  try{
+    const memory = await Memory.findOne({
+      _id:req.params.id,
+      userId:req.user.userId
+    });
+
+    if(!memory){
+      return res.status(404).json({message:"Memory not found"});
+    }
+
+    memory.publicShareRevokedAt = new Date();
+    await memory.save();
+    securityInfo("memory_share_revoked", {userId:String(req.user.userId), memoryId:String(memory._id)});
+
+    res.json({message:"Share revoked"});
+  }catch(err){
+    res.status(500).json({message:"Unable to revoke share"});
+  }
+};
+
+exports.revokeCategoryShare = async (req,res)=>{
+  try{
+    const {category} = req.body;
+
+    if(!category){
+      return res.status(400).json({message:"Category is required"});
+    }
+
+    await ShareLink.updateMany(
+      {userId:req.user.userId, type:"category", category, revokedAt:null},
+      {$set:{revokedAt:new Date()}}
+    );
+    securityInfo("category_share_revoked", {userId:String(req.user.userId), category});
+
+    res.json({message:"Share revoked"});
+  }catch(err){
+    res.status(500).json({message:"Unable to revoke share"});
   }
 };
 
@@ -772,6 +833,8 @@ exports.getPublicShare = async (req,res)=>{
   try{
     const memory = await Memory.findOne({
       publicToken:req.params.token,
+      publicShareRevokedAt:null,
+      publicShareExpiresAt:{$gt:new Date()},
       deletedAt:null
     });
 
@@ -782,7 +845,11 @@ exports.getPublicShare = async (req,res)=>{
       });
     }
 
-    const share = await ShareLink.findOne({token:req.params.token});
+    const share = await ShareLink.findOne({
+      token:req.params.token,
+      revokedAt:null,
+      expiresAt:{$gt:new Date()}
+    });
 
     if(!share){
       return res.status(404).json({message:"Share not found"});

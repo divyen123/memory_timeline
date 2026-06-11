@@ -2,6 +2,7 @@ import React,{Suspense,useCallback,useEffect,useRef,useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { completeOnboarding, loginUser } from "../services/api";
 import OnboardingTour from "../components/OnboardingTour";
+import { setAuthenticatedUser } from "../auth";
 
 const LoginIntroMotion = React.lazy(()=>import("../components/LoginIntroMotion"));
 
@@ -39,7 +40,7 @@ const handleLogin = async () => {
 
     const res = await loginUser({ email, password });
 
-    localStorage.setItem("token", res.data.token);   // IMPORTANT
+    setAuthenticatedUser(res.data.userId);
 
     onboardingRequiredRef.current = Boolean(res.data.onboardingRequired);
     introCompletedRef.current = false;

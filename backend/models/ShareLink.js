@@ -31,7 +31,19 @@ const shareLinkSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+
+  expiresAt: {
+    type: Date,
+    required: true
+  },
+
+  revokedAt: {
+    type: Date,
+    default: null
   }
 });
+
+shareLinkSchema.index({token:1, expiresAt:1});
 
 module.exports = mongoose.model("ShareLink",shareLinkSchema);

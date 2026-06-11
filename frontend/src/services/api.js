@@ -1,4 +1,5 @@
 import axios from "axios";
+import { clearAuthenticatedUser, setAuthenticatedUser } from "../auth";
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL;
 export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/,"");
@@ -62,29 +63,29 @@ export const requiresAuthenticatedImageFetch = (url = "") => {
 };
 
 const API = axios.create({
-baseURL:API_BASE_URL
-});
-
-/* ADD TOKEN */
-
-API.interceptors.request.use((req)=>{
-
-const token = localStorage.getItem("token");
-
-if(token){
-req.headers.Authorization = `Bearer ${token}`;
-}
-
-return req;
-
+baseURL:API_BASE_URL,
+withCredentials:true
 });
 
 API.interceptors.response.use(
   (res)=>res,
-  (error)=>{
-    if(error.response?.status === 401){
-      localStorage.removeItem("token");
-      window.location.href = "/";
+  async(error)=>{
+    const originalRequest = error.config || {};
+    const url = String(originalRequest.url || "");
+    const isAuthEndpoint = ["/login", "/register", "/request-reset-code", "/reset-password", "/auth/refresh"].some((path)=>url.includes(path));
+
+    if(error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint){
+      originalRequest._retry = true;
+
+      try{
+        const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {withCredentials:true});
+        setAuthenticatedUser(refreshResponse.data.userId);
+        return API(originalRequest);
+      }catch{
+        clearAuthenticatedUser();
+        window.location.href = "/";
+        return Promise.reject(error);
+      }
     }
 
     return Promise.reject(error);
@@ -115,11 +116,17 @@ export const downloadMemoryImage = (id,index)=>API.get(`/memories/${id}/images/$
 export const toggleFavorite = (id)=>API.patch(`/memories/${id}/favorite`);
 export const createMemoryShare = (id)=>API.post(`/memories/${id}/share`);
 export const createCategoryShare = (data)=>API.post("/share/category",data);
+export const revokeMemoryShare = (id)=>API.delete(`/memories/${id}/share`);
+export const revokeCategoryShare = (data)=>API.delete("/share/category", {data});
 export const getPublicShare = (token)=>API.get(`/public/share/${token}`);
 
 /* AUTH */
 export const loginUser = (data)=>API.post("/login",data);
 export const registerUser = (data)=>API.post("/register",data);
+export const getSession = ()=>API.get("/auth/session");
+export const refreshSession = ()=>API.post("/auth/refresh");
+export const logoutUser = ()=>API.post("/logout");
+export const logoutAllSessions = ()=>API.post("/logout-all");
 export const completeOnboarding = ()=>API.patch("/onboarding/complete");
 export const requestResetCode = (data)=>API.post("/request-reset-code",data);
 export const resetPassword = (data)=>API.post("/reset-password",data);

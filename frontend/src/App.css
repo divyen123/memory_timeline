@@ -3162,10 +3162,10 @@ body.light .profile-info-list strong{
 /* ================= PROFILE PAGE ================= */
 
 .profile-grid{
-  width:min(980px,92vw);
+  width:min(900px,90vw);
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:18px;
+  gap:16px;
 }
 
 .settings-card{
@@ -3306,19 +3306,24 @@ body.light .settings-section-title{
 
 .settings-sound-control{
   display:grid;
-  grid-template-columns:minmax(0,1fr) 44px;
+  grid-template-columns:minmax(0,1fr) 42px;
   gap:8px;
-  align-items:center;
+  align-items:end;
 }
 
 .settings-sound-control select{
   min-width:0;
+  height:44px;
+  min-height:44px;
+  margin:0;
+  padding-block:9px;
 }
 
 .settings-sound-control button{
-  width:44px;
-  height:44px;
-  min-height:44px;
+  width:42px;
+  height:42px;
+  min-height:42px;
+  margin:0;
   padding:0;
   display:grid;
   place-items:center;
@@ -3352,9 +3357,9 @@ body.light .settings-section-title{
 }
 
 .profile-summary-card{
-  width:min(980px,92vw);
+  width:min(900px,90vw);
   margin:36px auto 0;
-  padding:34px;
+  padding:32px;
   display:flex;
   flex-direction:column;
   gap:22px;
@@ -3384,7 +3389,7 @@ body.light .settings-section-title{
 }
 
 .profile-summary-content{
-  width:min(720px,100%);
+  width:min(660px,100%);
   min-width:0;
 }
 
@@ -3413,8 +3418,8 @@ body.light .settings-section-title{
 
 .profile-info-tile{
   min-width:0;
-  min-height:92px;
-  padding:16px 18px;
+  min-height:84px;
+  padding:14px 16px;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -3427,7 +3432,7 @@ body.light .settings-section-title{
 
 .profile-info-email{
   grid-column:1 / -1;
-  min-height:88px;
+  min-height:78px;
 }
 
 .profile-info-list span{
@@ -3454,6 +3459,26 @@ body.light .settings-section-title{
 
 .profile-card h2{
   margin-bottom:18px;
+}
+
+.profile-card form{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.profile-card input{
+  width:100%;
+  min-height:44px;
+  margin-bottom:14px;
+  padding:10px 13px;
+}
+
+.profile-card form button[type="submit"]{
+  width:min(260px,100%);
+  min-height:42px;
+  margin-top:2px;
+  padding:10px 18px;
 }
 
 .settings-device-note{
@@ -7334,6 +7359,61 @@ body.light .calendar-memory{
   }
 }
 
+/* Profile/settings compact alignment polish. */
+.profile-grid{
+  width:min(980px,90vw);
+}
+
+.profile-summary-card{
+  width:min(980px,90vw);
+}
+
+.settings-card{
+  padding:26px 28px 28px;
+}
+
+.settings-card .settings-row{
+  align-items:end;
+}
+
+.settings-sound-control{
+  align-items:end;
+}
+
+.settings-sound-control select{
+  height:44px;
+  min-height:44px;
+  margin:0;
+}
+
+.settings-sound-control button{
+  width:42px;
+  height:42px;
+  min-height:42px;
+  margin:0 0 1px;
+  padding:0;
+  place-self:end;
+}
+
+.settings-sound-control button::first-letter{
+  line-height:1;
+}
+
+.profile-grid > .profile-card:not(.settings-card){
+  padding:24px 26px 26px;
+}
+
+.profile-grid > .profile-card:not(.settings-card) form button[type="submit"]{
+  width:min(240px,100%);
+  min-height:40px;
+  padding:9px 16px;
+}
+
+.profile-back-btn{
+  width:min(260px,90vw);
+  min-height:40px;
+}
+
 /* Desktop profile alignment: keep summary and lower cards on one centered frame. */
 @media (min-width:1200px){
   .profile-page{
@@ -7345,8 +7425,8 @@ body.light .calendar-memory{
 
   .profile-summary-card,
   .profile-grid{
-    width:min(1470px,100%);
-    max-width:1470px;
+    width:min(980px,100%);
+    max-width:980px;
     margin-left:auto;
     margin-right:auto;
     justify-self:center;
@@ -7355,6 +7435,44 @@ body.light .calendar-memory{
 
   .profile-summary-card{
     transform:none;
+  }
+}
+
+@media (max-width:760px){
+  .profile-summary-card,
+  .profile-grid{
+    width:min(100%, 430px);
+  }
+
+  .settings-card{
+    padding:18px 16px;
+  }
+
+  .settings-sound-control{
+    grid-template-columns:minmax(0,1fr) 40px;
+    gap:8px;
+  }
+
+  .settings-sound-control select{
+    height:42px;
+    min-height:42px;
+  }
+
+  .settings-sound-control button{
+    width:40px;
+    height:40px;
+    min-height:40px;
+    border-radius:12px;
+    margin-bottom:1px;
+  }
+
+  .profile-grid > .profile-card:not(.settings-card){
+    padding:18px 16px;
+  }
+
+  .profile-grid > .profile-card:not(.settings-card) form button[type="submit"],
+  .profile-back-btn{
+    width:min(220px,100%);
   }
 }
 

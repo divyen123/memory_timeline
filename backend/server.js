@@ -132,7 +132,23 @@ app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
 app.disable("x-powered-by");
 
 app.use(helmet({
-  crossOriginResourcePolicy:{policy:"cross-origin"}
+  crossOriginResourcePolicy:{policy:"cross-origin"},
+  contentSecurityPolicy:{
+    directives:{
+      defaultSrc:["'self'"],
+      baseUri:["'self'"],
+      fontSrc:["'self'", "https:", "data:"],
+      formAction:["'self'"],
+      frameAncestors:["'none'"],
+      imgSrc:["'self'", "data:", "blob:", "https:"],
+      objectSrc:["'none'"],
+      scriptSrc:["'self'"],
+      scriptSrcAttr:["'none'"],
+      styleSrc:["'self'", "https:", "'unsafe-inline'"],
+      connectSrc:["'self'", "https:"],
+      upgradeInsecureRequests:[]
+    }
+  }
 }));
 
 app.use(cors({

@@ -6,6 +6,9 @@ const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = re
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const Memory = require("../models/Memory");
 const ShareLink = require("../models/ShareLink");
+const Session = require("../models/Session");
+const User = require("../models/User");
+const { clearSessionCookies } = require("../authSessions");
 const { securityInfo, securityWarn } = require("../securityLogger");
 
 const TRASH_RETENTION_DAYS = 30;
@@ -669,6 +672,58 @@ exports.deleteMemory = async (req,res)=>{
     res.status(500).json(err);
   }
 
+};
+
+exports.clearAllMemories = async (req,res)=>{
+  try{
+    const now = new Date();
+    const trashExpiresAt = new Date(now.getTime() + TRASH_RETENTION_MS);
+    const result = await Memory.updateMany(
+      {
+        userId:req.user.userId,
+        deletedAt:null
+      },
+      {
+        $set:{
+          deletedAt:now,
+          trashExpiresAt
+        }
+      }
+    );
+
+    securityWarn("all_memories_moved_to_trash", {
+      userId:String(req.user.userId),
+      moved:result.modifiedCount || 0
+    });
+
+    res.json({
+      message:"All memories moved to trash",
+      moved:result.modifiedCount || 0
+    });
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to clear memories"});
+  }
+};
+
+exports.deleteAccount = async (req,res)=>{
+  try{
+    const userId = req.user.userId;
+    const memories = await Memory.find({userId});
+
+    await Promise.all(memories.map(deleteStoredImages));
+    await Promise.all([
+      Memory.deleteMany({userId}),
+      ShareLink.deleteMany({userId}),
+      Session.deleteMany({userId}),
+      User.findByIdAndDelete(userId)
+    ]);
+
+    clearSessionCookies(res);
+    securityWarn("account_deleted", {userId:String(userId)});
+    res.json({message:"Account deleted"});
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to delete account"});
+  }
 };
 
 // Update Memory

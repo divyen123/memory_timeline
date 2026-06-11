@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  clearAllMemories,
+  deleteAccount,
   getAppearanceSettings,
   getProfile,
   updateAppearanceSettings,
   updatePassword,
   updateProfile
 } from "../services/api";
+import { clearAuthenticatedUser } from "../auth";
 import PageTransition from "../components/PageTransition";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import {
@@ -28,6 +31,9 @@ function Profile() {
   const [currentPassword,setCurrentPassword] = useState("");
   const [newPassword,setNewPassword] = useState("");
   const [message,setMessage] = useState("");
+  const [confirmAction,setConfirmAction] = useState(null);
+  const [isDangerBusy,setIsDangerBusy] = useState(false);
+  const [showAccountInfo,setShowAccountInfo] = useState(false);
   const deviceProfile = getDeviceProfile();
   const isMobileProfile = deviceProfile === "mobile";
   const [appSettings,setAppSettings] = useState(()=>loadSettings(deviceProfile));
@@ -91,6 +97,41 @@ function Profile() {
       setMessage("Password updated");
     }catch(err){
       setMessage(err.response?.data?.message || "Password update failed");
+    }
+  };
+
+  const closeDangerConfirm = () => {
+    if(!isDangerBusy){
+      setConfirmAction(null);
+    }
+  };
+
+  const handleDangerConfirm = async () => {
+    if(!confirmAction){
+      return;
+    }
+
+    setIsDangerBusy(true);
+
+    try{
+      if(confirmAction === "clear-memories"){
+        const {data} = await clearAllMemories();
+        setMemoryCount(0);
+        setFavoriteCount(0);
+        setMessage(data.message || "All memories moved to trash");
+      }
+
+      if(confirmAction === "delete-account"){
+        await deleteAccount();
+        clearAuthenticatedUser();
+        navigate("/", {replace:true});
+        return;
+      }
+    }catch(err){
+      setMessage(err.response?.data?.message || "Action failed");
+    }finally{
+      setIsDangerBusy(false);
+      setConfirmAction(null);
     }
   };
 
@@ -577,6 +618,40 @@ function Profile() {
               />
               <button type="submit">Update Profile</button>
             </form>
+
+            <div className="profile-danger-zone">
+              <button
+                type="button"
+                className="profile-danger-btn profile-danger-warning"
+                onClick={()=>setConfirmAction("clear-memories")}
+              >
+                Clear all memories
+              </button>
+
+              <div className="profile-delete-account-row">
+                <button
+                  type="button"
+                  className="profile-danger-btn profile-danger-delete"
+                  onClick={()=>setConfirmAction("delete-account")}
+                >
+                  Delete account
+                </button>
+                <span className="profile-delete-info-wrap">
+                  <button
+                    type="button"
+                    className="profile-delete-info-btn"
+                    aria-label="Delete account warning"
+                    aria-expanded={showAccountInfo}
+                    onClick={()=>setShowAccountInfo((current)=>!current)}
+                  >
+                    i
+                  </button>
+                  <span className={`profile-delete-info-bubble ${showAccountInfo ? "show" : ""}`}>
+                    Deletes your account, profile information, memories, images, and sessions permanently from the database.
+                  </span>
+                </span>
+              </div>
+            </div>
           </div>
 
           <div className="profile-card">
@@ -604,6 +679,35 @@ function Profile() {
         <button className="profile-back-btn" onClick={()=>navigate("/timeline")}>
           Back to Timeline
         </button>
+
+        {confirmAction && (
+          <div className="confirm-overlay">
+            <div className="confirm-dialog profile-danger-confirm">
+              <h3>
+                {confirmAction === "clear-memories"
+                  ? "Move all memories to trash?"
+                  : "Delete account permanently?"}
+              </h3>
+              <p>
+                {confirmAction === "clear-memories"
+                  ? "All memories will move to trash. You can restore them before they are permanently deleted."
+                  : "This permanently deletes your account, memories, images, and profile information from the database."}
+              </p>
+              <div className="confirm-actions profile-danger-confirm-actions">
+                <button type="button" className="cancel-delete-btn" onClick={closeDangerConfirm} disabled={isDangerBusy}>
+                  Cancel
+                </button>
+                <button type="button" className="confirm-delete-btn" onClick={handleDangerConfirm} disabled={isDangerBusy}>
+                  {isDangerBusy
+                    ? "Working..."
+                    : confirmAction === "clear-memories"
+                      ? "Move to trash"
+                      : "Delete account"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </PageTransition>
   );

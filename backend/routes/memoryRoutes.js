@@ -17,6 +17,8 @@ const {
   viewPublicShareImage,
   addMemory,
   deleteMemory,
+  clearAllMemories,
+  deleteAccount,
   restoreMemory,
   restoreMemories,
   permanentlyDeleteMemory,
@@ -193,6 +195,7 @@ router.get("/memories/:id/images/:kind/:index/view", authMiddleware, viewMemoryI
 router.get("/memories/:id/images/:index/download", authMiddleware, downloadMemoryImage);
 router.get("/memories/:id", authMiddleware, getMemory);
 router.post("/memories", authMiddleware, memoryImagesUpload, addMemory);
+router.delete("/memories", authMiddleware, clearAllMemories);
 router.put("/memories/:id", authMiddleware, memoryImagesUpload, updateMemory);
 router.patch("/memories/:id/favorite", authMiddleware, toggleFavorite);
 router.patch("/memories/:id/restore", authMiddleware, restoreMemory);
@@ -203,6 +206,7 @@ router.post("/share/category", authMiddleware, createCategoryShare);
 router.delete("/share/category", authMiddleware, revokeCategoryShare);
 router.get("/public/share/:token/images/:memoryId/:index/view", viewPublicShareImage);
 router.get("/public/share/:token", getPublicShare);
+router.delete("/profile", authMiddleware, deleteAccount);
 router.delete("/memories/:id", authMiddleware, deleteMemory);
 
 module.exports = router;

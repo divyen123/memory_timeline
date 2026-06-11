@@ -5849,7 +5849,8 @@ body.light .days-counter{
   }
 
   .memory-actions{
-    opacity:1;
+    display:none;
+    opacity:0;
     transform:none;
   }
 
@@ -7424,6 +7425,93 @@ body.light .calendar-memory{
   min-height:40px;
 }
 
+.profile-danger-zone{
+  width:100%;
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,0.12);
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  align-items:center;
+}
+
+.profile-danger-btn{
+  width:100%;
+  min-height:40px;
+  padding:9px 14px;
+  border-radius:12px;
+  font-size:14px;
+  font-weight:800;
+}
+
+.profile-danger-warning{
+  background:linear-gradient(135deg,#f59e0b,#ff4b7d);
+}
+
+.profile-danger-delete{
+  background:linear-gradient(135deg,#ff4b7d,#b91c1c);
+}
+
+.profile-delete-account-row{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 34px;
+  gap:8px;
+  align-items:center;
+}
+
+.profile-delete-info-wrap{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.profile-delete-info-btn{
+  width:34px;
+  height:34px;
+  min-height:34px;
+  padding:0;
+  border-radius:50%;
+  font-family:Poppins, "Segoe UI", sans-serif;
+  font-size:15px;
+  font-weight:900;
+  background:rgba(59,28,185,0.95);
+}
+
+.profile-delete-info-bubble{
+  position:absolute;
+  right:0;
+  bottom:calc(100% + 10px);
+  width:260px;
+  padding:12px;
+  border-radius:14px;
+  background:rgba(12,13,30,0.94);
+  border:1px solid rgba(255,255,255,0.18);
+  color:white;
+  box-shadow:0 16px 34px rgba(0,0,0,0.28);
+  font-size:12px;
+  line-height:1.45;
+  opacity:0;
+  transform:translateY(6px);
+  pointer-events:none;
+  transition:opacity 0.2s ease, transform 0.2s ease;
+  z-index:4;
+}
+
+.profile-delete-info-wrap:hover .profile-delete-info-bubble,
+.profile-delete-info-bubble.show{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+.profile-danger-confirm-actions button{
+  min-width:0;
+  width:100%;
+}
+
 /* Desktop profile alignment: keep summary and lower cards on one centered frame. */
 @media (min-width:1200px){
   .profile-page{
@@ -7521,8 +7609,71 @@ body.light .calendar-memory{
     padding:18px 16px;
   }
 
+  .settings-card form{
+    display:block;
+    width:100%;
+  }
+
+  .settings-card .settings-field,
+  .settings-card .settings-toggle,
+  .settings-card .settings-color-field,
+  .settings-card .segmented-setting{
+    width:100%;
+    max-width:none;
+    margin:0 0 12px;
+    text-align:left;
+  }
+
+  .settings-card .settings-field > span,
+  .settings-card .settings-section-title{
+    text-align:left;
+  }
+
+  .settings-card .settings-field select,
+  .settings-card .settings-field input:not([type="checkbox"]):not([type="color"]),
+  .settings-card .settings-color-field input:not([type="color"]){
+    width:100%;
+  }
+
+  .settings-card .settings-row,
+  .settings-card .settings-row.two-column{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:0;
+  }
+
+  .settings-card .segmented-setting{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+
+  .settings-actions,
+  .settings-save-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    width:100%;
+    max-width:none;
+  }
+
+  .settings-color-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+
+  .settings-color-grid label,
+  .settings-color-field{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 58px;
+    gap:10px;
+    align-items:center;
+  }
+
   .settings-sound-control{
     grid-template-columns:minmax(0,1fr) 40px;
+    align-items:center;
     gap:8px;
   }
 
@@ -7536,7 +7687,8 @@ body.light .calendar-memory{
     height:40px;
     min-height:40px;
     border-radius:12px;
-    margin-bottom:1px;
+    margin:0;
+    align-self:center;
   }
 
   .profile-grid > .profile-card:not(.settings-card){
@@ -7546,6 +7698,16 @@ body.light .calendar-memory{
   .profile-grid > .profile-card:not(.settings-card) form button[type="submit"],
   .profile-back-btn{
     width:min(220px,100%);
+  }
+
+  .profile-danger-zone{
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+
+  .profile-delete-info-bubble{
+    right:0;
+    width:min(260px,78vw);
   }
 }
 

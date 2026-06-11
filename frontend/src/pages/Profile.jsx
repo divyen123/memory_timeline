@@ -496,7 +496,7 @@ function Profile() {
                 <span>Notification sounds</span>
               </label>
 
-              <div className="settings-row">
+              <div className="settings-row settings-sound-row">
                 <label className="settings-field">
                   <span>New memory</span>
                   <div className="settings-sound-control">

@@ -3461,20 +3461,20 @@ body.light .settings-section-title{
   margin-bottom:18px;
 }
 
-.profile-card form{
+.profile-grid > .profile-card:not(.settings-card) form{
   display:flex;
   flex-direction:column;
   align-items:center;
 }
 
-.profile-card input{
+.profile-grid > .profile-card:not(.settings-card) input{
   width:100%;
   min-height:44px;
   margin-bottom:14px;
   padding:10px 13px;
 }
 
-.profile-card form button[type="submit"]{
+.profile-grid > .profile-card:not(.settings-card) form button[type="submit"]{
   width:min(260px,100%);
   min-height:42px;
   margin-top:2px;
@@ -7361,11 +7361,11 @@ body.light .calendar-memory{
 
 /* Profile/settings compact alignment polish. */
 .profile-grid{
-  width:min(980px,90vw);
+  width:min(1180px,90vw);
 }
 
 .profile-summary-card{
-  width:min(980px,90vw);
+  width:min(1180px,90vw);
 }
 
 .settings-card{
@@ -7401,12 +7401,22 @@ body.light .calendar-memory{
 
 .profile-grid > .profile-card:not(.settings-card){
   padding:24px 26px 26px;
+  display:flex;
+  flex-direction:column;
 }
 
 .profile-grid > .profile-card:not(.settings-card) form button[type="submit"]{
   width:min(240px,100%);
   min-height:40px;
   padding:9px 16px;
+}
+
+.profile-grid > .profile-card:not(.settings-card) form{
+  flex:1;
+}
+
+.profile-grid > .profile-card:not(.settings-card) form button[type="submit"]{
+  margin-top:auto;
 }
 
 .profile-back-btn{
@@ -7425,8 +7435,8 @@ body.light .calendar-memory{
 
   .profile-summary-card,
   .profile-grid{
-    width:min(980px,100%);
-    max-width:980px;
+    width:min(1180px,100%);
+    max-width:1180px;
     margin-left:auto;
     margin-right:auto;
     justify-self:center;
@@ -7435,6 +7445,69 @@ body.light .calendar-memory{
 
   .profile-summary-card{
     transform:none;
+  }
+}
+
+@media (min-width:900px){
+  .settings-card form{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:22px;
+    row-gap:16px;
+    align-items:start;
+  }
+
+  .settings-device-note,
+  .settings-section-title,
+  .settings-card .settings-row,
+  .settings-actions,
+  .settings-color-grid,
+  .settings-save-actions{
+    grid-column:1 / -1;
+  }
+
+  .settings-card .settings-field,
+  .settings-card .settings-toggle,
+  .settings-card .settings-color-field,
+  .settings-card .segmented-setting{
+    margin-bottom:0;
+  }
+
+  .settings-card .settings-field select,
+  .settings-card .settings-field input:not([type="checkbox"]):not([type="color"]),
+  .settings-card .settings-color-field input:not([type="color"]){
+    width:100%;
+  }
+
+  .settings-card .settings-section-title{
+    margin:6px 0 0;
+  }
+
+  .settings-card .settings-row{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:16px;
+  }
+
+  .settings-card .settings-row.two-column{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .settings-card .settings-sound-row{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+
+  .settings-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    max-width:760px;
+    margin:0 auto;
+  }
+
+  .settings-color-grid{
+    grid-template-columns:repeat(6,minmax(0,1fr));
+  }
+
+  .settings-save-actions{
+    margin-top:4px;
   }
 }
 

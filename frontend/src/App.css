@@ -3304,6 +3304,30 @@ body.light .settings-section-title{
   font-size:14px;
 }
 
+.settings-sound-control{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 44px;
+  gap:8px;
+  align-items:center;
+}
+
+.settings-sound-control select{
+  min-width:0;
+}
+
+.settings-sound-control button{
+  width:44px;
+  height:44px;
+  min-height:44px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  font-size:15px;
+  line-height:1;
+  box-shadow:0 10px 22px rgba(0,0,0,0.16);
+}
+
 .settings-save-actions{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,180px));

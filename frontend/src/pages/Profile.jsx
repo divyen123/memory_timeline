@@ -496,37 +496,46 @@ function Profile() {
               <div className="settings-row">
                 <label className="settings-field">
                   <span>New memory</span>
-                  <select value={appSettings.createSound} onChange={(e)=>updateSetting("createSound", e.target.value)}>
-                    <option value="sparkle">Sparkle</option>
-                    <option value="chime">Chime</option>
-                    <option value="bell">Bell</option>
-                    <option value="pop">Pop</option>
-                  </select>
+                  <div className="settings-sound-control">
+                    <select value={appSettings.createSound} onChange={(e)=>updateSetting("createSound", e.target.value)}>
+                      <option value="sparkle">Sparkle</option>
+                      <option value="chime">Chime</option>
+                      <option value="bell">Bell</option>
+                      <option value="pop">Pop</option>
+                    </select>
+                    <button type="button" onClick={()=>testSound("create")} aria-label="Test new memory sound">
+                      &#9654;
+                    </button>
+                  </div>
                 </label>
                 <label className="settings-field">
                   <span>Update memory</span>
-                  <select value={appSettings.updateSound} onChange={(e)=>updateSetting("updateSound", e.target.value)}>
-                    <option value="chime">Chime</option>
-                    <option value="sparkle">Sparkle</option>
-                    <option value="bell">Bell</option>
-                    <option value="pop">Pop</option>
-                  </select>
+                  <div className="settings-sound-control">
+                    <select value={appSettings.updateSound} onChange={(e)=>updateSetting("updateSound", e.target.value)}>
+                      <option value="chime">Chime</option>
+                      <option value="sparkle">Sparkle</option>
+                      <option value="bell">Bell</option>
+                      <option value="pop">Pop</option>
+                    </select>
+                    <button type="button" onClick={()=>testSound("update")} aria-label="Test update memory sound">
+                      &#9654;
+                    </button>
+                  </div>
                 </label>
                 <label className="settings-field">
                   <span>Reminder popup</span>
-                  <select value={appSettings.reminderSound} onChange={(e)=>updateSetting("reminderSound", e.target.value)}>
-                    <option value="bell">Bell</option>
-                    <option value="chime">Chime</option>
-                    <option value="sparkle">Sparkle</option>
-                    <option value="pop">Pop</option>
-                  </select>
+                  <div className="settings-sound-control">
+                    <select value={appSettings.reminderSound} onChange={(e)=>updateSetting("reminderSound", e.target.value)}>
+                      <option value="bell">Bell</option>
+                      <option value="chime">Chime</option>
+                      <option value="sparkle">Sparkle</option>
+                      <option value="pop">Pop</option>
+                    </select>
+                    <button type="button" onClick={()=>testSound("reminder")} aria-label="Test reminder popup sound">
+                      &#9654;
+                    </button>
+                  </div>
                 </label>
-              </div>
-
-              <div className="settings-actions">
-                <button type="button" onClick={()=>testSound("create")}>Test New</button>
-                <button type="button" onClick={()=>testSound("update")}>Test Update</button>
-                <button type="button" onClick={()=>testSound("reminder")}>Test Reminder</button>
               </div>
 
               <div className="settings-save-actions">

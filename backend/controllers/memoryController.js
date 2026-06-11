@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const fs = require("fs/promises");
 const path = require("path");
+const mongoose = require("mongoose");
 const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const Memory = require("../models/Memory");
@@ -374,6 +375,7 @@ const buildMemoryPayload = (req, images, thumbnails = []) => ({
 
 const createToken = () => crypto.randomBytes(32).toString("base64url");
 const createShareExpiry = () => new Date(Date.now() + PUBLIC_SHARE_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+const trusted = (filter) => mongoose.trusted(filter);
 
 const activeMemoryQuery = (extra = {}) => ({
   ...extra,
@@ -382,13 +384,13 @@ const activeMemoryQuery = (extra = {}) => ({
 
 const trashMemoryQuery = (extra = {}) => ({
   ...extra,
-  deletedAt:{$exists:true, $ne:null}
+  deletedAt:trusted({$exists:true, $ne:null})
 });
 
 const purgeExpiredTrash = async () => {
   const expiredMemories = await Memory.find({
-    deletedAt:{$exists:true, $ne:null},
-    trashExpiresAt:{$lte:new Date()}
+    deletedAt:trusted({$exists:true, $ne:null}),
+    trashExpiresAt:trusted({$lte:new Date()})
   });
 
   if(!expiredMemories.length){
@@ -396,7 +398,7 @@ const purgeExpiredTrash = async () => {
   }
 
   await Promise.all(expiredMemories.map(deleteStoredImages));
-  await Memory.deleteMany({_id:{$in:expiredMemories.map((memory)=>memory._id)}});
+  await Memory.deleteMany({_id:trusted({$in:expiredMemories.map((memory)=>memory._id)})});
   return expiredMemories.length;
 };
 
@@ -597,7 +599,7 @@ exports.viewPublicShareImage = async (req,res)=>{
       _id:memoryId,
       publicToken:token,
       publicShareRevokedAt:null,
-      publicShareExpiresAt:{$gt:new Date()},
+      publicShareExpiresAt:trusted({$gt:new Date()}),
       deletedAt:null
     });
 
@@ -605,7 +607,7 @@ exports.viewPublicShareImage = async (req,res)=>{
       const share = await ShareLink.findOne({
         token,
         revokedAt:null,
-        expiresAt:{$gt:new Date()}
+        expiresAt:trusted({$gt:new Date()})
       });
 
       if(!share){
@@ -834,7 +836,7 @@ exports.getPublicShare = async (req,res)=>{
     const memory = await Memory.findOne({
       publicToken:req.params.token,
       publicShareRevokedAt:null,
-      publicShareExpiresAt:{$gt:new Date()},
+      publicShareExpiresAt:trusted({$gt:new Date()}),
       deletedAt:null
     });
 
@@ -848,7 +850,7 @@ exports.getPublicShare = async (req,res)=>{
     const share = await ShareLink.findOne({
       token:req.params.token,
       revokedAt:null,
-      expiresAt:{$gt:new Date()}
+      expiresAt:trusted({$gt:new Date()})
     });
 
     if(!share){
@@ -922,7 +924,7 @@ exports.restoreMemories = async (req,res)=>{
 
     const result = await Memory.updateMany(
       trashMemoryQuery({
-        _id:{$in:ids},
+        _id:trusted({$in:ids}),
         userId:req.user.userId
       }),
       {$set:{deletedAt:null, trashExpiresAt:null}}
@@ -965,12 +967,12 @@ exports.permanentlyDeleteMemories = async (req,res)=>{
     }
 
     const memories = await Memory.find(trashMemoryQuery({
-      _id:{$in:ids},
+      _id:trusted({$in:ids}),
       userId:req.user.userId
     }));
 
     await Promise.all(memories.map(deleteStoredImages));
-    await Memory.deleteMany({_id:{$in:memories.map((memory)=>memory._id)}});
+    await Memory.deleteMany({_id:trusted({$in:memories.map((memory)=>memory._id)})});
 
     res.json({
       message:"Memories permanently deleted",
@@ -988,7 +990,7 @@ exports.emptyTrash = async (req,res)=>{
     }));
 
     await Promise.all(memories.map(deleteStoredImages));
-    await Memory.deleteMany({_id:{$in:memories.map((memory)=>memory._id)}});
+    await Memory.deleteMany({_id:trusted({$in:memories.map((memory)=>memory._id)})});
 
     res.json({
       message:"Bin emptied",

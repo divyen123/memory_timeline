@@ -467,7 +467,7 @@ app.put("/api/profile", authMiddleware, async(req,res)=>{
 
     const existingUser = await User.findOne({
       email:normalizedEmail,
-      _id:{$ne:req.user.userId}
+      _id:mongoose.trusted({$ne:req.user.userId})
     });
 
     if(existingUser){

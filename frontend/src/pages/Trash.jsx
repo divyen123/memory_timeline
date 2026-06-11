@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
+import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import {
   emptyTrash,
   getMemoryImageUrl,
@@ -25,6 +26,8 @@ function Trash() {
   const selectedCount = selectedIds.length;
   const allSelected = memories.length > 0 && selectedIds.length === memories.length;
   const hasTrashMemories = memories.length > 0;
+
+  useAutoDismissMessage(message, setMessage);
 
   const loadTrash = async () => {
     setLoading(true);

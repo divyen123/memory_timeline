@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { createCategoryShare, createMemoryShare, downloadMemoryImage, getImageUrl, getMemories, getMemoryImageUrl, deleteMemory, toggleFavorite } from "../services/api";
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
+import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
 import { playAppSound } from "../sound";
 import { shareUrl } from "../share";
@@ -800,19 +801,7 @@ function MemoryTimeline() {
     navigate("/timeline", {replace:true});
   };
 
-  useEffect(() => {
-
-    if(message){
-
-      const timer = setTimeout(()=>{
-        setMessage("");
-      },2400);
-
-      return ()=>clearTimeout(timer);
-
-    }
-
-  },[message]);
+  useAutoDismissMessage(message, setMessage);
 
   useEffect(() => {
     const returnedPreview = location.state?.previewMemory;

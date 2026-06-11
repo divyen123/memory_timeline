@@ -8,6 +8,7 @@ import {
   updateProfile
 } from "../services/api";
 import PageTransition from "../components/PageTransition";
+import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import {
   defaultSettings,
   getDeviceProfile,
@@ -31,6 +32,8 @@ function Profile() {
   const isMobileProfile = deviceProfile === "mobile";
   const [appSettings,setAppSettings] = useState(()=>loadSettings(deviceProfile));
   const backupFileRef = useRef(null);
+
+  useAutoDismissMessage(message, setMessage);
 
   useEffect(()=>{
     const fetchProfile = async () => {

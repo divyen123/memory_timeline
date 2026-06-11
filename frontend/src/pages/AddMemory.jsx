@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { addMemory, updateMemory } from "../services/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import PageTransition from "../components/PageTransition";
+import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { playAppSound } from "../sound";
 
 const MAX_MEMORY_IMAGES = 10;
@@ -181,19 +182,7 @@ function AddMemory() {
     }
   },[description]);
 
-  useEffect(()=>{
-
-    if(message){
-
-      const timer = setTimeout(()=>{
-        setMessage("");
-      },2000);
-
-      return ()=>clearTimeout(timer);
-
-    }
-
-  },[message]);
+  useAutoDismissMessage(message, setMessage);
 
   const saveEditorSelection = () => {
     const selection = window.getSelection();

@@ -1,5 +1,6 @@
 import React,{useState} from "react";
 import { useNavigate } from "react-router-dom";
+import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { registerUser } from "../services/api";
 
 function Register(){
@@ -10,6 +11,8 @@ const [confirmPassword,setConfirmPassword] = useState("");
 const [message,setMessage] = useState("");
 
 const navigate = useNavigate();
+
+useAutoDismissMessage(message, setMessage);
 
 const handleRegister = async (e) => {
 

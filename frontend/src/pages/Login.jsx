@@ -2,6 +2,7 @@ import React,{Suspense,useCallback,useEffect,useRef,useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { completeOnboarding, loginUser } from "../services/api";
 import OnboardingTour from "../components/OnboardingTour";
+import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { setAuthenticatedUser } from "../auth";
 
 const LoginIntroMotion = React.lazy(()=>import("../components/LoginIntroMotion"));
@@ -17,6 +18,8 @@ const introCompletedRef = useRef(false);
 const onboardingRequiredRef = useRef(false);
 
 const navigate = useNavigate();
+
+useAutoDismissMessage(message, setMessage);
 
 const finishIntro = useCallback(() => {
   if(introCompletedRef.current){

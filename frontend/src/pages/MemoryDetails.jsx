@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { createMemoryShare, deleteMemory, getMemory, getMemoryImageUrl, toggleFavorite } from "../services/api";
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
+import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { shareUrl } from "../share";
 
 function MemoryDetails() {
@@ -14,6 +15,8 @@ function MemoryDetails() {
   const [carouselIndex,setCarouselIndex] = useState(null);
   const backGuardRef = useRef(false);
   const carouselDragRef = useRef(null);
+
+  useAutoDismissMessage(message, setMessage);
 
   useEffect(()=>{
     let active = true;

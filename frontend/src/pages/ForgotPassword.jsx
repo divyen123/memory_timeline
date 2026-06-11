@@ -1,5 +1,6 @@
 import React,{useState} from "react";
 import { useNavigate } from "react-router-dom";
+import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { requestResetCode, resetPassword } from "../services/api";
 
 function ForgotPassword(){
@@ -12,6 +13,8 @@ const [message,setMessage] = useState("");
 const [codeSent,setCodeSent] = useState(false);
 
 const navigate = useNavigate();
+
+useAutoDismissMessage(message, setMessage);
 
 const handleRequestCode = async (e) => {
 

@@ -3749,15 +3749,16 @@ body.button-glass-on .carousel-nav,
 
 .preview-actions .preview-image-info-btn:hover,
 .preview-actions .preview-image-info-btn.active{
-  background:rgba(255,75,125,0.72);
-  box-shadow:0 14px 34px rgba(255,75,125,0.18);
+  background:rgba(255,255,255,0.22);
+  box-shadow:none;
 }
 
 .preview-image-info-popover{
   position:absolute;
-  right:0;
+  left:0;
+  right:auto;
   bottom:calc(100% + 12px);
-  z-index:6;
+  z-index:30;
   width:238px;
   padding:13px;
   border-radius:16px;
@@ -7332,6 +7333,7 @@ body.light .calendar-memory{
   }
 
   .preview-image-info-popover{
+    left:auto;
     right:50%;
     bottom:calc(100% + 10px);
     width:min(220px,calc(100vw - 42px));

@@ -1707,7 +1707,7 @@ function MemoryTimeline() {
                     type="button"
                     title="Image details"
                     aria-label="Image details"
-                    className={`preview-image-info-btn ${showPreviewImageDetails ? "active" : ""}`}
+                    className="preview-image-info-btn"
                     aria-expanded={showPreviewImageDetails}
                     onClick={togglePreviewImageDetails}
                   >

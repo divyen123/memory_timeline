@@ -3739,18 +3739,11 @@ body.button-glass-on .carousel-nav,
 }
 
 .preview-actions .preview-image-info-btn{
-  background:rgba(59,28,185,0.76);
   font-family:Poppins, "Segoe UI", sans-serif;
   font-size:17px;
   font-weight:900;
   line-height:1;
   color:white;
-}
-
-.preview-actions .preview-image-info-btn:hover,
-.preview-actions .preview-image-info-btn.active{
-  background:rgba(255,255,255,0.22);
-  box-shadow:none;
 }
 
 .preview-image-info-popover{
@@ -3879,21 +3872,6 @@ body.button-glass-on .carousel-nav,
 
 .preview-actions button:last-child:hover{
   background:rgba(255,77,109,0.62);
-}
-
-.preview-actions .preview-image-info-btn,
-.preview-actions .preview-image-info-btn.active,
-.preview-actions .preview-image-info-btn:hover{
-  background:rgba(59,28,185,0.76) !important;
-  background-color:rgba(59,28,185,0.76) !important;
-  box-shadow:none !important;
-}
-
-body.button-glass-on .preview-actions .preview-image-info-btn,
-body.button-glass-on .preview-actions .preview-image-info-btn.active,
-body.button-glass-on .preview-actions .preview-image-info-btn:hover{
-  background:rgba(59,28,185,0.76) !important;
-  background-color:rgba(59,28,185,0.76) !important;
 }
 
 .preview-confirm{

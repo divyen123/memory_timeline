@@ -3874,6 +3874,18 @@ body.button-glass-on .carousel-nav,
   background:rgba(255,77,109,0.62);
 }
 
+.preview-actions .preview-image-info-btn,
+body.button-glass-on .preview-actions .preview-image-info-btn{
+  background:color-mix(in srgb, var(--button-bg-color) calc(var(--button-glass-alpha) * 100%), transparent);
+  border-color:rgba(255,255,255,0.22);
+  box-shadow:0 12px 30px rgba(0,0,0,0.18);
+}
+
+.preview-actions .preview-image-info-btn:hover,
+body.button-glass-on .preview-actions .preview-image-info-btn:hover{
+  background:color-mix(in srgb, var(--button-bg-color) min(calc(var(--button-glass-alpha) * 100% + 10%), 92%), transparent);
+}
+
 .preview-confirm{
   position:absolute;
   inset:0;

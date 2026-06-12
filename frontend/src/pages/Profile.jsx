@@ -594,6 +594,12 @@ function Profile() {
           <div className="profile-card">
             <h2>Profile</h2>
 
+            {isMobileProfile && (
+              <p className="profile-mobile-desktop-note">
+                For the smoothest editing experience, use the desktop version when adjusting many settings or managing larger memory collections.
+              </p>
+            )}
+
             <form onSubmit={handleProfileUpdate}>
               <input
                 type="text"

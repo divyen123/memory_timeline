@@ -10,6 +10,64 @@ import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "..
 import { playAppSound } from "../sound";
 import { shareUrl } from "../share";
 
+const formatImageBytes = (bytes) => {
+  if(!Number.isFinite(bytes) || bytes <= 0){
+    return "Unknown";
+  }
+
+  const units = ["B", "KB", "MB", "GB"];
+  const index = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
+  const value = bytes / (1024 ** index);
+
+  return `${value >= 10 || index === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[index]}`;
+};
+
+const getImageTypeLabel = (type, imagePath = "") => {
+  const normalizedType = String(type || "").toLowerCase();
+
+  if(normalizedType.includes("webp")){
+    return "WebP";
+  }
+
+  if(normalizedType.includes("png")){
+    return "PNG";
+  }
+
+  if(normalizedType.includes("jpeg") || normalizedType.includes("jpg")){
+    return "JPEG";
+  }
+
+  const extension = String(imagePath).split("?")[0].split(".").pop()?.toLowerCase();
+
+  if(extension === "webp"){
+    return "WebP";
+  }
+
+  if(extension === "png"){
+    return "PNG";
+  }
+
+  if(extension === "jpg" || extension === "jpeg"){
+    return "JPEG";
+  }
+
+  return "Unknown";
+};
+
+const formatImageAddedDate = (value) => {
+  const date = value ? new Date(value) : null;
+
+  if(!date || Number.isNaN(date.getTime())){
+    return "Unknown";
+  }
+
+  return date.toLocaleDateString("en-GB", {
+    day:"2-digit",
+    month:"short",
+    year:"numeric"
+  });
+};
+
 function MemoryTimeline() {
 
   const [memories, setMemories] = useState([]);
@@ -31,6 +89,8 @@ function MemoryTimeline() {
   const [activeReminder, setActiveReminder] = useState(null);
   const [reminderActionVersion, setReminderActionVersion] = useState(0);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
+  const [previewImageDetails, setPreviewImageDetails] = useState({});
+  const [showPreviewImageDetails, setShowPreviewImageDetails] = useState(false);
   const [exportPanel, setExportPanel] = useState(null);
   const [selectedMemoryIds, setSelectedMemoryIds] = useState([]);
   const [exportCategory, setExportCategory] = useState("All");
@@ -826,6 +886,10 @@ function MemoryTimeline() {
   }, [previewMemory?._id]);
 
   useEffect(() => {
+    setShowPreviewImageDetails(false);
+  }, [previewMemory?._id, previewImageIndex]);
+
+  useEffect(() => {
     if(!previewMemory){
       previewHistoryGuardRef.current = false;
       return;
@@ -876,9 +940,83 @@ function MemoryTimeline() {
   );
   const previewImages = previewMemory ? getMemoryImages(previewMemory) : [];
   const currentPreviewImage = previewImages[previewImageIndex] || previewImages[0];
+  const previewImageDetailsKey = previewMemory ? `${previewMemory._id}-${previewImageIndex}` : "";
+  const currentPreviewImageDetails = previewImageDetails[previewImageDetailsKey] || {};
+  const previewImageResolution = currentPreviewImageDetails.width && currentPreviewImageDetails.height
+    ? `${currentPreviewImageDetails.width} x ${currentPreviewImageDetails.height}`
+    : "Loading";
+  const previewImageType = getImageTypeLabel(currentPreviewImageDetails.type, currentPreviewImage);
+  const previewImageSize = currentPreviewImageDetails.loading
+    ? "Loading"
+    : formatImageBytes(currentPreviewImageDetails.size);
+  const previewImageAddedDate = formatImageAddedDate(previewMemory?.createdAt || previewMemory?.updatedAt || previewMemory?.date);
   const visibleTimelineMemories = shouldVirtualizeTimeline
     ? memories.slice(virtualRange.start, virtualRange.end)
     : memories;
+
+  const loadPreviewImageDetails = async () => {
+    if(!previewMemory || !currentPreviewImage || !previewImageDetailsKey){
+      return;
+    }
+
+    const existingDetails = previewImageDetails[previewImageDetailsKey];
+
+    if(existingDetails?.size && existingDetails?.type){
+      return;
+    }
+
+    setPreviewImageDetails(current => ({
+      ...current,
+      [previewImageDetailsKey]:{
+        ...current[previewImageDetailsKey],
+        loading:true
+      }
+    }));
+
+    try{
+      const response = await fetch(getMemoryImageUrl(previewMemory, "images", previewImageIndex), {
+        credentials:"include"
+      });
+
+      if(!response.ok){
+        throw new Error("Image details failed");
+      }
+
+      const blob = await response.blob();
+
+      setPreviewImageDetails(current => ({
+        ...current,
+        [previewImageDetailsKey]:{
+          ...current[previewImageDetailsKey],
+          loading:false,
+          size:blob.size,
+          type:blob.type
+        }
+      }));
+    }catch{
+      setPreviewImageDetails(current => ({
+        ...current,
+        [previewImageDetailsKey]:{
+          ...current[previewImageDetailsKey],
+          loading:false
+        }
+      }));
+    }
+  };
+
+  const togglePreviewImageDetails = (event) => {
+    event.stopPropagation();
+
+    setShowPreviewImageDetails(current => {
+      const next = !current;
+
+      if(next){
+        void loadPreviewImageDetails();
+      }
+
+      return next;
+    });
+  };
 
   const getReminderKey = (memory) => (
     `memory-reminder-${memory._id}-${memory.reminderDate?.split("T")[0] || ""}`
@@ -1466,7 +1604,13 @@ function MemoryTimeline() {
           }
         }}
       >
-        <div className="preview-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div
+          className="preview-dialog"
+          onClick={(event)=>{
+            event.stopPropagation();
+            setShowPreviewImageDetails(false);
+          }}
+        >
           <button
             type="button"
             className="preview-back-btn"
@@ -1489,7 +1633,54 @@ function MemoryTimeline() {
                 src={getMemoryImageUrl(previewMemory, "images", previewImageIndex)}
                 alt={previewMemory.title}
                 draggable={false}
+                onLoad={(event)=>{
+                  const image = event.currentTarget;
+
+                  setPreviewImageDetails(current => ({
+                    ...current,
+                    [previewImageDetailsKey]:{
+                      ...current[previewImageDetailsKey],
+                      width:image.naturalWidth,
+                      height:image.naturalHeight
+                    }
+                  }));
+                }}
               />
+            )}
+
+            {currentPreviewImage && (
+              <>
+                <button
+                  type="button"
+                  className={`preview-image-info-btn ${showPreviewImageDetails ? "active" : ""}`}
+                  aria-label="Image details"
+                  aria-expanded={showPreviewImageDetails}
+                  onClick={togglePreviewImageDetails}
+                >
+                  i
+                </button>
+                {showPreviewImageDetails && (
+                  <div className="preview-image-info-popover">
+                    <h4>Image details</h4>
+                    <div className="preview-image-info-row">
+                      <span>Type</span>
+                      <strong>{previewImageType}</strong>
+                    </div>
+                    <div className="preview-image-info-row">
+                      <span>Date added</span>
+                      <strong>{previewImageAddedDate}</strong>
+                    </div>
+                    <div className="preview-image-info-row">
+                      <span>Size</span>
+                      <strong>{previewImageSize}</strong>
+                    </div>
+                    <div className="preview-image-info-row">
+                      <span>Resolution</span>
+                      <strong>{previewImageResolution}</strong>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {previewImages.length > 1 && (

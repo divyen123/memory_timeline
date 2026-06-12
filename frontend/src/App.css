@@ -3733,6 +3733,95 @@ body.button-glass-on .carousel-nav,
   backdrop-filter:blur(12px);
 }
 
+.preview-image-info-btn{
+  position:absolute;
+  top:18px;
+  right:18px;
+  z-index:5;
+  width:38px;
+  height:38px;
+  min-height:38px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.24);
+  background:rgba(59,28,185,0.78);
+  color:#fff;
+  font-family:Poppins, "Segoe UI", sans-serif;
+  font-size:17px;
+  font-weight:900;
+  line-height:1;
+  box-shadow:0 12px 28px rgba(0,0,0,0.3);
+  backdrop-filter:blur(14px);
+  transition:transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+}
+
+.preview-image-info-btn:hover,
+.preview-image-info-btn.active{
+  transform:translateY(-1px);
+  background:rgba(255,75,125,0.82);
+  box-shadow:0 14px 34px rgba(255,75,125,0.2);
+}
+
+.preview-image-info-popover{
+  position:absolute;
+  top:64px;
+  right:18px;
+  z-index:6;
+  width:min(238px,calc(100% - 36px));
+  padding:13px;
+  border-radius:16px;
+  background:rgba(13,14,34,0.9);
+  border:1px solid rgba(255,255,255,0.18);
+  color:white;
+  box-shadow:0 18px 42px rgba(0,0,0,0.34);
+  backdrop-filter:blur(18px);
+  animation:previewInfoIn 0.18s ease both;
+}
+
+.preview-image-info-popover h4{
+  margin:0 0 10px;
+  font-size:14px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+
+.preview-image-info-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:7px 0;
+  border-top:1px solid rgba(255,255,255,0.08);
+  font-size:12px;
+}
+
+.preview-image-info-row span{
+  color:rgba(255,255,255,0.62);
+}
+
+.preview-image-info-row strong{
+  max-width:118px;
+  color:white;
+  text-align:right;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+@keyframes previewInfoIn{
+  from{
+    opacity:0;
+    transform:translateY(-6px) scale(0.98);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
 @keyframes previewImageIn{
   from{
     opacity:0;
@@ -7253,6 +7342,30 @@ body.light .calendar-memory{
     object-position:center !important;
   }
 
+  .preview-image-info-btn{
+    top:12px;
+    right:12px;
+    width:34px;
+    height:34px;
+    min-height:34px;
+    font-size:15px;
+    z-index:9;
+  }
+
+  .preview-image-info-popover{
+    top:52px;
+    right:12px;
+    width:min(220px,calc(100% - 24px));
+    padding:11px;
+    border-radius:14px;
+  }
+
+  .preview-image-info-row{
+    gap:10px;
+    padding:6px 0;
+    font-size:11px;
+  }
+
   .preview-content{
     min-height:0;
     padding:18px 16px 14px;
@@ -7446,11 +7559,29 @@ body.light .calendar-memory{
 }
 
 .profile-danger-warning{
-  background:linear-gradient(135deg,#f59e0b,#ff4b7d);
+  background:linear-gradient(135deg,rgba(190,18,60,0.9),rgba(127,29,29,0.86)) !important;
+  border:1px solid rgba(255,255,255,0.2) !important;
+  color:#fff !important;
+  box-shadow:0 14px 28px rgba(127,29,29,0.22) !important;
+  backdrop-filter:blur(14px);
 }
 
 .profile-danger-delete{
-  background:linear-gradient(135deg,#ff4b7d,#b91c1c);
+  background:linear-gradient(135deg,rgba(190,18,60,0.9),rgba(127,29,29,0.86)) !important;
+  border:1px solid rgba(255,255,255,0.2) !important;
+  color:#fff !important;
+  box-shadow:0 14px 28px rgba(127,29,29,0.22) !important;
+  backdrop-filter:blur(14px);
+}
+
+.profile-danger-warning:hover,
+.profile-danger-delete:hover{
+  background:linear-gradient(135deg,rgba(220,38,38,0.92),rgba(136,19,55,0.88)) !important;
+  box-shadow:0 16px 34px rgba(127,29,29,0.3) !important;
+}
+
+.profile-mobile-desktop-note{
+  display:none;
 }
 
 .profile-delete-account-row{
@@ -7646,6 +7777,19 @@ body.light .calendar-memory{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:10px;
+  }
+
+  .profile-mobile-desktop-note{
+    display:block;
+    margin:0 0 16px;
+    padding:12px 14px;
+    border-radius:16px;
+    background:rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.16);
+    color:rgba(255,255,255,0.82);
+    font-size:13px;
+    line-height:1.45;
+    text-align:left;
   }
 
   .settings-actions,

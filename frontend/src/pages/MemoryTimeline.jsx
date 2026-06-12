@@ -1633,6 +1633,17 @@ function MemoryTimeline() {
                 src={getMemoryImageUrl(previewMemory, "images", previewImageIndex)}
                 alt={previewMemory.title}
                 draggable={false}
+                onBlobReady={(blob)=>{
+                  setPreviewImageDetails(current => ({
+                    ...current,
+                    [previewImageDetailsKey]:{
+                      ...current[previewImageDetailsKey],
+                      loading:false,
+                      size:blob.size,
+                      type:blob.type
+                    }
+                  }));
+                }}
                 onLoad={(event)=>{
                   const image = event.currentTarget;
 
@@ -1646,41 +1657,6 @@ function MemoryTimeline() {
                   }));
                 }}
               />
-            )}
-
-            {currentPreviewImage && (
-              <>
-                <button
-                  type="button"
-                  className={`preview-image-info-btn ${showPreviewImageDetails ? "active" : ""}`}
-                  aria-label="Image details"
-                  aria-expanded={showPreviewImageDetails}
-                  onClick={togglePreviewImageDetails}
-                >
-                  i
-                </button>
-                {showPreviewImageDetails && (
-                  <div className="preview-image-info-popover">
-                    <h4>Image details</h4>
-                    <div className="preview-image-info-row">
-                      <span>Type</span>
-                      <strong>{previewImageType}</strong>
-                    </div>
-                    <div className="preview-image-info-row">
-                      <span>Date added</span>
-                      <strong>{previewImageAddedDate}</strong>
-                    </div>
-                    <div className="preview-image-info-row">
-                      <span>Size</span>
-                      <strong>{previewImageSize}</strong>
-                    </div>
-                    <div className="preview-image-info-row">
-                      <span>Resolution</span>
-                      <strong>{previewImageResolution}</strong>
-                    </div>
-                  </div>
-                )}
-              </>
             )}
 
             {previewImages.length > 1 && (
@@ -1725,6 +1701,41 @@ function MemoryTimeline() {
               }}
             />
             <div className="preview-actions">
+              {currentPreviewImage && (
+                <span className="preview-image-info-wrap">
+                  <button
+                    type="button"
+                    title="Image details"
+                    aria-label="Image details"
+                    className={`preview-image-info-btn ${showPreviewImageDetails ? "active" : ""}`}
+                    aria-expanded={showPreviewImageDetails}
+                    onClick={togglePreviewImageDetails}
+                  >
+                    <span aria-hidden="true">i</span>
+                  </button>
+                  {showPreviewImageDetails && (
+                    <span className="preview-image-info-popover">
+                      <strong className="preview-image-info-title">Image details</strong>
+                      <span className="preview-image-info-row">
+                        <span>Type</span>
+                        <strong>{previewImageType}</strong>
+                      </span>
+                      <span className="preview-image-info-row">
+                        <span>Date added</span>
+                        <strong>{previewImageAddedDate}</strong>
+                      </span>
+                      <span className="preview-image-info-row">
+                        <span>Size</span>
+                        <strong>{previewImageSize}</strong>
+                      </span>
+                      <span className="preview-image-info-row">
+                        <span>Resolution</span>
+                        <strong>{previewImageResolution}</strong>
+                      </span>
+                    </span>
+                  )}
+                </span>
+              )}
               <button
                 type="button"
                 title="Edit"

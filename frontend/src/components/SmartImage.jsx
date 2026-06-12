@@ -31,7 +31,7 @@ function getFacePosition(face, image) {
   return `${Math.min(85, Math.max(15, x)).toFixed(1)}% ${Math.min(48, Math.max(0, y)).toFixed(1)}%`;
 }
 
-function SmartImage({ src, alt, className = "", style, loading = "lazy", decoding = "async", detectFaces = true, onLoad, ...props }) {
+function SmartImage({ src, alt, className = "", style, loading = "lazy", decoding = "async", detectFaces = true, onLoad, onBlobReady, ...props }) {
   const [objectPosition, setObjectPosition] = useState(facePositionCache.get(src) || "50% 35%");
   const [resolvedSrc, setResolvedSrc] = useState(src);
 
@@ -60,6 +60,7 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
         objectUrl = URL.createObjectURL(blob);
 
         if(active){
+          onBlobReady?.(blob);
           setResolvedSrc(objectUrl);
         }else{
           URL.revokeObjectURL(objectUrl);

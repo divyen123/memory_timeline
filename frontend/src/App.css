@@ -3881,6 +3881,13 @@ body.button-glass-on .carousel-nav,
   background:rgba(255,77,109,0.62);
 }
 
+.preview-actions .preview-image-info-btn,
+.preview-actions .preview-image-info-btn.active,
+.preview-actions .preview-image-info-btn:hover{
+  background:rgba(59,28,185,0.76);
+  box-shadow:none;
+}
+
 .preview-confirm{
   position:absolute;
   inset:0;

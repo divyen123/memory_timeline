@@ -206,7 +206,7 @@ body.button-glass-on button{
 
 button:hover{
   transform:scale(1.05);
-  background:#ff2f6d;
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white);
 }
 
 .timeline-btn{
@@ -3348,8 +3348,38 @@ body.light .settings-section-title{
 }
 
 .settings-reset-btn{
-  background:rgba(255,255,255,0.16);
+  background:var(--button-bg-color);
   border:1px solid rgba(255,255,255,0.2);
+}
+
+.settings-actions button,
+.settings-save-actions button,
+.settings-sound-control button,
+.profile-grid > .profile-card:not(.settings-card) form button[type="submit"],
+.password-card button,
+.profile-back-btn{
+  background:var(--button-bg-color);
+}
+
+body.button-glass-on .settings-actions button,
+body.button-glass-on .settings-save-actions button,
+body.button-glass-on .settings-sound-control button,
+body.button-glass-on .profile-grid > .profile-card:not(.settings-card) form button[type="submit"],
+body.button-glass-on .password-card button,
+body.button-glass-on .profile-back-btn{
+  background:color-mix(in srgb, var(--button-bg-color) calc(var(--button-glass-alpha) * 100%), transparent);
+  border:1px solid rgba(255,255,255,0.22);
+  backdrop-filter:blur(14px);
+  box-shadow:0 12px 30px rgba(0,0,0,0.18);
+}
+
+.settings-actions button:hover,
+.settings-save-actions button:hover,
+.settings-sound-control button:hover,
+.profile-grid > .profile-card:not(.settings-card) form button[type="submit"]:hover,
+.password-card button:hover,
+.profile-back-btn:hover{
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white);
 }
 
 .settings-backup-input{

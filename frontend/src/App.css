@@ -8610,7 +8610,7 @@ body:not(.button-glass-on) .preview-actions button:last-child:hover {
 .settings-tip-bubble{
   position:absolute;
   top:calc(100% + 12px);
-  right:0;
+  right:calc(50% - 281px);
   z-index:65;
   width:292px;
   padding:11px 11px 11px 14px;
@@ -8631,7 +8631,7 @@ body:not(.button-glass-on) .preview-actions button:last-child:hover {
   content:"";
   position:absolute;
   top:-7px;
-  right:20px;
+  right:36px;
   width:14px;
   height:14px;
   background:inherit;

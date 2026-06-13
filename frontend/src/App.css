@@ -8249,3 +8249,41 @@ body.light .calendar-memory{
     border-radius:20px;
   }
 }
+
+/* Keep appearance button color applied when glass styling is disabled. */
+body:not(.button-glass-on) .top-buttons .toggle-btn,
+body:not(.button-glass-on) .top-buttons .logout-btn,
+body:not(.button-glass-on) .reminder-menu .reminder-icon-btn,
+body:not(.button-glass-on) .timeline-controls .filter-toggle,
+body:not(.button-glass-on) .timeline-controls .timeline-icon-control,
+body:not(.button-glass-on) .timeline-controls .timeline-action-btn,
+body:not(.button-glass-on) .timeline-toolbar button,
+body:not(.button-glass-on) .preview-actions button:not(:last-child),
+body:not(.button-glass-on) .preview-actions .preview-image-info-btn {
+  background: var(--button-bg-color);
+  border-color: color-mix(in srgb, var(--button-bg-color) 68%, white);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+  backdrop-filter: none;
+}
+
+body:not(.button-glass-on) .top-buttons .toggle-btn:hover,
+body:not(.button-glass-on) .top-buttons .logout-btn:hover,
+body:not(.button-glass-on) .reminder-menu .reminder-icon-btn:hover,
+body:not(.button-glass-on) .timeline-controls .filter-toggle:hover,
+body:not(.button-glass-on) .timeline-controls .timeline-icon-control:hover,
+body:not(.button-glass-on) .timeline-controls .timeline-action-btn:hover,
+body:not(.button-glass-on) .timeline-toolbar button:hover,
+body:not(.button-glass-on) .preview-actions button:not(:last-child):hover,
+body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover {
+  background: color-mix(in srgb, var(--button-bg-color) 86%, white);
+  border-color: color-mix(in srgb, var(--button-bg-color) 78%, white);
+}
+
+body:not(.button-glass-on) .preview-actions button:last-child {
+  background: rgba(255, 77, 109, 0.48);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+body:not(.button-glass-on) .preview-actions button:last-child:hover {
+  background: rgba(255, 77, 109, 0.62);
+}

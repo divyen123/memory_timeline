@@ -173,6 +173,17 @@ function Profile() {
     });
   };
 
+  const updateSettings = (updates) => {
+    setAppSettings(currentSettings => {
+      const previewedSettings = previewSettings({
+        ...currentSettings,
+        ...updates
+      });
+
+      return previewedSettings;
+    });
+  };
+
   const createSettingsBackup = () => {
     const reminderState = Object.keys(localStorage)
       .filter((key)=>key.startsWith("memory-reminder-"))
@@ -464,55 +475,88 @@ function Profile() {
 
               <div className="settings-section-title">Background Colors</div>
 
-              <div className="settings-color-grid">
-                <label>
-                  <span>Light start</span>
-                  <input type="color" value={appSettings.lightGradientStart} onChange={(e)=>updateSetting("lightGradientStart", e.target.value)} />
-                </label>
-                <label>
-                  <span>Light middle</span>
-                  <input type="color" value={appSettings.lightGradientMiddle} onChange={(e)=>updateSetting("lightGradientMiddle", e.target.value)} />
-                </label>
-                <label>
-                  <span>Light end</span>
-                  <input type="color" value={appSettings.lightGradientEnd} onChange={(e)=>updateSetting("lightGradientEnd", e.target.value)} />
-                </label>
-                <label>
-                  <span>Dark start</span>
-                  <input type="color" value={appSettings.darkGradientStart} onChange={(e)=>updateSetting("darkGradientStart", e.target.value)} />
-                </label>
-                <label>
-                  <span>Dark middle</span>
-                  <input type="color" value={appSettings.darkGradientMiddle} onChange={(e)=>updateSetting("darkGradientMiddle", e.target.value)} />
-                </label>
-                <label>
-                  <span>Dark end</span>
-                  <input type="color" value={appSettings.darkGradientEnd} onChange={(e)=>updateSetting("darkGradientEnd", e.target.value)} />
-                </label>
-              </div>
+              {isMobileProfile ? (
+                <div className="settings-color-grid mobile-theme-colors">
+                  <label>
+                    <span>Light theme</span>
+                    <input
+                      type="color"
+                      value={appSettings.lightGradientStart}
+                      onChange={(e)=>updateSettings({
+                        lightGradientStart:e.target.value,
+                        lightGradientMiddle:e.target.value,
+                        lightGradientEnd:e.target.value
+                      })}
+                    />
+                  </label>
+                  <label>
+                    <span>Dark theme</span>
+                    <input
+                      type="color"
+                      value={appSettings.darkGradientStart}
+                      onChange={(e)=>updateSettings({
+                        darkGradientStart:e.target.value,
+                        darkGradientMiddle:e.target.value,
+                        darkGradientEnd:e.target.value
+                      })}
+                    />
+                  </label>
+                </div>
+              ) : (
+                <div className="settings-color-grid">
+                  <label>
+                    <span>Light start</span>
+                    <input type="color" value={appSettings.lightGradientStart} onChange={(e)=>updateSetting("lightGradientStart", e.target.value)} />
+                  </label>
+                  <label>
+                    <span>Light middle</span>
+                    <input type="color" value={appSettings.lightGradientMiddle} onChange={(e)=>updateSetting("lightGradientMiddle", e.target.value)} />
+                  </label>
+                  <label>
+                    <span>Light end</span>
+                    <input type="color" value={appSettings.lightGradientEnd} onChange={(e)=>updateSetting("lightGradientEnd", e.target.value)} />
+                  </label>
+                  <label>
+                    <span>Dark start</span>
+                    <input type="color" value={appSettings.darkGradientStart} onChange={(e)=>updateSetting("darkGradientStart", e.target.value)} />
+                  </label>
+                  <label>
+                    <span>Dark middle</span>
+                    <input type="color" value={appSettings.darkGradientMiddle} onChange={(e)=>updateSetting("darkGradientMiddle", e.target.value)} />
+                  </label>
+                  <label>
+                    <span>Dark end</span>
+                    <input type="color" value={appSettings.darkGradientEnd} onChange={(e)=>updateSetting("darkGradientEnd", e.target.value)} />
+                  </label>
+                </div>
+              )}
 
-              <div className="settings-section-title">Memory Hover</div>
+              {!isMobileProfile && (
+                <>
+                  <div className="settings-section-title">Memory Hover</div>
 
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={appSettings.hoverEnabled}
-                  onChange={(e)=>updateSetting("hoverEnabled", e.target.checked)}
-                />
-                <span>Enable memory hover</span>
-              </label>
+                  <label className="settings-toggle">
+                    <input
+                      type="checkbox"
+                      checked={appSettings.hoverEnabled}
+                      onChange={(e)=>updateSetting("hoverEnabled", e.target.checked)}
+                    />
+                    <span>Enable memory hover</span>
+                  </label>
 
-              <label className="settings-field">
-                <span>Hover size</span>
-                <input
-                  type="range"
-                  min="1"
-                  max="1.14"
-                  step="0.01"
-                  value={appSettings.hoverScale}
-                  onChange={(e)=>updateSetting("hoverScale", Number(e.target.value))}
-                />
-              </label>
+                  <label className="settings-field">
+                    <span>Hover size</span>
+                    <input
+                      type="range"
+                      min="1"
+                      max="1.14"
+                      step="0.01"
+                      value={appSettings.hoverScale}
+                      onChange={(e)=>updateSetting("hoverScale", Number(e.target.value))}
+                    />
+                  </label>
+                </>
+              )}
 
               <div className="settings-section-title">Backup & Sound</div>
 

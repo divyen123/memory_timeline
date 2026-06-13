@@ -8359,3 +8359,94 @@ body:not(.button-glass-on) .preview-actions button:last-child {
 body:not(.button-glass-on) .preview-actions button:last-child:hover {
   background: rgba(255, 77, 109, 0.62);
 }
+
+.mobile-popover-backdrop{
+  display:none;
+}
+
+@media (max-width:760px){
+  .mobile-popover-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:1190;
+    display:block;
+    pointer-events:none;
+    background:rgba(3,4,18,0.48);
+    backdrop-filter:blur(8px);
+  }
+
+  body.light .mobile-popover-backdrop{
+    background:rgba(255,255,255,0.38);
+  }
+
+  .timeline-filter-popover,
+  .reminder-popover{
+    border-color:rgba(255,255,255,0.28) !important;
+    background:rgba(18,19,48,0.84) !important;
+    box-shadow:
+      0 24px 70px rgba(0,0,0,0.42),
+      inset 0 1px 0 rgba(255,255,255,0.12) !important;
+    backdrop-filter:blur(22px) saturate(1.15) !important;
+  }
+
+  body.light .timeline-filter-popover,
+  body.light .reminder-popover{
+    background:rgba(255,255,255,0.78) !important;
+    color:#25213d;
+    border-color:rgba(80,72,132,0.18) !important;
+    box-shadow:
+      0 24px 70px rgba(72,54,128,0.26),
+      inset 0 1px 0 rgba(255,255,255,0.72) !important;
+  }
+
+  body.light .timeline-filter-section span,
+  body.light .reminder-popover p{
+    color:rgba(37,33,61,0.68);
+  }
+
+  body.light .timeline-filter-section button,
+  body.light .reminder-popover-item{
+    background:rgba(88,75,170,0.84);
+    border-color:rgba(255,255,255,0.28);
+    color:white;
+  }
+
+  .preview-image-info-popover{
+    position:fixed;
+    left:16px;
+    right:16px;
+    bottom:calc(env(safe-area-inset-bottom) + 92px);
+    z-index:2200;
+    width:auto;
+    max-width:none;
+    transform:none;
+    animation:previewInfoSheetIn 0.18s ease both;
+  }
+
+  @keyframes previewInfoSheetIn{
+    from{
+      opacity:0;
+      transform:translateY(8px) scale(0.98);
+    }
+    to{
+      opacity:1;
+      transform:translateY(0) scale(1);
+    }
+  }
+
+  .mobile-theme-colors{
+    grid-template-columns:1fr;
+  }
+
+  .settings-card .mobile-theme-colors label{
+    min-height:76px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 88px;
+    align-items:center;
+    gap:14px;
+  }
+
+  .settings-card .mobile-theme-colors input[type="color"]{
+    justify-self:end;
+  }
+}

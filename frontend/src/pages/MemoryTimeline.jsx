@@ -1195,6 +1195,8 @@ function MemoryTimeline() {
           </button>
 
           {showReminderPanel && (
+            <>
+            <div className="mobile-popover-backdrop" aria-hidden="true" />
             <div className="reminder-popover">
               <h3>Reminders</h3>
               {upcomingReminders.length > 0 ? (
@@ -1246,6 +1248,7 @@ function MemoryTimeline() {
                 <p>No reminders this week</p>
               )}
             </div>
+            </>
           )}
         </div>
 
@@ -1296,6 +1299,8 @@ function MemoryTimeline() {
             </button>
 
             {showFilterMenu && (
+              <>
+              <div className="mobile-popover-backdrop" aria-hidden="true" />
               <div className="timeline-filter-popover">
                 <div className="timeline-filter-section">
                   <span>Sort</span>
@@ -1329,6 +1334,7 @@ function MemoryTimeline() {
                   ))}
                 </div>
               </div>
+              </>
             )}
           </div>
 

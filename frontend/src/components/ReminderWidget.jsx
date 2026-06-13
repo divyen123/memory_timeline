@@ -215,6 +215,8 @@ function ReminderWidget(){
         </button>
 
         {showReminderPanel && (
+          <>
+          <div className="mobile-popover-backdrop" aria-hidden="true" />
           <div className="reminder-popover">
             <h3>Reminders</h3>
             {!authenticatedUserId ? (
@@ -265,6 +267,7 @@ function ReminderWidget(){
               <p>No reminders in this window</p>
             )}
           </div>
+          </>
         )}
       </div>
 

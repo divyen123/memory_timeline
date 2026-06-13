@@ -308,7 +308,7 @@ const withSignedImages = async (memory) => {
   const signedThumbnails = thumbnails.length
     ? await Promise.all(thumbnails.map(signImageUrl))
     : isCloudinaryConfigured()
-      ? images.map((image) => signCloudinaryImageUrl(image, "c_fill,w_400,h_320,q_auto:eco,f_auto"))
+      ? images.map((image) => signCloudinaryImageUrl(image, "c_fill,w_220,h_180,q_auto:eco,f_auto"))
       : signedImages;
 
   return {

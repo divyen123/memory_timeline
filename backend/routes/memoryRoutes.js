@@ -85,7 +85,7 @@ const cleanupFiles = async (files) => {
 
 const processUploadedImage = async (file, kind) => {
   const maxWidth = kind === "thumbnail"
-    ? Number(process.env.THUMBNAIL_MAX_WIDTH || 400)
+    ? Number(process.env.THUMBNAIL_MAX_WIDTH || 220)
     : Number(process.env.IMAGE_MAX_WIDTH || 1200);
   const outputPath = `${file.path}.webp`;
 
@@ -107,7 +107,7 @@ const processUploadedImage = async (file, kind) => {
         withoutEnlargement:true,
         fit:"inside"
       })
-      .webp({quality:kind === "thumbnail" ? 72 : 82, effort:4})
+      .webp({quality:kind === "thumbnail" ? 58 : 82, effort:4})
       .toFile(outputPath);
 
     await fsp.unlink(file.path).catch(()=>{});

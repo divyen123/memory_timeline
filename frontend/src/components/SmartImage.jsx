@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { requiresAuthenticatedImageFetch } from "../services/api";
 
 const facePositionCache = new Map();
@@ -33,18 +33,20 @@ function getFacePosition(face, image) {
 
 function SmartImage({ src, alt, className = "", style, loading = "lazy", decoding = "async", detectFaces = true, onLoad, onBlobReady, ...props }) {
   const [objectPosition, setObjectPosition] = useState(facePositionCache.get(src) || "50% 35%");
-  const [resolvedSrc, setResolvedSrc] = useState(src);
+  const [authenticatedImage, setAuthenticatedImage] = useState({src:"", url:""});
+  const onBlobReadyRef = useRef(onBlobReady);
+
+  useEffect(()=>{
+    onBlobReadyRef.current = onBlobReady;
+  }, [onBlobReady]);
 
   useEffect(()=>{
     let active = true;
     let objectUrl = "";
 
     if(!requiresAuthenticatedImageFetch(src)){
-      setResolvedSrc(src);
       return () => {};
     }
-
-    setResolvedSrc("");
 
     fetch(src, {
       credentials:"include"
@@ -60,15 +62,15 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
         objectUrl = URL.createObjectURL(blob);
 
         if(active){
-          onBlobReady?.(blob);
-          setResolvedSrc(objectUrl);
+          onBlobReadyRef.current?.(blob);
+          setAuthenticatedImage({src, url:objectUrl});
         }else{
           URL.revokeObjectURL(objectUrl);
         }
       })
       .catch(()=>{
         if(active){
-          setResolvedSrc("");
+          setAuthenticatedImage({src, url:""});
         }
       });
 
@@ -80,6 +82,10 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
       }
     };
   }, [src]);
+
+  const resolvedSrc = requiresAuthenticatedImageFetch(src)
+    ? (authenticatedImage.src === src ? authenticatedImage.url : "")
+    : src;
 
   const handleLoad = async (event) => {
     const image = event.currentTarget;

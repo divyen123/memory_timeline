@@ -15,8 +15,8 @@ const ACCEPTED_IMAGE_TYPES = new Set([
 const ACCEPTED_IMAGE_EXTENSIONS = [".jpg",".jpeg",".png",".webp"];
 const FULL_IMAGE_MAX_EDGE = 1200;
 const FULL_IMAGE_QUALITY = 0.82;
-const THUMBNAIL_MAX_EDGE = 400;
-const THUMBNAIL_QUALITY = 0.72;
+const THUMBNAIL_MAX_EDGE = 220;
+const THUMBNAIL_QUALITY = 0.58;
 
 const formatFileSize = (bytes) => {
   if(bytes < 1024 * 1024){

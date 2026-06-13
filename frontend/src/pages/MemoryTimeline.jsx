@@ -10,6 +10,18 @@ import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "..
 import { playAppSound } from "../sound";
 import { shareUrl } from "../share";
 
+const VIEW_MODES = ["timeline", "calendar", "compact"];
+const VIEW_MODE_LABELS = {
+  timeline:"Timeline View",
+  calendar:"Calendar View",
+  compact:"Small Container Cards"
+};
+const VIEW_MODE_ICONS = {
+  timeline:"\u23f0",
+  calendar:"\ud83d\udcc5",
+  compact:"\u25a6"
+};
+
 const formatImageBytes = (bytes) => {
   if(!Number.isFinite(bytes) || bytes <= 0){
     return "Unknown";
@@ -953,6 +965,55 @@ function MemoryTimeline() {
   const visibleTimelineMemories = shouldVirtualizeTimeline
     ? memories.slice(virtualRange.start, virtualRange.end)
     : memories;
+  const nextViewMode = VIEW_MODES[(VIEW_MODES.indexOf(viewMode) + 1) % VIEW_MODES.length];
+  const renderSmallMemoryCard = (memory, className = "calendar-memory") => {
+    const memoryDate = new Date(memory.date);
+    const memoryImages = getMemoryImages(memory);
+    const cardImages = memory.thumbnails?.length ? memory.thumbnails : memoryImages;
+    const cardImageKind = memory.thumbnails?.length ? "thumbnails" : "images";
+    const formattedDate = memoryDate.toLocaleDateString("en-GB", {
+      day:"2-digit",
+      month:"short",
+      year:"numeric"
+    });
+
+    return (
+      <button
+        key={memory._id}
+        className={`${className} ${selectedMemoryIds.includes(memory._id) ? "selected" : ""}`}
+        onClick={()=>{
+          if(exportPanel === "selected"){
+            toggleMemorySelection(memory._id);
+          }else{
+            setPreviewMemory(memory);
+          }
+        }}
+      >
+        {exportPanel === "selected" && (
+          <i aria-hidden="true">{selectedMemoryIds.includes(memory._id) ? "\u2713" : ""}</i>
+        )}
+        <span className={`calendar-memory-thumbnail ${cardImages[0] ? "" : "empty"}`}>
+          {cardImages[0] ? (
+            <SmartImage
+              src={getMemoryImageUrl(memory, cardImageKind, 0)}
+              alt=""
+              detectFaces={false}
+            />
+          ) : (
+            <strong>{memory.title?.slice(0,1) || "M"}</strong>
+          )}
+        </span>
+        <span className="calendar-memory-copy">
+          <strong>{memory.title}</strong>
+          <span className="calendar-memory-meta">
+            <small>{memory.category || "Personal"}</small>
+            <time dateTime={memory.date}>{formattedDate}</time>
+          </span>
+        </span>
+        <span className="calendar-memory-arrow" aria-hidden="true">&#8594;</span>
+      </button>
+    );
+  };
 
   const loadPreviewImageDetails = async () => {
     if(!previewMemory || !currentPreviewImage || !previewImageDetailsKey){
@@ -1293,11 +1354,11 @@ function MemoryTimeline() {
           <button
             type="button"
             className="timeline-action-btn"
-            title={viewMode === "timeline" ? "Calendar View" : "Timeline View"}
-            aria-label={viewMode === "timeline" ? "Calendar View" : "Timeline View"}
-            onClick={()=>setViewMode(viewMode === "timeline" ? "calendar" : "timeline")}
+            title={`Switch to ${VIEW_MODE_LABELS[nextViewMode]}`}
+            aria-label={`Switch to ${VIEW_MODE_LABELS[nextViewMode]}`}
+            onClick={()=>setViewMode(nextViewMode)}
           >
-            {viewMode === "timeline" ? "📅" : "🕘"}
+            {VIEW_MODE_ICONS[nextViewMode]}
           </button>
           <button
             type="button"
@@ -1411,57 +1472,14 @@ function MemoryTimeline() {
                   </span>
                 </div>
                 <div className="calendar-grid">
-                  {items.map((memory)=>{
-                    const memoryDate = new Date(memory.date);
-                    const memoryImages = getMemoryImages(memory);
-                    const calendarImages = memory.thumbnails?.length ? memory.thumbnails : memoryImages;
-                    const calendarImageKind = memory.thumbnails?.length ? "thumbnails" : "images";
-                    const formattedCalendarDate = memoryDate.toLocaleDateString("en-GB", {
-                      day:"2-digit",
-                      month:"short",
-                      year:"numeric"
-                    });
-
-                    return (
-                    <button
-                      key={memory._id}
-                      className={`calendar-memory ${selectedMemoryIds.includes(memory._id) ? "selected" : ""}`}
-                      onClick={()=>{
-                        if(exportPanel === "selected"){
-                          toggleMemorySelection(memory._id);
-                        }else{
-                          setPreviewMemory(memory);
-                        }
-                      }}
-                    >
-                      {exportPanel === "selected" && (
-                        <i aria-hidden="true">{selectedMemoryIds.includes(memory._id) ? "\u2713" : ""}</i>
-                      )}
-                      <span className={`calendar-memory-thumbnail ${calendarImages[0] ? "" : "empty"}`}>
-                        {calendarImages[0] ? (
-                          <SmartImage
-                            src={getMemoryImageUrl(memory, calendarImageKind, 0)}
-                            alt=""
-                            detectFaces={false}
-                          />
-                        ) : (
-                          <strong>{memory.title?.slice(0,1) || "M"}</strong>
-                        )}
-                      </span>
-                      <span className="calendar-memory-copy">
-                        <strong>{memory.title}</strong>
-                        <span className="calendar-memory-meta">
-                          <small>{memory.category || "Personal"}</small>
-                          <time dateTime={memory.date}>{formattedCalendarDate}</time>
-                        </span>
-                      </span>
-                      <span className="calendar-memory-arrow" aria-hidden="true">&#8594;</span>
-                    </button>
-                    );
-                  })}
+                  {items.map((memory)=>renderSmallMemoryCard(memory))}
                 </div>
               </div>
             ))}
+          </div>
+        ) : viewMode === "compact" ? (
+          <div className="small-cards-view">
+            {memories.map((memory)=>renderSmallMemoryCard(memory, "calendar-memory small-container-memory"))}
           </div>
         ) : (
 

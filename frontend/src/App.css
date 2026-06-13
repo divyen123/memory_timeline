@@ -3904,14 +3904,12 @@ body.button-glass-on .carousel-nav,
   background:rgba(255,77,109,0.62);
 }
 
-.preview-actions .preview-image-info-btn,
 body.button-glass-on .preview-actions .preview-image-info-btn{
   background:color-mix(in srgb, var(--button-bg-color) calc(var(--button-glass-alpha) * 100%), transparent);
   border-color:rgba(255,255,255,0.22);
   box-shadow:0 12px 30px rgba(0,0,0,0.18);
 }
 
-.preview-actions .preview-image-info-btn:hover,
 body.button-glass-on .preview-actions .preview-image-info-btn:hover{
   background:color-mix(in srgb, var(--button-bg-color) min(calc(var(--button-glass-alpha) * 100% + 10%), 92%), transparent);
 }
@@ -8334,10 +8332,10 @@ body:not(.button-glass-on) .timeline-controls .timeline-action-btn,
 body:not(.button-glass-on) .timeline-toolbar button,
 body:not(.button-glass-on) .preview-actions button:not(:last-child),
 body:not(.button-glass-on) .preview-actions .preview-image-info-btn {
-  background: var(--button-bg-color);
-  border-color: color-mix(in srgb, var(--button-bg-color) 68%, white);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
-  backdrop-filter: none;
+  background: var(--button-bg-color) !important;
+  border-color: color-mix(in srgb, var(--button-bg-color) 68%, white) !important;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18) !important;
+  backdrop-filter: none !important;
 }
 
 body:not(.button-glass-on) .top-buttons .toggle-btn:hover,
@@ -8349,8 +8347,8 @@ body:not(.button-glass-on) .timeline-controls .timeline-action-btn:hover,
 body:not(.button-glass-on) .timeline-toolbar button:hover,
 body:not(.button-glass-on) .preview-actions button:not(:last-child):hover,
 body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover {
-  background: color-mix(in srgb, var(--button-bg-color) 86%, white);
-  border-color: color-mix(in srgb, var(--button-bg-color) 78%, white);
+  background: color-mix(in srgb, var(--button-bg-color) 86%, white) !important;
+  border-color: color-mix(in srgb, var(--button-bg-color) 78%, white) !important;
 }
 
 body:not(.button-glass-on) .preview-actions button:last-child {

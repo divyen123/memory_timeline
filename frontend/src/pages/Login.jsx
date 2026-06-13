@@ -61,7 +61,8 @@ const handleOnboardingComplete = async () => {
   await completeOnboarding();
   onboardingRequiredRef.current = false;
   setShowOnboarding(false);
-  navigate("/timeline", {replace:true});
+  localStorage.setItem("memory-settings-tip-pending", "true");
+  navigate("/timeline", {replace:true, state:{showSettingsTip:true}});
 };
 
 useEffect(() => {

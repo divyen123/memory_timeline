@@ -116,9 +116,14 @@ function Profile() {
     try{
       if(confirmAction === "clear-memories"){
         const {data} = await clearAllMemories();
-        setMemoryCount(0);
-        setFavoriteCount(0);
-        setMessage(data.message || "All memories moved to trash");
+        const moved = Number(data.moved) || 0;
+        if(moved > 0){
+          setMemoryCount(0);
+          setFavoriteCount(0);
+        }
+        setMessage(
+          data.message || (moved > 0 ? "All memories moved to trash" : "No memories found")
+        );
       }
 
       if(confirmAction === "delete-account"){

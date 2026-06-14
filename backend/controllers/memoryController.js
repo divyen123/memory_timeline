@@ -32,7 +32,7 @@ const uploadToCloudinary = async (file) => {
     const timestamp = Math.floor(Date.now() / 1000);
     const signature = crypto
       .createHash("sha1")
-      .update(`timestamp=${timestamp}${process.env.CLOUDINARY_API_SECRET}`)
+      .update(`timestamp=${timestamp}&type=authenticated${process.env.CLOUDINARY_API_SECRET}`)
       .digest("hex");
     const bytes = await fs.readFile(file.path);
     const formData = new FormData();
@@ -41,10 +41,11 @@ const uploadToCloudinary = async (file) => {
     formData.append("file", blob, file.originalname);
     formData.append("api_key", process.env.CLOUDINARY_API_KEY);
     formData.append("timestamp", timestamp);
+    formData.append("type", "authenticated");
     formData.append("signature", signature);
 
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/authenticated`,
+      `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`,
       {
         method:"POST",
         body:formData
@@ -52,6 +53,12 @@ const uploadToCloudinary = async (file) => {
     );
 
     if(!response.ok){
+      const errorText = await response.text().catch(()=>"");
+      securityWarn("cloudinary_upload_failed", {
+        status:response.status,
+        statusText:response.statusText,
+        error:errorText.slice(0, 300)
+      });
       throw new Error("Cloudinary upload failed");
     }
 
@@ -629,15 +636,16 @@ exports.clearAllMemories = async (req,res)=>{
         }
       }
     );
+    const moved = result.modifiedCount || 0;
 
     securityWarn("all_memories_moved_to_trash", {
       userId:String(req.user.userId),
-      moved:result.modifiedCount || 0
+      moved
     });
 
     res.json({
-      message:"All memories moved to trash",
-      moved:result.modifiedCount || 0
+      message:moved > 0 ? "All memories moved to trash" : "No memories found",
+      moved
     });
   }catch(err){
     res.status(500).json({message:err.message || "Unable to clear memories"});

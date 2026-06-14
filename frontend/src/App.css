@@ -3359,6 +3359,110 @@ body.light .settings-section-title{
   gap:12px;
 }
 
+.desktop-theme-color-controls{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+
+.theme-color-control{
+  display:grid;
+  gap:16px;
+  min-width:0;
+  padding:18px;
+  border:1px solid rgba(255,255,255,0.16);
+  border-radius:8px;
+  background:rgba(255,255,255,0.08);
+}
+
+.theme-color-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  min-width:0;
+  font-weight:800;
+}
+
+.theme-color-heading output{
+  flex:0 0 auto;
+  padding:7px 10px;
+  border-radius:6px;
+  background:rgba(0,0,0,0.22);
+  color:rgba(255,255,255,0.82);
+  font-family:var(--app-font-family);
+  font-size:0.75rem;
+  font-weight:800;
+  line-height:1;
+}
+
+.theme-color-slider{
+  display:block;
+  position:relative;
+  min-width:0;
+  padding:8px 0 3px;
+}
+
+.theme-color-slider input[type="range"]{
+  display:block;
+  width:100%;
+  height:16px;
+  margin:0;
+  padding:0;
+  border:1px solid rgba(255,255,255,0.34);
+  border-radius:999px;
+  appearance:none;
+  -webkit-appearance:none;
+  background:linear-gradient(
+    90deg,
+    #ff3b4f 0%,
+    #ffdf3b 16.66%,
+    #46d45a 33.33%,
+    #36d8e8 50%,
+    #4775ff 66.66%,
+    #b64cff 83.33%,
+    #ff3b75 100%
+  );
+  box-shadow:inset 0 2px 4px rgba(0,0,0,0.32);
+  cursor:pointer;
+}
+
+.theme-color-slider-dark input[type="range"]{
+  filter:saturate(0.82) brightness(0.72);
+}
+
+.theme-color-slider input[type="range"]::-webkit-slider-thumb{
+  width:22px;
+  height:28px;
+  border:2px solid #fff;
+  border-radius:7px 7px 10px 10px;
+  appearance:none;
+  -webkit-appearance:none;
+  background:#171a38;
+  clip-path:polygon(12% 0,88% 0,100% 58%,50% 100%,0 58%);
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,0.42));
+}
+
+.theme-color-slider input[type="range"]::-moz-range-thumb{
+  width:22px;
+  height:28px;
+  border:2px solid #fff;
+  border-radius:7px 7px 10px 10px;
+  background:#171a38;
+  clip-path:polygon(12% 0,88% 0,100% 58%,50% 100%,0 58%);
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,0.42));
+}
+
+body.light .theme-color-control{
+  border-color:rgba(39,39,56,0.18);
+  background:rgba(255,255,255,0.34);
+}
+
+body.light .theme-color-heading output{
+  background:rgba(39,39,56,0.1);
+  color:rgba(39,39,56,0.8);
+}
+
 .settings-color-grid label{
   display:grid;
   gap:8px;
@@ -7894,6 +7998,7 @@ body.light .calendar-memory{
   .settings-card .settings-row,
   .settings-actions,
   .settings-color-grid,
+  .desktop-theme-color-controls,
   .settings-save-actions{
     grid-column:1 / -1;
   }

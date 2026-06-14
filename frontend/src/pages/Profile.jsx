@@ -21,6 +21,91 @@ import {
 } from "../settings";
 import { playAppSound } from "../sound";
 
+const getColorHue = (hexColor) => {
+  const normalized = String(hexColor || "").replace("#", "");
+  const value = normalized.length === 3
+    ? normalized.split("").map((character)=>character + character).join("")
+    : normalized;
+
+  if(!/^[0-9a-f]{6}$/i.test(value)){
+    return 0;
+  }
+
+  const red = parseInt(value.slice(0, 2), 16) / 255;
+  const green = parseInt(value.slice(2, 4), 16) / 255;
+  const blue = parseInt(value.slice(4, 6), 16) / 255;
+  const maximum = Math.max(red, green, blue);
+  const minimum = Math.min(red, green, blue);
+  const difference = maximum - minimum;
+
+  if(difference === 0){
+    return 0;
+  }
+
+  let hue;
+
+  if(maximum === red){
+    hue = ((green - blue) / difference) % 6;
+  }else if(maximum === green){
+    hue = (blue - red) / difference + 2;
+  }else{
+    hue = (red - green) / difference + 4;
+  }
+
+  return Math.round((hue * 60 + 360) % 360);
+};
+
+const hueToHex = (hue, saturation, lightness) => {
+  const normalizedHue = ((Number(hue) % 360) + 360) % 360;
+  const normalizedSaturation = saturation / 100;
+  const normalizedLightness = lightness / 100;
+  const chroma = (1 - Math.abs(2 * normalizedLightness - 1)) * normalizedSaturation;
+  const segment = normalizedHue / 60;
+  const secondary = chroma * (1 - Math.abs(segment % 2 - 1));
+  const offset = normalizedLightness - chroma / 2;
+  let red = 0;
+  let green = 0;
+  let blue = 0;
+
+  if(segment < 1){
+    red = chroma;
+    green = secondary;
+  }else if(segment < 2){
+    red = secondary;
+    green = chroma;
+  }else if(segment < 3){
+    green = chroma;
+    blue = secondary;
+  }else if(segment < 4){
+    green = secondary;
+    blue = chroma;
+  }else if(segment < 5){
+    red = secondary;
+    blue = chroma;
+  }else{
+    red = chroma;
+    blue = secondary;
+  }
+
+  return `#${[red, green, blue]
+    .map((channel)=>Math.round((channel + offset) * 255).toString(16).padStart(2, "0"))
+    .join("")}`;
+};
+
+const collapseDesktopBackgroundColors = (settings, profile) => {
+  if(profile !== "desktop"){
+    return settings;
+  }
+
+  return {
+    ...settings,
+    lightGradientMiddle:settings.lightGradientStart,
+    lightGradientEnd:settings.lightGradientStart,
+    darkGradientMiddle:settings.darkGradientStart,
+    darkGradientEnd:settings.darkGradientStart
+  };
+};
+
 function Profile() {
   const navigate = useNavigate();
   const [name,setName] = useState("");
@@ -36,7 +121,9 @@ function Profile() {
   const [showAccountInfo,setShowAccountInfo] = useState(false);
   const deviceProfile = getDeviceProfile();
   const isMobileProfile = deviceProfile === "mobile";
-  const [appSettings,setAppSettings] = useState(()=>loadSettings(deviceProfile));
+  const [appSettings,setAppSettings] = useState(
+    ()=>collapseDesktopBackgroundColors(loadSettings(deviceProfile), deviceProfile)
+  );
   const backupFileRef = useRef(null);
 
   useAutoDismissMessage(message, setMessage);
@@ -58,7 +145,8 @@ function Profile() {
         const remoteSettings = data.settings || {};
 
         if(Object.keys(remoteSettings).length){
-          setAppSettings(saveSettings(remoteSettings, deviceProfile));
+          const profileSettings = collapseDesktopBackgroundColors(remoteSettings, deviceProfile);
+          setAppSettings(saveSettings(profileSettings, deviceProfile));
         }
       })
       .catch(()=>{});
@@ -142,7 +230,10 @@ function Profile() {
 
   const handleSettingsUpdate = async(e) => {
     e.preventDefault();
-    const savedSettings = saveSettings(appSettings, deviceProfile);
+    const savedSettings = saveSettings(
+      collapseDesktopBackgroundColors(appSettings, deviceProfile),
+      deviceProfile
+    );
 
     try{
       const {data} = await updateAppearanceSettings(deviceProfile, savedSettings);
@@ -155,7 +246,10 @@ function Profile() {
   };
 
   const handleSettingsReset = async() => {
-    const resetSettings = saveSettings(defaultSettings, deviceProfile);
+    const resetSettings = saveSettings(
+      collapseDesktopBackgroundColors(defaultSettings, deviceProfile),
+      deviceProfile
+    );
 
     try{
       await updateAppearanceSettings(deviceProfile, resetSettings);
@@ -225,7 +319,10 @@ function Profile() {
 
     try{
       const backup = JSON.parse(await file.text());
-      const restoredSettings = saveSettings(backup.settings || backup, deviceProfile);
+      const restoredSettings = saveSettings(
+        collapseDesktopBackgroundColors(backup.settings || backup, deviceProfile),
+        deviceProfile
+      );
       await updateAppearanceSettings(deviceProfile, restoredSettings);
 
       Object.entries(backup.reminderState || {}).forEach(([key, value]) => {
@@ -508,30 +605,53 @@ function Profile() {
                   </label>
                 </div>
               ) : (
-                <div className="settings-color-grid">
-                  <label>
-                    <span>Light start</span>
-                    <input type="color" value={appSettings.lightGradientStart} onChange={(e)=>updateSetting("lightGradientStart", e.target.value)} />
+                <div className="desktop-theme-color-controls">
+                  <label className="theme-color-control">
+                    <span className="theme-color-heading">
+                      <span>Light background</span>
+                      <output>{appSettings.lightGradientStart.toUpperCase()}</output>
+                    </span>
+                    <span className="theme-color-slider">
+                      <input
+                        type="range"
+                        min="0"
+                        max="359"
+                        value={getColorHue(appSettings.lightGradientStart)}
+                        aria-label="Light background color"
+                        onChange={(e)=>{
+                          const color = hueToHex(e.target.value, 82, 68);
+                          updateSettings({
+                            lightGradientStart:color,
+                            lightGradientMiddle:color,
+                            lightGradientEnd:color
+                          });
+                        }}
+                      />
+                    </span>
                   </label>
-                  <label>
-                    <span>Light middle</span>
-                    <input type="color" value={appSettings.lightGradientMiddle} onChange={(e)=>updateSetting("lightGradientMiddle", e.target.value)} />
-                  </label>
-                  <label>
-                    <span>Light end</span>
-                    <input type="color" value={appSettings.lightGradientEnd} onChange={(e)=>updateSetting("lightGradientEnd", e.target.value)} />
-                  </label>
-                  <label>
-                    <span>Dark start</span>
-                    <input type="color" value={appSettings.darkGradientStart} onChange={(e)=>updateSetting("darkGradientStart", e.target.value)} />
-                  </label>
-                  <label>
-                    <span>Dark middle</span>
-                    <input type="color" value={appSettings.darkGradientMiddle} onChange={(e)=>updateSetting("darkGradientMiddle", e.target.value)} />
-                  </label>
-                  <label>
-                    <span>Dark end</span>
-                    <input type="color" value={appSettings.darkGradientEnd} onChange={(e)=>updateSetting("darkGradientEnd", e.target.value)} />
+
+                  <label className="theme-color-control">
+                    <span className="theme-color-heading">
+                      <span>Dark background</span>
+                      <output>{appSettings.darkGradientStart.toUpperCase()}</output>
+                    </span>
+                    <span className="theme-color-slider theme-color-slider-dark">
+                      <input
+                        type="range"
+                        min="0"
+                        max="359"
+                        value={getColorHue(appSettings.darkGradientStart)}
+                        aria-label="Dark background color"
+                        onChange={(e)=>{
+                          const color = hueToHex(e.target.value, 48, 13);
+                          updateSettings({
+                            darkGradientStart:color,
+                            darkGradientMiddle:color,
+                            darkGradientEnd:color
+                          });
+                        }}
+                      />
+                    </span>
                   </label>
                 </div>
               )}

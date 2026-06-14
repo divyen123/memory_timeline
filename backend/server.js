@@ -88,10 +88,16 @@ const validateProductionConfig = () => {
   }
 
   if(isProduction){
-    const requiredKeys = ["MONGODB_URI", "ALLOWED_ORIGINS"];
+    const requiredKeys = [
+      "MONGODB_URI",
+      "ALLOWED_ORIGINS",
+      "CLOUDINARY_CLOUD_NAME",
+      "CLOUDINARY_API_KEY",
+      "CLOUDINARY_API_SECRET"
+    ];
 
-    if(process.env.CLOUD_STORAGE_PROVIDER === "s3"){
-      requiredKeys.push("AWS_REGION", "AWS_S3_BUCKET");
+    if(process.env.CLOUD_STORAGE_PROVIDER !== "cloudinary"){
+      throw new Error("CLOUD_STORAGE_PROVIDER must be set to cloudinary in production");
     }
 
     const missingKeys = requiredKeys.filter((key)=>!process.env[key]);

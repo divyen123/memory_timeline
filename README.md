@@ -5,7 +5,8 @@ sharing, and exporting personal memories.
 
 ## Live Application
 
-[Open Memory Timeline](https://memory-timeline-divyen.duckdns.org)
+The production frontend is intended to run on Vercel, with the API deployed on
+Render and data stored in MongoDB Atlas.
 
 The application is deployed over HTTPS. New users can register an account and
 maintain their own private collection of memories.
@@ -16,7 +17,7 @@ maintain their own private collection of memories.
 - User-isolated memory timelines
 - Multiple images per memory
 - Search, sorting, categories, favorites, and reminders
-- Private image storage in Amazon S3 using an EC2 IAM role
+- Private image storage through Cloudinary authenticated delivery
 - Public share links for individual memories
 - Original-image export with ZIP downloads for multiple images
 - Responsive light and dark themes
@@ -26,10 +27,9 @@ maintain their own private collection of memories.
 - Frontend: React and Vite
 - Backend: Node.js and Express
 - Database: MongoDB Atlas
-- Image storage: Amazon S3
-- Hosting: Amazon EC2
-- Web server: Nginx
-- Process manager: PM2
+- Image storage: Cloudinary
+- Frontend hosting: Vercel
+- Backend hosting: Render
 
 ## Local Development
 
@@ -60,17 +60,26 @@ Never commit `.env` files, private keys, deployment archives, or uploaded images
 
 ## Production Deployment
 
-The live deployment serves the Vite build through Nginx and proxies `/api` to
-the Express backend on port `5001`. PM2 keeps the backend running after logout
-and server restarts. DuckDNS points the public hostname to an AWS Elastic IP,
-and Let's Encrypt provides the TLS certificate.
+Use `render.yaml` to create the Render backend service. Add the secret values in
+Render, not in GitHub:
 
-Production secrets belong only in `/home/ubuntu/backend/.env` on EC2 or in a
-managed secret store. AWS access keys are not required because the instance
-uses an IAM role.
+- `MONGODB_URI`
+- `ALLOWED_ORIGINS`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
 
-GitHub contains the source code and CI workflow; the live application continues
-to run on EC2 independently of GitHub.
+Render generates `JWT_SECRET` automatically from the blueprint. After Render
+creates the backend URL, add the Vercel frontend URL to `ALLOWED_ORIGINS`, and
+set `VITE_API_URL` in Vercel to the backend API URL, for example:
+
+```text
+https://memory-timeline-backend.onrender.com/api
+```
+
+Never commit `.env` files, private keys, deployment archives, or uploaded
+images. Production secrets belong only in the hosting platform environment
+variable manager.
 
 ## Verification
 

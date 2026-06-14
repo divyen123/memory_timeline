@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: memory-timeline-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: CLOUD_STORAGE_PROVIDER
+        value: cloudinary
+      - key: API_RATE_LIMIT
+        value: "300"
+      - key: RESET_CODE_EXPIRY_MINUTES
+        value: "10"
+      - key: MAX_UPLOAD_MB
+        value: "8"
+      - key: THUMBNAIL_MAX_WIDTH
+        value: "220"
+      - key: IMAGE_MAX_WIDTH
+        value: "1200"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

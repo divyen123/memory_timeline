@@ -2,8 +2,6 @@ const crypto = require("crypto");
 const fs = require("fs/promises");
 const path = require("path");
 const mongoose = require("mongoose");
-const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
-const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const Memory = require("../models/Memory");
 const ShareLink = require("../models/ShareLink");
 const Session = require("../models/Session");
@@ -15,54 +13,6 @@ const TRASH_RETENTION_DAYS = 30;
 const TRASH_RETENTION_MS = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 const UPLOADS_ROOT = path.resolve("uploads");
 const PUBLIC_SHARE_EXPIRY_DAYS = Number(process.env.PUBLIC_SHARE_EXPIRY_DAYS || 7);
-
-const getS3Client = () => new S3Client({
-  region:process.env.AWS_REGION,
-  credentials:process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
-    ? {
-      accessKeyId:process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY
-    }
-    : undefined
-});
-
-const isS3Configured = () => (
-  process.env.CLOUD_STORAGE_PROVIDER === "s3" &&
-  process.env.AWS_REGION &&
-  process.env.AWS_S3_BUCKET
-);
-
-const uploadToS3 = async (file) => {
-  if(process.env.CLOUD_STORAGE_PROVIDER !== "s3"){
-    return file.filename;
-  }
-
-  if(!isS3Configured()){
-    await fs.unlink(file.path).catch(()=>{});
-    throw new Error("S3 storage is not configured");
-  }
-
-  try{
-    const extension = path.extname(file.originalname);
-    const key = `memories/${Date.now()}-${crypto.randomBytes(10).toString("hex")}${extension}`;
-    const bytes = await fs.readFile(file.path);
-
-    await getS3Client().send(new PutObjectCommand({
-      Bucket:process.env.AWS_S3_BUCKET,
-      Key:key,
-      Body:bytes,
-      ContentType:file.mimetype,
-      ServerSideEncryption:"AES256",
-      CacheControl:"private, max-age=31536000, immutable"
-    }));
-
-    await fs.unlink(file.path).catch(()=>{});
-    return `s3://${process.env.AWS_S3_BUCKET}/${key}`;
-  }catch(error){
-    await fs.unlink(file.path).catch(()=>{});
-    throw error;
-  }
-};
 
 const uploadToCloudinary = async (file) => {
   if(process.env.CLOUD_STORAGE_PROVIDER !== "cloudinary"){
@@ -115,10 +65,6 @@ const uploadToCloudinary = async (file) => {
 };
 
 const uploadImage = async (file) => {
-  if(process.env.CLOUD_STORAGE_PROVIDER === "s3"){
-    return uploadToS3(file);
-  }
-
   return uploadToCloudinary(file);
 };
 
@@ -195,62 +141,10 @@ const signCloudinaryImageUrl = (image, transformation = "") => {
   }
 };
 
-const signS3ImageUrl = async (image) => {
-  if(!image?.startsWith("s3://") || !isS3Configured()){
-    return image;
-  }
-
-  const s3Path = image.replace("s3://", "");
-  const slashIndex = s3Path.indexOf("/");
-  const bucket = s3Path.slice(0, slashIndex);
-  const key = s3Path.slice(slashIndex + 1);
-
-  return getSignedUrl(
-    getS3Client(),
-    new GetObjectCommand({
-      Bucket:bucket,
-      Key:key
-    }),
-    {expiresIn:Number(process.env.AWS_SIGNED_URL_EXPIRY_SECONDS || 300)}
-  );
-};
-
-const parseS3Image = (image) => {
-  if(!image?.startsWith("s3://")){
-    return null;
-  }
-
-  const s3Path = image.replace("s3://", "");
-  const slashIndex = s3Path.indexOf("/");
-
-  if(slashIndex === -1){
-    return null;
-  }
-
-  return {
-    bucket:s3Path.slice(0, slashIndex),
-    key:s3Path.slice(slashIndex + 1)
-  };
-};
-
-const deleteS3Image = async (image) => {
-  const parsed = parseS3Image(image);
-
-  if(!parsed || !isS3Configured()){
-    return;
-  }
-
-  await getS3Client().send(new DeleteObjectCommand({
-    Bucket:parsed.bucket,
-    Key:parsed.key
-  }));
-};
-
 const isLocalImage = (image = "") => (
   image &&
   !image.startsWith("http://") &&
-  !image.startsWith("https://") &&
-  !image.startsWith("s3://")
+  !image.startsWith("https://")
 );
 
 const getLocalUploadPath = (image) => {
@@ -277,6 +171,56 @@ const deleteLocalImage = async (image) => {
   await fs.unlink(localPath).catch(()=>{});
 };
 
+const getCloudinaryPublicId = (image) => {
+  if(!image || !isCloudinaryConfigured()){
+    return null;
+  }
+
+  try{
+    const url = new URL(image);
+    const marker = `/${process.env.CLOUDINARY_CLOUD_NAME}/image/authenticated/`;
+    const markerIndex = url.pathname.indexOf(marker);
+
+    if(markerIndex === -1){
+      return null;
+    }
+
+    const resourcePath = url.pathname.slice(markerIndex + marker.length);
+    const withoutSignature = resourcePath.replace(/^s--[^/]+--\//, "");
+    const withoutVersion = withoutSignature.replace(/^v\d+\//, "");
+
+    return withoutVersion.replace(/\.[^.]+$/, "");
+  }catch{
+    return null;
+  }
+};
+
+const deleteCloudinaryImage = async (image) => {
+  const publicId = getCloudinaryPublicId(image);
+
+  if(!publicId){
+    return;
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const signature = crypto
+    .createHash("sha1")
+    .update(`public_id=${publicId}&timestamp=${timestamp}&type=authenticated${process.env.CLOUDINARY_API_SECRET}`)
+    .digest("hex");
+  const formData = new FormData();
+
+  formData.append("public_id", publicId);
+  formData.append("type", "authenticated");
+  formData.append("api_key", process.env.CLOUDINARY_API_KEY);
+  formData.append("timestamp", timestamp);
+  formData.append("signature", signature);
+
+  await fetch(`https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/destroy`, {
+    method:"POST",
+    body:formData
+  });
+};
+
 const deleteStoredImages = async (memory) => {
   const images = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
   const thumbnails = memory.thumbnails || [];
@@ -284,7 +228,7 @@ const deleteStoredImages = async (memory) => {
 
   await Promise.all(uniqueImages.map(async (image) => {
     try{
-      await deleteS3Image(image);
+      await deleteCloudinaryImage(image);
       await deleteLocalImage(image);
     }catch(error){
       console.error(`Failed to delete stored image: ${image}`, error.message);
@@ -293,10 +237,6 @@ const deleteStoredImages = async (memory) => {
 };
 
 const signImageUrl = async (image) => {
-  if(image?.startsWith("s3://")){
-    return signS3ImageUrl(image);
-  }
-
   return signCloudinaryImageUrl(image);
 };
 
@@ -330,10 +270,6 @@ const getMemoryImageList = (memory, kind = "images") => {
 const streamStoredImage = async (image, res, options = {}) => {
   if(!image){
     return res.status(404).json({message:"Image not found"});
-  }
-
-  if(image.startsWith("s3://")){
-    return res.redirect(await signS3ImageUrl(image));
   }
 
   if(image.startsWith("http://") || image.startsWith("https://")){
@@ -541,7 +477,7 @@ exports.downloadMemoryImage = async (req,res)=>{
     const extension = path.extname(image).replace(".", "") || "jpg";
     const fileName = `${safeTitle}-${imageIndex + 1}.${extension}`;
 
-    if(!image.startsWith("http") && !image.startsWith("s3://")){
+    if(!image.startsWith("http")){
       const localPath = getLocalUploadPath(image);
 
       if(!localPath){
@@ -551,9 +487,7 @@ exports.downloadMemoryImage = async (req,res)=>{
       return res.download(localPath, fileName);
     }
 
-    const imageUrl = image.startsWith("s3://")
-      ? await signS3ImageUrl(image)
-      : signCloudinaryImageUrl(image);
+    const imageUrl = signCloudinaryImageUrl(image);
     const response = await fetch(imageUrl);
 
     if(!response.ok){

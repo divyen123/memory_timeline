@@ -236,26 +236,16 @@ const deleteStoredImages = async (memory) => {
   }));
 };
 
-const signImageUrl = async (image) => {
-  return signCloudinaryImageUrl(image);
-};
-
 const withSignedImages = async (memory) => {
   const data = memory.toObject ? memory.toObject() : memory;
   const images = data.images?.length ? data.images : (data.image ? [data.image] : []);
-  const signedImages = await Promise.all(images.map(signImageUrl));
   const thumbnails = data.thumbnails?.length ? data.thumbnails : [];
-  const signedThumbnails = thumbnails.length
-    ? await Promise.all(thumbnails.map(signImageUrl))
-    : isCloudinaryConfigured()
-      ? images.map((image) => signCloudinaryImageUrl(image, "c_fill,w_220,h_180,q_auto:eco,f_auto"))
-      : signedImages;
 
   return {
     ...data,
-    image:signedImages[0] || data.image || "",
-    images:signedImages,
-    thumbnails:signedThumbnails
+    image:images[0] || data.image || "",
+    images,
+    thumbnails
   };
 };
 
@@ -273,7 +263,22 @@ const streamStoredImage = async (image, res, options = {}) => {
   }
 
   if(image.startsWith("http://") || image.startsWith("https://")){
-    return res.redirect(signCloudinaryImageUrl(image));
+    const imageUrl = signCloudinaryImageUrl(image);
+    const response = await fetch(imageUrl);
+
+    if(!response.ok){
+      return res.status(502).json({message:"Image fetch failed"});
+    }
+
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    const cacheControl = options.public
+      ? "public, max-age=300"
+      : "private, max-age=300";
+    const bytes = Buffer.from(await response.arrayBuffer());
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", cacheControl);
+    return res.send(bytes);
   }
 
   const localPath = getLocalUploadPath(image);

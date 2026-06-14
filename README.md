@@ -31,6 +31,10 @@ maintain their own private collection of memories.
 - Frontend hosting: Vercel
 - Backend hosting: Render
 
+Authenticated memory images are streamed through the backend after ownership
+checks, so browsers load Render API image routes instead of direct Cloudinary
+asset URLs.
+
 ## Local Development
 
 Create local configuration files from the examples:

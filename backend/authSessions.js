@@ -12,7 +12,7 @@ const hashToken = (token) => crypto.createHash("sha256").update(token).digest("h
 const cookieBase = {
   httpOnly:true,
   secure:isProduction,
-  sameSite:"lax"
+  sameSite:isProduction ? "none" : "lax"
 };
 
 const setAccessCookie = (res, userId) => {

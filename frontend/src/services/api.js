@@ -3,12 +3,10 @@ import { clearAuthenticatedUser, setAuthenticatedUser } from "../auth";
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/,"");
-const isRemoteImage = (image = "") => {
+const isInlineOrLocalPreviewImage = (image = "") => {
   const imageUrl = String(image || "");
 
   return (
-    imageUrl.startsWith("http://") ||
-    imageUrl.startsWith("https://") ||
     imageUrl.startsWith("blob:") ||
     imageUrl.startsWith("data:")
   );
@@ -23,7 +21,7 @@ const getMemoryImageList = (memory, kind = "images") => {
 };
 
 export const getImageUrl = (image) => (
-  isRemoteImage(image || "") ? image : ""
+  isInlineOrLocalPreviewImage(image || "") ? image : ""
 );
 
 export const getMemoryImageUrl = (memory, kind = "images", index = 0) => {
@@ -34,7 +32,7 @@ export const getMemoryImageUrl = (memory, kind = "images", index = 0) => {
     return "";
   }
 
-  if(isRemoteImage(image)){
+  if(isInlineOrLocalPreviewImage(image)){
     return image;
   }
 
@@ -49,7 +47,7 @@ export const getPublicMemoryImageUrl = (token, memory, index = 0) => {
     return "";
   }
 
-  if(isRemoteImage(image)){
+  if(isInlineOrLocalPreviewImage(image)){
     return image;
   }
 

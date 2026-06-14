@@ -408,8 +408,8 @@ function MemoryTimeline() {
         year:"numeric"
       });
       const images = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
-      const imageMarkup = images.map(image => `
-        <img src="${getImageUrl(image)}" alt="${memory.title}" />
+      const imageMarkup = images.map((image, index) => `
+        <img src="${getMemoryImageUrl(memory, "images", index) || getImageUrl(image)}" alt="${memory.title}" />
       `).join("");
 
       return `
@@ -540,7 +540,7 @@ function MemoryTimeline() {
             const response = await downloadMemoryImage(memory._id, index);
             embeddedImages.push(await blobToDataUrl(response.data));
           }catch{
-            embeddedImages.push(getImageUrl(images[index]));
+            embeddedImages.push("");
           }
         }
 

@@ -424,17 +424,34 @@ function Profile() {
                 </div>
               </label>
 
-              <label className="settings-field">
-                <span>Memory card size</span>
-                <select
-                  value={appSettings.cardSize}
-                  onChange={(e)=>updateSetting("cardSize", e.target.value)}
-                >
-                  <option value="small">Small</option>
-                  <option value="medium">Medium</option>
-                  <option value="large">Large</option>
-                </select>
-              </label>
+              <div className="settings-row two-column">
+                <label className="settings-field">
+                  <span>Memory card size</span>
+                  <select
+                    value={appSettings.cardSize}
+                    onChange={(e)=>updateSetting("cardSize", e.target.value)}
+                  >
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                  </select>
+                </label>
+
+                <label className="settings-field settings-range-field">
+                  <span>
+                    Memory card border radius
+                    <output>{appSettings.cardBorderRadius}px</output>
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="36"
+                    step="1"
+                    value={appSettings.cardBorderRadius}
+                    onChange={(e)=>updateSetting("cardBorderRadius", Number(e.target.value))}
+                  />
+                </label>
+              </div>
 
               <div className="settings-section-title">Appearance</div>
 

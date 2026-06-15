@@ -100,6 +100,7 @@ function App(){
     document.documentElement.style.setProperty("--app-font-family", FONT_FAMILY_MAP[settings.fontStyle] || FONT_FAMILY_MAP.normal);
     document.documentElement.style.setProperty("--app-font-style", settings.fontStyle === "italic" ? "italic" : "normal");
     document.documentElement.style.setProperty("--top-action-size", `${settings.topButtonsSize || 50}px`);
+    document.documentElement.style.setProperty("--memory-card-radius", `${settings.cardBorderRadius ?? 16}px`);
     document.documentElement.style.setProperty("--button-bg-color", settings.buttonBackgroundColor || "#ff4b7d");
     document.documentElement.style.setProperty("--container-glass-alpha", settings.containerGlassAlpha ?? 0.12);
     document.documentElement.style.setProperty("--button-glass-alpha", settings.buttonGlassAlpha ?? 0.18);

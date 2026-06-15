@@ -2667,7 +2667,7 @@ body.top-actions-left .reminder-popover{
 .timeline-card{
   position:relative;
   min-height:240px;
-  border-radius:16px;
+  border-radius:var(--memory-card-radius, 16px);
   background:#1f2038;
   border:1px solid rgba(255,255,255,0.24);
   color:white;
@@ -2892,9 +2892,9 @@ body.light .memory-photo-wrap::after{
   background:linear-gradient(
     180deg,
     transparent 0%,
-    rgba(255,255,255,0.04) 48%,
-    rgba(255,255,255,0.48) 76%,
-    rgba(255,255,255,0.84) 100%
+    rgba(255,255,255,0.03) 54%,
+    rgba(255,255,255,0.38) 79%,
+    rgba(255,255,255,0.72) 100%
   );
 }
 
@@ -3417,6 +3417,23 @@ body.light .settings-section-title{
   padding:0;
   margin-bottom:0;
   accent-color:#ff4b7d;
+}
+
+.settings-range-field > span{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.settings-range-field output{
+  color:#ff9fbb;
+  font-size:13px;
+  font-weight:800;
+}
+
+body.light .settings-range-field output{
+  color:#9f315c;
 }
 
 .settings-color-grid{
@@ -4594,7 +4611,7 @@ body.button-glass-on .preview-actions .preview-image-info-btn:hover{
 
   .timeline-card{
     min-height:220px;
-    border-radius:16px;
+    border-radius:var(--memory-card-radius, 16px);
   }
 
   .memory-card-overlay{
@@ -6242,7 +6259,7 @@ body.light .days-counter{
   body.card-size-small .timeline-card,
   body.card-size-large .timeline-card{
     min-height:260px;
-    border-radius:18px;
+    border-radius:var(--memory-card-radius, 16px);
   }
 
   .timeline-card:hover,
@@ -7122,18 +7139,18 @@ select{
 
   body.card-size-small .timeline-card{
     aspect-ratio:0.78;
-    border-radius:13px;
+    border-radius:var(--memory-card-radius, 16px);
   }
 
   body.card-size-medium .timeline-card{
     aspect-ratio:0.86;
-    border-radius:16px;
+    border-radius:var(--memory-card-radius, 16px);
   }
 
   body.card-size-large .timeline-card{
     aspect-ratio:1.22;
     max-height:430px;
-    border-radius:20px;
+    border-radius:var(--memory-card-radius, 16px);
   }
 
   body.card-size-small .memory-card-overlay{
@@ -8365,7 +8382,7 @@ body.light .calendar-memory{
 
   body.card-size-medium .timeline-card{
     aspect-ratio:0.98;
-    border-radius:15px;
+    border-radius:var(--memory-card-radius, 16px);
   }
 
   body.card-size-medium .memory-card-overlay{

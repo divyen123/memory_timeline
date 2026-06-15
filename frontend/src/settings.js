@@ -6,6 +6,7 @@ export const defaultSettings = {
   reminderLeadDays:2,
   defaultTheme:"light",
   cardSize:"medium",
+  cardBorderRadius:16,
   topButtonsPosition:"right",
   topButtonsSize:50,
   fontSize:"normal",
@@ -58,6 +59,10 @@ export const normalizeSettings = (settings = {}) => ({
   ...defaultSettings,
   ...settings,
   reminderLeadDays:Number(settings.reminderLeadDays) || defaultSettings.reminderLeadDays,
+  cardBorderRadius:Math.min(
+    36,
+    Math.max(0, numberOrDefault(settings.cardBorderRadius, defaultSettings.cardBorderRadius))
+  ),
   topButtonsSize:numberOrDefault(settings.topButtonsSize, defaultSettings.topButtonsSize),
   containerGlassAlpha:numberOrDefault(settings.containerGlassAlpha, defaultSettings.containerGlassAlpha),
   buttonGlassAlpha:numberOrDefault(settings.buttonGlassAlpha, defaultSettings.buttonGlassAlpha),

@@ -46,6 +46,7 @@ const SETTINGS_KEYS = new Set([
   "reminderLeadDays",
   "defaultTheme",
   "cardSize",
+  "cardBorderRadius",
   "topButtonsPosition",
   "topButtonsSize",
   "fontSize",

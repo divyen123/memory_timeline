@@ -617,6 +617,7 @@ function Profile() {
                         min="0"
                         max="359"
                         value={getColorHue(appSettings.lightGradientStart)}
+                        style={{ "--theme-color-thumb": appSettings.lightGradientStart }}
                         aria-label="Light background color"
                         onChange={(e)=>{
                           const color = hueToHex(e.target.value, 82, 68);
@@ -641,6 +642,7 @@ function Profile() {
                         min="0"
                         max="359"
                         value={getColorHue(appSettings.darkGradientStart)}
+                        style={{ "--theme-color-thumb": appSettings.darkGradientStart }}
                         aria-label="Dark background color"
                         onChange={(e)=>{
                           const color = hueToHex(e.target.value, 48, 13);

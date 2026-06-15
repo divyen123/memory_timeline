@@ -984,6 +984,7 @@ function MemoryTimeline() {
     const memoryImages = getMemoryImages(memory);
     const cardImages = memory.thumbnails?.length ? memory.thumbnails : memoryImages;
     const cardImageKind = memory.thumbnails?.length ? "thumbnails" : "images";
+    const isCompactCard = className.includes("small-container-memory");
     const formattedDate = memoryDate.toLocaleDateString("en-GB", {
       day:"2-digit",
       month:"short",
@@ -1016,13 +1017,17 @@ function MemoryTimeline() {
             <strong>{memory.title?.slice(0,1) || "M"}</strong>
           )}
         </span>
-        <span className="calendar-memory-copy">
-          <strong>{memory.title}</strong>
-          <span className="calendar-memory-meta">
-            <time dateTime={memory.date}>{formattedDate}</time>
-          </span>
-        </span>
-        <span className="calendar-memory-arrow" aria-hidden="true">&#8594;</span>
+        {!isCompactCard && (
+          <>
+            <span className="calendar-memory-copy">
+              <strong>{memory.title}</strong>
+              <span className="calendar-memory-meta">
+                <time dateTime={memory.date}>{formattedDate}</time>
+              </span>
+            </span>
+            <span className="calendar-memory-arrow" aria-hidden="true">&#8594;</span>
+          </>
+        )}
       </button>
     );
   };

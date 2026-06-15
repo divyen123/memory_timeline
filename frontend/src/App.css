@@ -7690,42 +7690,49 @@ body.light .calendar-memory{
 .small-cards-view{
   width:min(1320px,94vw);
   margin-top:34px;
-  display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:12px;
-  align-items:stretch;
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  align-items:flex-start;
 }
 
 .small-container-memory{
-  min-height:72px;
-  padding:9px 30px 9px 9px;
-  grid-template-columns:52px minmax(0,1fr);
-  gap:9px;
+  width:74px;
+  height:74px;
+  min-height:74px;
+  padding:0;
+  display:block;
+  border:0;
   border-radius:14px;
-  background:rgba(20,21,59,0.5);
+  background:transparent;
+  box-shadow:none;
+  overflow:visible;
   content-visibility:auto;
-  contain-intrinsic-size:72px;
+  contain-intrinsic-size:74px;
 }
 
 .small-container-memory .calendar-memory-thumbnail{
-  width:52px;
-  height:52px;
-  border-radius:11px;
+  width:74px;
+  height:74px;
+  border-radius:14px;
+  box-shadow:0 10px 24px rgba(4,5,22,0.24);
 }
 
-.small-container-memory .calendar-memory-copy strong{
-  font-size:13px;
+.small-container-memory .calendar-memory-thumbnail img{
+  transform:none;
+  filter:none;
 }
 
-.small-container-memory .calendar-memory-meta{
-  margin-top:6px;
-  gap:4px;
+.small-container-memory:hover{
+  transform:translateY(-3px);
+  border-color:transparent;
+  background:transparent;
+  box-shadow:none;
 }
 
-.small-container-memory .calendar-memory-meta small,
-.small-container-memory .calendar-memory-meta time{
-  padding:3px 5px;
-  font-size:7px;
+.small-container-memory:hover .calendar-memory-thumbnail img{
+  transform:scale(1.03);
+  filter:none;
 }
 
 @media (max-width:1040px){
@@ -7857,17 +7864,17 @@ body.light .calendar-memory{
   }
 
   .small-container-memory{
-    min-height:66px;
-    padding:8px 24px 8px 8px;
-    grid-template-columns:44px minmax(0,1fr);
-    gap:8px;
-    border-radius:13px;
+    width:64px;
+    height:64px;
+    min-height:64px;
+    padding:0;
+    border-radius:12px;
   }
 
   .small-container-memory .calendar-memory-thumbnail{
-    width:44px;
-    height:48px;
-    border-radius:10px;
+    width:64px;
+    height:64px;
+    border-radius:12px;
   }
 }
 

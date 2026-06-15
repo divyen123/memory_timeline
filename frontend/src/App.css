@@ -2737,8 +2737,8 @@ body.memory-hover-off .timeline-card:hover{
 }
 
 body.memory-hover-off .timeline-card:hover img{
-  transform:scale(1.035);
-  filter:saturate(1.04) contrast(1.01);
+  transform:scale(1.06);
+  filter:blur(2.8px) saturate(1.04) contrast(1.01);
 }
 
 body.card-size-small .timeline{
@@ -2815,15 +2815,15 @@ body.card-size-large .memory-card-overlay h3{
 .timeline-card img{
   display:block;
   object-fit:cover;
-  transform:scale(1.035);
-  filter:saturate(1.04) contrast(1.01);
+  transform:scale(1.06);
+  filter:blur(2.8px) saturate(1.04) contrast(1.01);
   backface-visibility:hidden;
   transition:transform 0.55s ease, filter 0.55s ease;
 }
 
 .timeline-card:hover img{
-  transform:scale(1.095);
-  filter:saturate(1.08) contrast(1.02) brightness(1.03);
+  transform:scale(1.11);
+  filter:blur(2.2px) saturate(1.08) contrast(1.02) brightness(1.03);
 }
 
 .memory-photo-placeholder{

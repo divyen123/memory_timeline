@@ -2785,6 +2785,8 @@ body.card-size-large .memory-card-overlay h3{
   background:
     linear-gradient(180deg,rgba(7,8,24,0.08) 0%,rgba(7,8,24,0.42) 44%,rgba(7,8,24,0.88) 100%),
     radial-gradient(circle at 18% 12%,rgba(255,75,125,0.28),transparent 35%);
+  opacity:1;
+  transition:opacity 0.32s ease;
 }
 
 .timeline-card img,
@@ -2847,6 +2849,21 @@ body.card-size-large .memory-card-overlay h3{
   display:flex;
   flex-direction:column;
   gap:10px;
+  opacity:1;
+  transform:translateY(0);
+  transition:opacity 0.25s ease, transform 0.32s ease;
+  pointer-events:none;
+}
+
+.timeline-card:hover .memory-photo-wrap::after,
+.timeline-card:focus-within .memory-photo-wrap::after{
+  opacity:0;
+}
+
+.timeline-card:hover .memory-card-overlay,
+.timeline-card:focus-within .memory-card-overlay{
+  opacity:0;
+  transform:translateY(8px);
 }
 
 body.light .memory-photo-wrap::after{

@@ -174,7 +174,6 @@ function MemoryCard({
 
           <div className="memory-card-overlay">
             <div className="memory-card-kicker">
-              <span>{memory.category || "Personal"}</span>
               <small>{formattedDate}</small>
             </div>
 

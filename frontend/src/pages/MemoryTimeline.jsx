@@ -1019,7 +1019,6 @@ function MemoryTimeline() {
         <span className="calendar-memory-copy">
           <strong>{memory.title}</strong>
           <span className="calendar-memory-meta">
-            <small>{memory.category || "Personal"}</small>
             <time dateTime={memory.date}>{formattedDate}</time>
           </span>
         </span>

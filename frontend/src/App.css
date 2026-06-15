@@ -2821,9 +2821,10 @@ body.card-size-large .memory-card-overlay h3{
   transition:transform 0.55s ease, filter 0.55s ease;
 }
 
-.timeline-card:hover img{
+.timeline-card:hover img,
+.timeline-card:focus-within img{
   transform:scale(1.11);
-  filter:blur(2.2px) saturate(1.08) contrast(1.02) brightness(1.03);
+  filter:blur(0) saturate(1.08) contrast(1.02) brightness(1.03);
 }
 
 .memory-photo-placeholder{

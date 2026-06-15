@@ -1739,14 +1739,6 @@ function MemoryTimeline() {
           </div>
 
           <div className="preview-content">
-            <div className="memory-card-kicker">
-              <span>{previewMemory.category || "Personal"}</span>
-              <small>{new Date(previewMemory.date).toLocaleDateString("en-GB", {
-                day:"2-digit",
-                month:"short",
-                year:"numeric"
-              })}</small>
-            </div>
             <h3>{previewMemory.title}</h3>
             <div
               className={`preview-description ${previewMemory.description ? "" : "empty"}`}
@@ -1769,9 +1761,21 @@ function MemoryTimeline() {
                   </button>
                   {showPreviewImageDetails && (
                     <span className="preview-image-info-popover">
-                      <strong className="preview-image-info-title">Image details</strong>
+                      <strong className="preview-image-info-title">Memory details</strong>
                       <span className="preview-image-info-row">
-                        <span>Type</span>
+                        <span>Category</span>
+                        <strong>{previewMemory.category || "Personal"}</strong>
+                      </span>
+                      <span className="preview-image-info-row">
+                        <span>Memory date</span>
+                        <strong>{new Date(previewMemory.date).toLocaleDateString("en-GB", {
+                          day:"2-digit",
+                          month:"short",
+                          year:"numeric"
+                        })}</strong>
+                      </span>
+                      <span className="preview-image-info-row">
+                        <span>Image type</span>
                         <strong>{previewImageType}</strong>
                       </span>
                       <span className="preview-image-info-row">
@@ -1826,6 +1830,7 @@ function MemoryTimeline() {
               </button>
               <button
                 type="button"
+                className="preview-delete-btn"
                 title="Delete"
                 aria-label="Delete"
                 onClick={()=>handleDeleteRequest(previewMemory, {keepPreviewOpen:true})}

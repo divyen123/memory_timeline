@@ -167,16 +167,20 @@ function MemoryCard({
               {memory.favorite ? "\u2605" : "\u2606"}
             </button>
 
-            <button title="Delete" aria-label="Delete" onClick={(e)=>handleActionClick(e, handleDelete)}>
-              🗑️
+            <button
+              type="button"
+              className="memory-delete-btn"
+              title="Delete"
+              aria-label="Delete"
+              onClick={(e)=>handleActionClick(e, handleDelete)}
+            >
+              <span aria-hidden="true">🗑️</span>
             </button>
           </div>
 
-          <div className="memory-card-overlay">
-            <div className="memory-card-kicker">
-              <small>{formattedDate}</small>
-            </div>
+          <small className="memory-date-badge">{formattedDate}</small>
 
+          <div className="memory-card-overlay">
             <h3>{memory.title}</h3>
           </div>
         </div>

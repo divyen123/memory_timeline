@@ -237,7 +237,10 @@ function Profile() {
 
     try{
       const {data} = await updateAppearanceSettings(deviceProfile, savedSettings);
-      setAppSettings(saveSettings(data.settings, deviceProfile));
+      setAppSettings(saveSettings({
+        ...savedSettings,
+        ...(data.settings || {})
+      }, deviceProfile));
       setMessage(`${deviceProfile === "mobile" ? "Mobile" : "Desktop"} settings saved`);
     }catch{
       setAppSettings(savedSettings);

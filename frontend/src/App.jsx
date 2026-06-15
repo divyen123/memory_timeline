@@ -192,7 +192,10 @@ function App(){
           return;
         }
 
-        setSettings(saveSettings(remoteSettings, deviceProfile));
+        setSettings(saveSettings({
+          ...localSettings,
+          ...remoteSettings
+        }, deviceProfile));
       })
       .catch(()=>{});
 

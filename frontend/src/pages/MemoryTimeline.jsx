@@ -1796,7 +1796,7 @@ function MemoryTimeline() {
                 aria-label="Edit"
                 onClick={()=>navigate("/add", {state:{...previewMemory, returnToPreview:true}})}
               >
-                <span aria-hidden="true">&#9998;</span>
+                <span aria-hidden="true">✎</span>
               </button>
               <button
                 type="button"
@@ -1813,7 +1813,7 @@ function MemoryTimeline() {
                 aria-label="Share"
                 onClick={()=>shareMemory(previewMemory)}
               >
-                <span aria-hidden="true">&#8599;</span>
+                <span aria-hidden="true">➤</span>
               </button>
               <button
                 type="button"
@@ -1821,7 +1821,7 @@ function MemoryTimeline() {
                 aria-label="Download image"
                 onClick={downloadPreviewImage}
               >
-                <span aria-hidden="true">&#8681;</span>
+                <span aria-hidden="true">➜]</span>
               </button>
               <button
                 type="button"
@@ -1829,7 +1829,7 @@ function MemoryTimeline() {
                 aria-label="Delete"
                 onClick={()=>handleDeleteRequest(previewMemory, {keepPreviewOpen:true})}
               >
-                <span aria-hidden="true">&#128465;</span>
+                <span aria-hidden="true">🗑️</span>
               </button>
             </div>
           </div>

@@ -86,6 +86,8 @@ function App(){
     document.body.classList.toggle("button-glass-on", Boolean(settings.buttonGlass));
     document.body.classList.toggle("memory-hover-off", !settings.hoverEnabled);
     document.body.classList.toggle("top-actions-left", settings.topButtonsPosition === "left");
+    document.body.classList.remove("toolbar-icons-box", "toolbar-icons-circle", "toolbar-icons-separate");
+    document.body.classList.add(`toolbar-icons-${settings.toolbarIconStyle || "box"}`);
     document.body.classList.remove("hearts-slow", "hearts-normal", "hearts-fast", "hearts-fixed");
     document.body.classList.add(`hearts-${settings.heartsSpeed || "normal"}`);
 
@@ -100,6 +102,8 @@ function App(){
     document.documentElement.style.setProperty("--app-font-family", FONT_FAMILY_MAP[settings.fontStyle] || FONT_FAMILY_MAP.normal);
     document.documentElement.style.setProperty("--app-font-style", settings.fontStyle === "italic" ? "italic" : "normal");
     document.documentElement.style.setProperty("--top-action-size", `${settings.topButtonsSize || 50}px`);
+    document.documentElement.style.setProperty("--toolbar-icon-font-size", `${settings.toolbarIconSize || 24}px`);
+    document.documentElement.style.setProperty("--toolbar-button-stretch", settings.toolbarButtonStretch ?? 1);
     document.documentElement.style.setProperty("--memory-card-radius", `${settings.cardBorderRadius ?? 16}px`);
     document.documentElement.style.setProperty("--button-bg-color", settings.buttonBackgroundColor || "#ff4b7d");
     document.documentElement.style.setProperty("--container-glass-alpha", settings.containerGlassAlpha ?? 0.12);

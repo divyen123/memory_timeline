@@ -484,6 +484,50 @@ function Profile() {
 
               <div className="settings-row">
                 <label className="settings-field">
+                  <span>Timeline icons style</span>
+                  <select
+                    value={appSettings.toolbarIconStyle || "box"}
+                    onChange={(e)=>updateSetting("toolbarIconStyle", e.target.value)}
+                  >
+                    <option value="separate">Separate icons</option>
+                    <option value="box">Fixed box icons</option>
+                    <option value="circle">Circle icons</option>
+                  </select>
+                </label>
+
+                <label className="settings-field settings-range-field">
+                  <span>
+                    Timeline icon size
+                    <output>{appSettings.toolbarIconSize}px</output>
+                  </span>
+                  <input
+                    type="range"
+                    min="16"
+                    max="34"
+                    step="1"
+                    value={appSettings.toolbarIconSize}
+                    onChange={(e)=>updateSetting("toolbarIconSize", Number(e.target.value))}
+                  />
+                </label>
+
+                <label className="settings-field settings-range-field">
+                  <span>
+                    Timeline icon stretch
+                    <output>{Number(appSettings.toolbarButtonStretch).toFixed(2)}x</output>
+                  </span>
+                  <input
+                    type="range"
+                    min="0.75"
+                    max="1.8"
+                    step="0.05"
+                    value={appSettings.toolbarButtonStretch}
+                    onChange={(e)=>updateSetting("toolbarButtonStretch", Number(e.target.value))}
+                  />
+                </label>
+              </div>
+
+              <div className="settings-row">
+                <label className="settings-field">
                   <span>Font size</span>
                   <select
                     value={appSettings.fontSize}

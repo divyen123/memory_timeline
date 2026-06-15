@@ -9,6 +9,9 @@ export const defaultSettings = {
   cardBorderRadius:16,
   topButtonsPosition:"right",
   topButtonsSize:50,
+  toolbarIconStyle:"box",
+  toolbarIconSize:24,
+  toolbarButtonStretch:1,
   fontSize:"normal",
   fontWeight:"normal",
   fontStyle:"normal",
@@ -64,6 +67,14 @@ export const normalizeSettings = (settings = {}) => ({
     Math.max(0, numberOrDefault(settings.cardBorderRadius, defaultSettings.cardBorderRadius))
   ),
   topButtonsSize:numberOrDefault(settings.topButtonsSize, defaultSettings.topButtonsSize),
+  toolbarIconSize:Math.min(
+    34,
+    Math.max(16, numberOrDefault(settings.toolbarIconSize, defaultSettings.toolbarIconSize))
+  ),
+  toolbarButtonStretch:Math.min(
+    1.8,
+    Math.max(0.75, numberOrDefault(settings.toolbarButtonStretch, defaultSettings.toolbarButtonStretch))
+  ),
   containerGlassAlpha:numberOrDefault(settings.containerGlassAlpha, defaultSettings.containerGlassAlpha),
   buttonGlassAlpha:numberOrDefault(settings.buttonGlassAlpha, defaultSettings.buttonGlassAlpha),
   hoverScale:numberOrDefault(settings.hoverScale, defaultSettings.hoverScale)

@@ -1513,7 +1513,7 @@ function MemoryTimeline() {
                   </span>
                 </div>
                 <div className="calendar-grid">
-                  {items.map((memory)=>renderSmallMemoryCard(memory))}
+                  {items.map((memory)=>renderSmallMemoryCard(memory, "calendar-memory small-container-memory calendar-image-memory"))}
                 </div>
               </div>
             ))}

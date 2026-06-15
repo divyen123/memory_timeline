@@ -7735,6 +7735,12 @@ body.light .calendar-memory{
   filter:none;
 }
 
+.calendar-view .calendar-grid{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-start;
+}
+
 @media (max-width:1040px){
   .calendar-grid{
     grid-template-columns:repeat(3,minmax(0,1fr));

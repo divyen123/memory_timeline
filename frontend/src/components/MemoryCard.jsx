@@ -118,14 +118,6 @@ function MemoryCard({
             </div>
           )}
 
-          <button
-            type="button"
-            className={`favorite-btn ${memory.favorite ? "active" : ""}`}
-            onClick={handleFavorite}
-          >
-            {memory.favorite ? "\u2605" : "\u2606"}
-          </button>
-
           <div className="memory-card-overlay">
             <div className="memory-card-kicker">
               <span>{memory.category || "Personal"}</span>
@@ -137,6 +129,17 @@ function MemoryCard({
             <div className="memory-actions">
               <button title="Edit" aria-label="Edit" onClick={(e)=>handleActionClick(e, handleEdit)}>
                 ✏️
+              </button>
+
+              <button
+                type="button"
+                className={`favorite-btn ${memory.favorite ? "active" : ""}`}
+                title={memory.favorite ? "Remove from favorites" : "Add to favorites"}
+                aria-label={memory.favorite ? "Remove from favorites" : "Add to favorites"}
+                aria-pressed={Boolean(memory.favorite)}
+                onClick={handleFavorite}
+              >
+                {memory.favorite ? "\u2605" : "\u2606"}
               </button>
 
               <button title="Delete" aria-label="Delete" onClick={(e)=>handleActionClick(e, handleDelete)}>

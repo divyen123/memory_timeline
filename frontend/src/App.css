@@ -2738,7 +2738,7 @@ body.memory-hover-off .timeline-card:hover{
 
 body.memory-hover-off .timeline-card:hover img{
   transform:scale(1.035);
-  filter:blur(1.1px) saturate(1.06) contrast(0.98);
+  filter:saturate(1.04) contrast(1.01);
 }
 
 body.card-size-small .timeline{
@@ -2816,14 +2816,14 @@ body.card-size-large .memory-card-overlay h3{
   display:block;
   object-fit:cover;
   transform:scale(1.035);
-  filter:blur(1.1px) saturate(1.06) contrast(0.98);
+  filter:saturate(1.04) contrast(1.01);
   backface-visibility:hidden;
   transition:transform 0.55s ease, filter 0.55s ease;
 }
 
 .timeline-card:hover img{
   transform:scale(1.095);
-  filter:blur(0.85px) saturate(1.14) contrast(1.02) brightness(1.04);
+  filter:saturate(1.08) contrast(1.02) brightness(1.03);
 }
 
 .memory-photo-placeholder{
@@ -2846,6 +2846,23 @@ body.card-size-large .memory-card-overlay h3{
   display:flex;
   flex-direction:column;
   gap:10px;
+}
+
+body.light .memory-photo-wrap::after{
+  background:linear-gradient(180deg,transparent 0%,rgba(255,255,255,0.04) 58%,rgba(255,255,255,0.12) 100%);
+}
+
+body.light .memory-card-overlay{
+  inset:auto 8px 8px;
+  padding:14px;
+  border:1px solid rgba(255,255,255,0.62);
+  border-radius:14px;
+  background:rgba(255,255,255,0.72);
+  color:#202039;
+  backdrop-filter:blur(12px);
+  box-shadow:
+    0 10px 28px rgba(38,31,77,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.74);
 }
 
 .memory-card-kicker{
@@ -2876,12 +2893,25 @@ body.card-size-large .memory-card-overlay h3{
   white-space:nowrap;
 }
 
+body.light .memory-card-kicker span,
+body.light .memory-card-kicker small{
+  background:rgba(255,255,255,0.58);
+  border:1px solid rgba(74,64,122,0.12);
+  color:#393451;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.78);
+}
+
 .memory-card-overlay h3{
   color:white;
   font-size:22px;
   line-height:1.05;
   text-shadow:0 3px 18px rgba(0,0,0,0.55);
   overflow-wrap:anywhere;
+}
+
+body.light .memory-card-overlay h3{
+  color:#202039;
+  text-shadow:none;
 }
 
 /* ================= MEMORY ACTION BUTTONS ================= */
@@ -2924,45 +2954,6 @@ body.card-size-large .memory-card-overlay h3{
   padding-left:20px;
 }
 
-.favorite-btn{
-  width:42px;
-  height:42px;
-  padding:0;
-  border-radius:50%;
-  background:rgba(255,255,255,0.22);
-  color:white;
-  font-size:24px;
-  line-height:1;
-}
-
-.favorite-btn.active{
-  background:#ff4d6d;
-}
-
-.timeline-card .favorite-btn{
-  position:absolute;
-  top:12px;
-  right:12px;
-  z-index:3;
-  width:38px;
-  height:38px;
-  font-size:22px;
-  background:rgba(12,13,30,0.42);
-  border:1px solid rgba(255,255,255,0.22);
-  backdrop-filter:blur(14px);
-  box-shadow:0 10px 24px rgba(0,0,0,0.25);
-}
-
-.timeline-card .favorite-btn:hover{
-  transform:scale(1.08);
-  background:rgba(255,255,255,0.24);
-}
-
-.timeline-card .favorite-btn.active{
-  background:#ff4d6d;
-  color:white;
-}
-
 .memory-actions button{
   width:34px;
   height:34px;
@@ -2979,8 +2970,32 @@ body.card-size-large .memory-card-overlay h3{
   background:rgba(77,187,98,0.86);
 }
 
+.memory-actions .favorite-btn{
+  background:rgba(255,255,255,0.22);
+  color:white;
+  font-size:19px;
+  line-height:1;
+}
+
+.memory-actions .favorite-btn.active{
+  background:#ffb020;
+  color:#362300;
+}
+
 .memory-actions button:last-child{
   background:rgba(255,77,109,0.9);
+}
+
+body.light .memory-actions .favorite-btn{
+  background:rgba(255,255,255,0.74);
+  color:#514a68;
+  border:1px solid rgba(74,64,122,0.12);
+}
+
+body.light .memory-actions .favorite-btn.active{
+  background:#ffb020;
+  color:#362300;
+  border-color:rgba(173,108,0,0.2);
 }
 
 /* ================= EMPTY STATE ================= */
@@ -7093,15 +7108,6 @@ select{
     font-size:clamp(11px,3.2vw,15px);
   }
 
-  body.card-size-small .timeline-card .favorite-btn{
-    top:7px;
-    right:7px;
-    width:28px;
-    height:28px;
-    min-height:28px;
-    font-size:16px;
-  }
-
   body.card-size-small .memory-actions{
     gap:5px;
   }
@@ -8332,15 +8338,6 @@ body.light .calendar-memory{
 
   body.card-size-medium .memory-card-overlay h3{
     font-size:clamp(15px,4.1vw,19px);
-  }
-
-  body.card-size-medium .timeline-card .favorite-btn{
-    top:9px;
-    right:9px;
-    width:38px;
-    height:38px;
-    min-height:38px;
-    font-size:22px;
   }
 
   body.card-size-medium .memory-actions{

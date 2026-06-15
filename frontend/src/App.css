@@ -2737,8 +2737,8 @@ body.memory-hover-off .timeline-card:hover{
 }
 
 body.memory-hover-off .timeline-card:hover img{
-  transform:scale(1.025);
-  filter:blur(0.35px) saturate(1.06) contrast(0.98);
+  transform:scale(1.035);
+  filter:blur(1.1px) saturate(1.06) contrast(0.98);
 }
 
 body.card-size-small .timeline{
@@ -2815,15 +2815,15 @@ body.card-size-large .memory-card-overlay h3{
 .timeline-card img{
   display:block;
   object-fit:cover;
-  transform:scale(1.025);
-  filter:blur(0.35px) saturate(1.06) contrast(0.98);
+  transform:scale(1.035);
+  filter:blur(1.1px) saturate(1.06) contrast(0.98);
   backface-visibility:hidden;
   transition:transform 0.55s ease, filter 0.55s ease;
 }
 
 .timeline-card:hover img{
   transform:scale(1.095);
-  filter:blur(0.22px) saturate(1.14) contrast(1.02) brightness(1.04);
+  filter:blur(0.85px) saturate(1.14) contrast(1.02) brightness(1.04);
 }
 
 .memory-photo-placeholder{
@@ -7306,8 +7306,8 @@ select{
   height:100%;
   display:block;
   object-fit:cover;
-  transform:scale(1.025);
-  filter:blur(0.35px) saturate(1.04) contrast(0.98);
+  transform:scale(1.035);
+  filter:blur(1.1px) saturate(1.04) contrast(0.98);
   backface-visibility:hidden;
   transition:transform 0.35s ease, filter 0.35s ease;
 }
@@ -7315,7 +7315,7 @@ select{
 .calendar-memory:hover .calendar-memory-thumbnail img,
 .small-container-memory:hover .calendar-memory-thumbnail img{
   transform:scale(1.05);
-  filter:blur(0.22px) saturate(1.08) contrast(1.01);
+  filter:blur(0.85px) saturate(1.08) contrast(1.01);
 }
 
 .calendar-memory-thumbnail.empty strong{

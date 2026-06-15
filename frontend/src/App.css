@@ -2911,15 +2911,16 @@ body.light .memory-card-overlay{
 
 .memory-card-kicker{
   display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
+  align-items:flex-start;
+  flex-direction:column;
+  justify-content:flex-start;
+  gap:5px;
 }
 
 .memory-card-kicker span,
 .memory-card-kicker small{
   width:auto;
-  max-width:45%;
+  max-width:100%;
   padding:6px 9px;
   border-radius:999px;
   background:rgba(255,255,255,0.18);
@@ -2931,7 +2932,7 @@ body.light .memory-card-overlay{
 }
 
 .memory-card-kicker small{
-  max-width:48%;
+  max-width:100%;
   color:rgba(255,255,255,0.88);
   font-weight:600;
   white-space:nowrap;
@@ -8393,7 +8394,8 @@ body.light .calendar-memory{
   body.card-size-medium .memory-card-kicker{
     gap:5px;
     align-items:flex-start;
-    flex-wrap:wrap;
+    flex-direction:column;
+    flex-wrap:nowrap;
     justify-content:flex-start;
   }
 

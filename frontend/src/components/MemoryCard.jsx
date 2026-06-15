@@ -118,6 +118,27 @@ function MemoryCard({
             </div>
           )}
 
+          <div className="memory-actions">
+            <button title="Edit" aria-label="Edit" onClick={(e)=>handleActionClick(e, handleEdit)}>
+              ✏️
+            </button>
+
+            <button
+              type="button"
+              className={`favorite-btn ${memory.favorite ? "active" : ""}`}
+              title={memory.favorite ? "Remove from favorites" : "Add to favorites"}
+              aria-label={memory.favorite ? "Remove from favorites" : "Add to favorites"}
+              aria-pressed={Boolean(memory.favorite)}
+              onClick={handleFavorite}
+            >
+              {memory.favorite ? "\u2605" : "\u2606"}
+            </button>
+
+            <button title="Delete" aria-label="Delete" onClick={(e)=>handleActionClick(e, handleDelete)}>
+              🗑️
+            </button>
+          </div>
+
           <div className="memory-card-overlay">
             <div className="memory-card-kicker">
               <span>{memory.category || "Personal"}</span>
@@ -125,27 +146,6 @@ function MemoryCard({
             </div>
 
             <h3>{memory.title}</h3>
-
-            <div className="memory-actions">
-              <button title="Edit" aria-label="Edit" onClick={(e)=>handleActionClick(e, handleEdit)}>
-                ✏️
-              </button>
-
-              <button
-                type="button"
-                className={`favorite-btn ${memory.favorite ? "active" : ""}`}
-                title={memory.favorite ? "Remove from favorites" : "Add to favorites"}
-                aria-label={memory.favorite ? "Remove from favorites" : "Add to favorites"}
-                aria-pressed={Boolean(memory.favorite)}
-                onClick={handleFavorite}
-              >
-                {memory.favorite ? "\u2605" : "\u2606"}
-              </button>
-
-              <button title="Delete" aria-label="Delete" onClick={(e)=>handleActionClick(e, handleDelete)}>
-                🗑️
-              </button>
-            </div>
           </div>
         </div>
 

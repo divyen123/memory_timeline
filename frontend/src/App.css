@@ -2852,9 +2852,9 @@ body.light .memory-photo-wrap::after{
   background:linear-gradient(
     180deg,
     transparent 0%,
-    rgba(255,255,255,0.06) 42%,
-    rgba(255,255,255,0.68) 72%,
-    rgba(255,255,255,0.94) 100%
+    rgba(255,255,255,0.04) 48%,
+    rgba(255,255,255,0.48) 76%,
+    rgba(255,255,255,0.84) 100%
   );
 }
 
@@ -2921,10 +2921,14 @@ body.light .memory-card-overlay h3{
 /* ================= MEMORY ACTION BUTTONS ================= */
 
 .memory-actions{
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:3;
   display:flex;
-  gap:10px;
+  gap:6px;
   opacity:0;
-  transform:translateY(8px);
+  transform:translateY(-6px);
   transition:opacity 0.25s ease, transform 0.25s ease;
 }
 
@@ -2959,15 +2963,17 @@ body.light .memory-card-overlay h3{
 }
 
 .memory-actions button{
-  width:34px;
-  height:34px;
-  flex:0 0 34px;
+  width:30px;
+  height:30px;
+  min-height:30px;
+  flex:0 0 30px;
   padding:0;
   border:none;
   border-radius:50%;
-  font-size:13px;
+  font-size:11px;
   background:rgba(255,255,255,0.18);
   backdrop-filter:blur(12px);
+  box-shadow:0 6px 16px rgba(0,0,0,0.2);
 }
 
 .memory-actions button:first-child{
@@ -2977,7 +2983,7 @@ body.light .memory-card-overlay h3{
 .memory-actions .favorite-btn{
   background:rgba(255,255,255,0.22);
   color:white;
-  font-size:19px;
+  font-size:16px;
   line-height:1;
 }
 
@@ -7113,7 +7119,9 @@ select{
   }
 
   body.card-size-small .memory-actions{
-    gap:5px;
+    top:7px;
+    right:7px;
+    gap:4px;
   }
 
   body.card-size-small .memory-actions button{
@@ -8345,15 +8353,17 @@ body.light .calendar-memory{
   }
 
   body.card-size-medium .memory-actions{
-    gap:8px;
+    top:8px;
+    right:8px;
+    gap:5px;
   }
 
   body.card-size-medium .memory-actions button{
-    width:38px;
-    height:38px;
-    min-height:38px;
-    flex-basis:38px;
-    font-size:15px;
+    width:28px;
+    height:28px;
+    min-height:28px;
+    flex-basis:28px;
+    font-size:11px;
   }
 
   body.light .hearts span{

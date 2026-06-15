@@ -5076,6 +5076,14 @@ body.button-glass-on .preview-actions .preview-image-info-btn:hover{
   line-height:1;
 }
 
+.preview-actions .preview-export-btn span{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:17px;
+  transform:translateX(-1px);
+}
+
 .story-panel{
   width:min(980px,94vw);
 }

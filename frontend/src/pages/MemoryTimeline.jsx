@@ -1817,6 +1817,7 @@ function MemoryTimeline() {
               </button>
               <button
                 type="button"
+                className="preview-export-btn"
                 title="Download image"
                 aria-label="Download image"
                 onClick={downloadPreviewImage}

@@ -26,12 +26,12 @@ function getFallbackPosition(image) {
 function getFacePosition(face, image) {
   const box = face.boundingBox;
   const x = ((box.x + box.width / 2) / image.naturalWidth) * 100;
-  const y = ((box.y + box.height * 0.45) / image.naturalHeight) * 100;
+  const y = ((box.y + box.height / 2) / image.naturalHeight) * 100;
 
-  return `${Math.min(85, Math.max(15, x)).toFixed(1)}% ${Math.min(48, Math.max(0, y)).toFixed(1)}%`;
+  return `${Math.min(92, Math.max(8, x)).toFixed(1)}% ${Math.min(92, Math.max(8, y)).toFixed(1)}%`;
 }
 
-function SmartImage({ src, alt, className = "", style, loading = "lazy", decoding = "async", detectFaces = true, onLoad, onBlobReady, ...props }) {
+function SmartImage({ src, alt, className = "", style, loading = "lazy", decoding = "async", detectFaces = true, onLoad, onBlobReady, onPositionReady, ...props }) {
   const [objectPosition, setObjectPosition] = useState(facePositionCache.get(src) || "50% 35%");
   const [authenticatedImage, setAuthenticatedImage] = useState({src:"", url:""});
   const onBlobReadyRef = useRef(onBlobReady);
@@ -94,7 +94,9 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
     onLoad?.(event);
 
     if(facePositionCache.has(src)){
-      setObjectPosition(facePositionCache.get(src));
+      const cachedPosition = facePositionCache.get(src);
+      setObjectPosition(cachedPosition);
+      onPositionReady?.(cachedPosition);
       return;
     }
 
@@ -103,6 +105,7 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
     try{
       if(!detectFaces || !("FaceDetector" in window)){
         facePositionCache.set(src, fallbackPosition);
+        onPositionReady?.(fallbackPosition);
         return;
       }
 
@@ -114,6 +117,7 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
 
       if(!faces.length){
         facePositionCache.set(src, fallbackPosition);
+        onPositionReady?.(fallbackPosition);
         return;
       }
 
@@ -126,9 +130,11 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
 
       facePositionCache.set(src, detectedPosition);
       setObjectPosition(detectedPosition);
+      onPositionReady?.(detectedPosition);
     }catch{
       facePositionCache.set(src, fallbackPosition);
       setObjectPosition(fallbackPosition);
+      onPositionReady?.(fallbackPosition);
     }
   };
 

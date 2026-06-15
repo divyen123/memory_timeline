@@ -22,10 +22,13 @@ function MemoryCard({
 
   const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [hasRequestedOriginal, setHasRequestedOriginal] = useState(false);
+  const [readyOriginals, setReadyOriginals] = useState([]);
   const navigate = useNavigate();
   const displayImages = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
-  const cardImages = memory.thumbnails?.length ? memory.thumbnails : displayImages;
-  const cardImageKind = memory.thumbnails?.length ? "thumbnails" : "images";
+  const hasSeparateThumbnails = Boolean(memory.thumbnails?.length);
+  const cardImages = hasSeparateThumbnails ? memory.thumbnails : displayImages;
+  const cardImageKind = hasSeparateThumbnails ? "thumbnails" : "images";
 
   useEffect(() => {
 
@@ -78,6 +81,18 @@ function MemoryCard({
     action();
   };
 
+  const requestOriginalImage = () => {
+    if(hasSeparateThumbnails){
+      setHasRequestedOriginal(true);
+    }
+  };
+
+  const markOriginalReady = (imageIndex) => {
+    setReadyOriginals(current => current.includes(imageIndex)
+      ? current
+      : [...current, imageIndex]);
+  };
+
   return (
 
     <div
@@ -86,7 +101,11 @@ function MemoryCard({
       onClick={handleDetails}
     >
 
-      <div className={`timeline-card ${displayImages[0] ? "" : "no-photo"}`}>
+      <div
+        className={`timeline-card ${displayImages[0] ? "" : "no-photo"}`}
+        onMouseEnter={requestOriginalImage}
+        onFocusCapture={requestOriginalImage}
+      >
         {selectionMode && (
           <button
             type="button"
@@ -105,12 +124,26 @@ function MemoryCard({
         <div className={`memory-photo-wrap collage-${Math.min(displayImages.length || 1, 4)}`}>
           {cardImages[0] ? (
             cardImages.slice(0,4).map((image, imageIndex)=>(
-              <SmartImage
-                key={`${image}-${imageIndex}`}
-                src={getMemoryImageUrl(memory, cardImageKind, imageIndex)}
-                alt={memory.title || "memory"}
-                detectFaces={false}
-              />
+              <div className="memory-image-cell" key={`${image}-${imageIndex}`}>
+                <SmartImage
+                  src={getMemoryImageUrl(memory, cardImageKind, imageIndex)}
+                  alt={memory.title || "memory"}
+                  className="memory-thumbnail-image"
+                  detectFaces
+                />
+
+                {hasRequestedOriginal && hasSeparateThumbnails && displayImages[imageIndex] && (
+                  <SmartImage
+                    src={getMemoryImageUrl(memory, "images", imageIndex)}
+                    alt=""
+                    aria-hidden="true"
+                    className={`memory-original-image ${readyOriginals.includes(imageIndex) ? "is-ready" : ""}`}
+                    loading="eager"
+                    detectFaces
+                    onPositionReady={()=>markOriginalReady(imageIndex)}
+                  />
+                )}
+              </div>
             ))
           ) : (
             <div className="memory-photo-placeholder">

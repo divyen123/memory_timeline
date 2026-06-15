@@ -279,6 +279,16 @@ body.light .login-brand p{
   opacity:1;
 }
 
+.login-intro-overlay.desktop > div,
+.login-intro-overlay.desktop > div > div,
+.login-intro-overlay.desktop video,
+.login-intro-overlay.desktop canvas{
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
+}
+
 .remotion-intro-sheen{
   position:absolute;
   inset:-20%;
@@ -7024,7 +7034,7 @@ body.light .selected-files-list small{
 
 /* BIG TITLE BELOW CARD */
 
-.main-title{
+.add-memory-page .main-title{
   position:fixed;
   left:0;
   top:50%;
@@ -8866,6 +8876,55 @@ body.toolbar-icons-separate:not(.button-glass-on) .timeline-toolbar button:hover
   background:transparent !important;
   border-color:transparent !important;
   color:#ff4b7d;
+}
+
+.timeline-controls.toolbar-icons-circle .timeline-search-shell,
+.timeline-controls.toolbar-icons-circle .timeline-icon-control,
+.timeline-controls.toolbar-icons-circle .filter-toggle,
+.timeline-controls.toolbar-icons-circle .timeline-action-btn{
+  border-radius:999px !important;
+}
+
+.timeline-controls.toolbar-icons-box .timeline-search-shell,
+.timeline-controls.toolbar-icons-box .timeline-icon-control,
+.timeline-controls.toolbar-icons-box .filter-toggle,
+.timeline-controls.toolbar-icons-box .timeline-action-btn{
+  border-radius:16px !important;
+}
+
+.timeline-controls.toolbar-icons-separate .timeline-search-shell:not(.open),
+.timeline-controls.toolbar-icons-separate .timeline-icon-control,
+.timeline-controls.toolbar-icons-separate .filter-toggle,
+.timeline-controls.toolbar-icons-separate .timeline-action-btn{
+  background:transparent !important;
+  border-color:transparent !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  color:var(--adaptive-icon-color) !important;
+}
+
+.timeline-controls.toolbar-icons-separate .filter-funnel-icon::before,
+.timeline-controls.toolbar-icons-separate .filter-funnel-icon::after{
+  background:var(--adaptive-icon-color);
+}
+
+.timeline-controls.toolbar-icons-separate .timeline-icon-control:hover,
+.timeline-controls.toolbar-icons-separate .timeline-icon-control.active,
+.timeline-controls.toolbar-icons-separate .filter-toggle:hover,
+.timeline-controls.toolbar-icons-separate .filter-toggle.active,
+.timeline-controls.toolbar-icons-separate .timeline-action-btn:hover,
+.timeline-controls.toolbar-icons-separate .timeline-action-btn.active{
+  background:transparent !important;
+  border-color:transparent !important;
+  color:#ff4b7d !important;
+  transform:translateY(-2px) scale(1.06);
+}
+
+.timeline-controls.toolbar-icons-separate .filter-icon-control:hover .filter-funnel-icon::before,
+.timeline-controls.toolbar-icons-separate .filter-icon-control:hover .filter-funnel-icon::after,
+.timeline-controls.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::before,
+.timeline-controls.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::after{
+  background:#ff4b7d;
 }
 
 body:not(.button-glass-on) .preview-actions button:last-child:hover {

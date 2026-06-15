@@ -1272,7 +1272,7 @@ function MemoryTimeline() {
         <h2 className="timeline-title">Memory Timeline</h2>
 
         <div className="timeline-controls-shell">
-          <div className="timeline-controls">
+          <div className={`timeline-controls toolbar-icons-${settings.toolbarIconStyle || "box"}`}>
           <div className={`timeline-search-shell ${showSearch || searchText ? "open" : ""}`}>
             <button
               type="button"
@@ -1399,7 +1399,7 @@ function MemoryTimeline() {
             aria-label="Trash"
             onClick={() => navigate("/trash")}
           >
-            &#128465;
+            🗑️
           </button>
           <button
             type="button"

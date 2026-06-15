@@ -20,6 +20,7 @@ import {
 } from "./auth";
 import {
   getDeviceProfile,
+  getSettingsStorageKey,
   loadSettings,
   saveSettings,
   SETTINGS_PREVIEW_EVENT,
@@ -167,6 +168,7 @@ function App(){
 
   useEffect(()=>{
     const localSettings = loadSettings(deviceProfile);
+    const hasLocalSettings = Boolean(localStorage.getItem(getSettingsStorageKey(deviceProfile)));
 
     if(!authenticatedUserId){
       return;
@@ -182,7 +184,7 @@ function App(){
 
         const remoteSettings = data.settings || {};
 
-        if(Object.keys(remoteSettings).length === 0){
+        if(Object.keys(remoteSettings).length === 0 || (isAuthPage && hasLocalSettings)){
           await updateAppearanceSettings(deviceProfile, localSettings);
           if(active){
             setSettings(saveSettings(localSettings, deviceProfile));
@@ -197,7 +199,7 @@ function App(){
     return ()=>{
       active = false;
     };
-  },[deviceProfile, location.pathname, authenticatedUserId]);
+  },[deviceProfile, location.pathname, authenticatedUserId, isAuthPage]);
 
   const toggleTheme = async() => {
     const nextSettings = saveSettings({

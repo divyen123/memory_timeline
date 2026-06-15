@@ -21,7 +21,6 @@ function Trash() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [pendingAction, setPendingAction] = useState(null);
-  const [showInfo, setShowInfo] = useState(false);
 
   const selectedCount = selectedIds.length;
   const allSelected = memories.length > 0 && selectedIds.length === memories.length;
@@ -135,21 +134,6 @@ function Trash() {
         <section className="trash-hero" aria-label="Trash overview">
           <div className="trash-title-wrap">
             <h1>Trash</h1>
-            <div className="trash-info-wrap">
-              <button
-                type="button"
-                className="trash-info-btn"
-                aria-label="Trash information"
-                aria-expanded={showInfo}
-                onClick={()=>setShowInfo(!showInfo)}
-                onBlur={()=>setShowInfo(false)}
-              >
-                i
-              </button>
-              <span className={`trash-info-bubble ${showInfo ? "show" : ""}`} role="tooltip">
-                Deleted memories stay here for 30 days. Recover them anytime before they are permanently removed.
-              </span>
-            </div>
           </div>
         </section>
 

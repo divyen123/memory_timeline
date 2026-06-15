@@ -165,8 +165,8 @@ function LoginIntroMotion({onComplete}){
     };
   },[]);
 
-  const compositionWidth = mobile ? Math.max(320, Math.round(viewportSize.width)) : 1280;
-  const compositionHeight = mobile ? Math.max(620, Math.round(viewportSize.height)) : 720;
+  const compositionWidth = Math.max(mobile ? 320 : 960, Math.round(viewportSize.width));
+  const compositionHeight = Math.max(mobile ? 620 : 540, Math.round(viewportSize.height));
 
   return (
     <div className={`login-intro-overlay ${mobile ? "mobile" : "desktop"}`} role="status" aria-live="polite">

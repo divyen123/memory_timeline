@@ -63,10 +63,6 @@ function MemoryCard({
     navigate(`/memory/${memory._id}`);
   };
 
-  const handleEdit = () => {
-    navigate("/add", { state: memory });
-  };
-
   const handleDelete = () => {
     onDelete(memory);
   };
@@ -152,10 +148,6 @@ function MemoryCard({
           )}
 
           <div className="memory-actions">
-            <button title="Edit" aria-label="Edit" onClick={(e)=>handleActionClick(e, handleEdit)}>
-              ✏️
-            </button>
-
             <button
               type="button"
               className={`favorite-btn ${memory.favorite ? "active" : ""}`}

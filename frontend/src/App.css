@@ -2929,7 +2929,7 @@ body.card-size-large .memory-card-overlay h3{
   inset:0;
   z-index:1;
   background:
-    linear-gradient(180deg,rgba(7,8,24,0.08) 0%,rgba(7,8,24,0.42) 44%,rgba(7,8,24,0.88) 100%),
+    linear-gradient(180deg,transparent 0%,transparent 52%,rgba(7,8,24,0.28) 74%,rgba(7,8,24,0.88) 100%),
     radial-gradient(circle at 18% 12%,rgba(255,75,125,0.28),transparent 35%);
   opacity:1;
   transition:opacity 0.32s ease;
@@ -3061,8 +3061,7 @@ body.card-size-large .memory-card-overlay h3{
 
 body.light .memory-photo-wrap::after{
   background:
-    linear-gradient(180deg,rgba(7,8,24,0.08) 0%,rgba(7,8,24,0.42) 44%,rgba(7,8,24,0.88) 100%),
-    radial-gradient(circle at 18% 12%,rgba(255,75,125,0.2),transparent 35%);
+    linear-gradient(180deg,transparent 0%,transparent 52%,rgba(7,8,24,0.26) 74%,rgba(7,8,24,0.86) 100%);
 }
 
 body.light .memory-card-overlay{

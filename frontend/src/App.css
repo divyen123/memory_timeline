@@ -7090,8 +7090,8 @@ body.light .selected-files-list small{
   z-index:2;
   margin:0;
   padding:0;
-  font-size:clamp(17px, 1.8vw, 24px);
-  font-weight:700;
+  font-size:clamp(13px, 1.35vw, 18px);
+  font-weight:500;
   color:rgb(248, 248, 248);
   letter-spacing:0.08em;
   font-family:'Poppins', sans-serif;
@@ -7123,7 +7123,7 @@ body.light .selected-files-list small{
   .add-memory-brand-title{
     left:14px;
     bottom:12px;
-    font-size:14px;
+    font-size:12px;
     letter-spacing:0.06em;
     opacity:0.68;
   }

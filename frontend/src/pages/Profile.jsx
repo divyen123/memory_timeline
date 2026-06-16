@@ -495,6 +495,9 @@ function Profile() {
                     <option value="separate">Separate icons</option>
                     <option value="box">Fixed box icons</option>
                     <option value="circle">Circle icons</option>
+                    <option value="pill">Rounded pill icons</option>
+                    <option value="soft">Soft glass icons</option>
+                    <option value="minimal">Minimal glow icons</option>
                   </select>
                 </label>
 

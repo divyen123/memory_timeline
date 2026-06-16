@@ -87,7 +87,7 @@ function App(){
     document.body.classList.toggle("button-glass-on", Boolean(settings.buttonGlass));
     document.body.classList.toggle("memory-hover-off", !settings.hoverEnabled);
     document.body.classList.toggle("top-actions-left", settings.topButtonsPosition === "left");
-    document.body.classList.remove("toolbar-icons-box", "toolbar-icons-circle", "toolbar-icons-separate");
+    document.body.classList.remove("toolbar-icons-box", "toolbar-icons-circle", "toolbar-icons-separate", "toolbar-icons-pill", "toolbar-icons-soft", "toolbar-icons-minimal");
     document.body.classList.add(`toolbar-icons-${settings.toolbarIconStyle || "box"}`);
     document.body.classList.remove("hearts-slow", "hearts-normal", "hearts-fast", "hearts-fixed");
     document.body.classList.add(`hearts-${settings.heartsSpeed || "normal"}`);
@@ -103,8 +103,16 @@ function App(){
     document.documentElement.style.setProperty("--app-font-family", FONT_FAMILY_MAP[settings.fontStyle] || FONT_FAMILY_MAP.normal);
     document.documentElement.style.setProperty("--app-font-style", settings.fontStyle === "italic" ? "italic" : "normal");
     document.documentElement.style.setProperty("--top-action-size", `${settings.topButtonsSize || 50}px`);
-    document.documentElement.style.setProperty("--toolbar-icon-font-size", `${settings.toolbarIconSize || 24}px`);
-    document.documentElement.style.setProperty("--toolbar-button-stretch", settings.toolbarButtonStretch ?? 1);
+    const toolbarIconSize = settings.toolbarIconSize || 24;
+    const toolbarButtonSize = Math.min(76, Math.max(38, Math.round(toolbarIconSize * 2.25)));
+    const toolbarStretch = settings.toolbarButtonStretch ?? 1;
+    const toolbarControlGap = Math.min(18, Math.max(8, Math.round(12 * toolbarStretch)));
+    const toolbarWideControlGap = Math.min(22, Math.max(9, Math.round(14 * toolbarStretch)));
+    document.documentElement.style.setProperty("--toolbar-icon-font-size", `${toolbarIconSize}px`);
+    document.documentElement.style.setProperty("--toolbar-button-size", `${toolbarButtonSize}px`);
+    document.documentElement.style.setProperty("--toolbar-button-stretch", toolbarStretch);
+    document.documentElement.style.setProperty("--toolbar-control-gap", `${toolbarControlGap}px`);
+    document.documentElement.style.setProperty("--toolbar-wide-control-gap", `${toolbarWideControlGap}px`);
     document.documentElement.style.setProperty("--memory-card-radius", `${settings.cardBorderRadius ?? 16}px`);
     document.documentElement.style.setProperty("--button-bg-color", settings.buttonBackgroundColor || "#ff4b7d");
     document.documentElement.style.setProperty("--container-glass-alpha", settings.containerGlassAlpha ?? 0.12);

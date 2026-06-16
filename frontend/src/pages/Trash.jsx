@@ -142,10 +142,8 @@ function Trash() {
           <div className="trash-title-wrap">
             <h1>Trash</h1>
           </div>
-        </section>
-
-        {hasTrashMemories && (
-          <section className="trash-actions-panel">
+          {hasTrashMemories && (
+            <div className="trash-header-actions">
             <div className="trash-count">
               <strong>{memories.length}</strong>
               <span>{memories.length === 1 ? "memory in bin" : "memories in bin"}</span>
@@ -197,8 +195,9 @@ function Trash() {
                 </div>
               )}
             </div>
-          </section>
-        )}
+            </div>
+          )}
+        </section>
 
         {selectionMode && memories.length > 0 && (
           <>

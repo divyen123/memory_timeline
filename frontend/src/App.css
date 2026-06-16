@@ -1985,8 +1985,8 @@ body.toolbar-icons-pill .timeline-controls{
 }
 
 body.toolbar-icons-soft .timeline-controls{
-  --toolbar-radius:18px;
-  --toolbar-button-width:calc(var(--toolbar-button-size) * var(--toolbar-button-stretch, 1));
+  --toolbar-radius:999px;
+  --toolbar-button-width:var(--toolbar-button-size);
 }
 
 body.toolbar-icons-minimal .timeline-controls{
@@ -2024,7 +2024,7 @@ body.toolbar-icons-soft .timeline-icon-control,
 body.toolbar-icons-soft .filter-toggle,
 body.toolbar-icons-soft .timeline-action-btn,
 body.toolbar-icons-soft .timeline-toolbar button{
-  border-radius:18px !important;
+  border-radius:999px !important;
   background:linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08));
   border-color:rgba(255,255,255,0.3);
   box-shadow:0 16px 34px rgba(5,8,30,0.16), inset 0 1px 0 rgba(255,255,255,0.22);

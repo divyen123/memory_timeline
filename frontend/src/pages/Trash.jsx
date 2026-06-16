@@ -21,6 +21,7 @@ function Trash() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [pendingAction, setPendingAction] = useState(null);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   const selectedCount = selectedIds.length;
   const allSelected = memories.length > 0 && selectedIds.length === memories.length;
@@ -44,6 +45,12 @@ function Trash() {
   useEffect(()=>{
     loadTrash();
   }, []);
+
+  useEffect(()=>{
+    if(!hasTrashMemories){
+      setShowActionsMenu(false);
+    }
+  }, [hasTrashMemories]);
 
   const toggleSelection = (id) => {
     setSelectedIds((current)=> current.includes(id)
@@ -143,23 +150,52 @@ function Trash() {
               <strong>{memories.length}</strong>
               <span>{memories.length === 1 ? "memory in bin" : "memories in bin"}</span>
             </div>
-            <div className="trash-actions">
-              <button type="button" onClick={()=>askRecover(memories.map((memory)=>memory._id), true)}>
-                Restore all
-              </button>
-              <button type="button" onClick={()=>askDelete(memories.map((memory)=>memory._id), true)}>
-                Empty bin
-              </button>
+            <div className="trash-menu-wrap">
               <button
                 type="button"
-                className={selectionMode ? "active" : ""}
-                onClick={()=>{
-                  setSelectionMode(!selectionMode);
-                  setSelectedIds([]);
-                }}
+                className="trash-menu-toggle"
+                aria-label="Trash actions"
+                aria-expanded={showActionsMenu}
+                onClick={()=>setShowActionsMenu((open)=>!open)}
               >
-                {selectionMode ? "Done" : "Select"}
+                ⋮
               </button>
+              {showActionsMenu && (
+                <div className="trash-actions-menu" role="menu" aria-label="Trash actions">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={()=>{
+                      setShowActionsMenu(false);
+                      askRecover(memories.map((memory)=>memory._id), true);
+                    }}
+                  >
+                    Restore all
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={()=>{
+                      setShowActionsMenu(false);
+                      askDelete(memories.map((memory)=>memory._id), true);
+                    }}
+                  >
+                    Empty bin
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className={selectionMode ? "active" : ""}
+                    onClick={()=>{
+                      setShowActionsMenu(false);
+                      setSelectionMode(!selectionMode);
+                      setSelectedIds([]);
+                    }}
+                  >
+                    {selectionMode ? "Done selecting" : "Select"}
+                  </button>
+                </div>
+              )}
             </div>
           </section>
         )}

@@ -205,11 +205,6 @@ function Trash() {
               const images = memory.thumbnails?.length
                 ? memory.thumbnails
                 : (memory.images?.length ? memory.images : (memory.image ? [memory.image] : []));
-              const memoryDate = new Date(memory.date).toLocaleDateString("en-GB", {
-                day:"2-digit",
-                month:"short",
-                year:"numeric"
-              });
               return (
                 <article className={`trash-card ${selectedIds.includes(memory._id) ? "selected" : ""}`} key={memory._id}>
                   {selectionMode && (
@@ -229,10 +224,6 @@ function Trash() {
                     )}
                   </div>
                   <div className="trash-copy">
-                    <div className="trash-meta">
-                      <span>{memory.category || "Personal"}</span>
-                      <time>{memoryDate}</time>
-                    </div>
                     <h2>{memory.title}</h2>
                   </div>
                   <div className="trash-card-actions">

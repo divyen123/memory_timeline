@@ -5762,18 +5762,18 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
 }
 
 .trash-grid{
-  width:min(1180px,92vw);
+  width:min(1060px,90vw);
   display:grid;
   grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:14px;
+  gap:12px;
 }
 
 .trash-card{
   position:relative;
   min-width:0;
-  aspect-ratio:1;
-  padding:10px;
-  border-radius:20px;
+  aspect-ratio:0.92;
+  padding:9px;
+  border-radius:18px;
   display:flex;
   flex-direction:column;
   justify-content:flex-end;
@@ -5833,7 +5833,7 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
   min-width:0;
   display:flex;
   flex-direction:column;
-  gap:7px;
+  gap:5px;
 }
 
 .trash-meta{
@@ -5858,9 +5858,9 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
 }
 
 .trash-copy h2{
-  margin:2px 0 0;
+  margin:0;
   color:white;
-  font-size:21px;
+  font-size:19px;
   line-height:1.05;
   text-shadow:0 4px 18px rgba(0,0,0,0.45);
   overflow-wrap:anywhere;
@@ -5869,7 +5869,7 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
 .trash-card-actions{
   position:relative;
   z-index:1;
-  margin-top:10px;
+  margin-top:8px;
   display:flex;
   gap:8px;
 }

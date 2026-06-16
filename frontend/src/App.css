@@ -2898,22 +2898,33 @@ body.memory-hover-off .timeline-card:hover img{
 }
 
 body.card-size-small .timeline{
-  width:min(1320px,92vw);
-  column-gap:14px;
-  row-gap:44px;
+  width:min(1760px,94vw);
+  max-width:1760px;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  column-gap:16px;
+  row-gap:42px;
 }
 
 body.card-size-small .timeline-card{
-  min-height:190px;
+  min-height:170px;
 }
 
 body.card-size-small .memory-card-overlay h3{
   font-size:18px;
 }
 
+body.card-size-medium .timeline{
+  width:min(1680px,94vw);
+  max-width:1680px;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  column-gap:18px;
+  row-gap:54px;
+}
+
 body.card-size-large .timeline{
   width:min(1680px,94vw);
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  max-width:1680px;
+  grid-template-columns:repeat(3,minmax(0,1fr));
   column-gap:22px;
   row-gap:64px;
 }

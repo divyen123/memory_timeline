@@ -400,8 +400,8 @@ function AddMemory() {
 
     </div>
 
-    <h1 className="main-title">
-      {isEditing ? "Update Memory" : "Memory Timeline"}
+    <h1 className="add-memory-brand-title">
+      Memory Timeline
     </h1>
 
   </div>

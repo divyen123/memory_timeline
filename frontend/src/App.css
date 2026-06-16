@@ -47,7 +47,12 @@ html,body{
 /* ================= BACKGROUND THEMES ================= */
 
 body.light{
-  background: linear-gradient(135deg,var(--light-gradient-start),var(--light-gradient-middle),var(--light-gradient-end));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--light-gradient-start) 88%, white),
+    color-mix(in srgb, var(--light-gradient-middle) 88%, white),
+    color-mix(in srgb, var(--light-gradient-end) 88%, white)
+  );
   background-size:400% 400%;
   animation:gradientMove 10s ease infinite;
   --timeline-line-color:rgba(255,255,255,0.68);
@@ -57,7 +62,12 @@ body.light{
 }
 
 body.dark{
-  background: linear-gradient(135deg,var(--dark-gradient-start),var(--dark-gradient-middle),var(--dark-gradient-end));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--dark-gradient-start) 88%, black),
+    color-mix(in srgb, var(--dark-gradient-middle) 88%, black),
+    color-mix(in srgb, var(--dark-gradient-end) 88%, black)
+  );
   background-size:400% 400%;
   animation:gradientMove 10s ease infinite;
   --timeline-line-color:rgba(226,232,255,0.56);

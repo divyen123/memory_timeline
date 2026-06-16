@@ -5582,11 +5582,12 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
   align-items:center;
   justify-content:center;
   gap:12px;
+  transform:translateX(-34px);
 }
 
 .trash-hero h1{
   margin:0;
-  font-size:clamp(36px,5vw,58px);
+  font-size:clamp(32px,4.2vw,50px);
   line-height:1;
 }
 
@@ -8733,6 +8734,7 @@ body.light .calendar-memory{
 
   .trash-title-wrap{
     gap:9px;
+    transform:none;
   }
 
   .trash-info-btn{

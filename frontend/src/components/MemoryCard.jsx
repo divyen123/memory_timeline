@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { getMemoryImageUrl } from "../services/api";
 import SmartImage from "./SmartImage";
+import {
+  memorySharedLayoutTransition,
+  timelineItemPresenceVariants
+} from "./memoryTransition/transitions";
 
 function MemoryCard({
   memory,
@@ -11,7 +16,9 @@ function MemoryCard({
   onPreview,
   selectionMode = false,
   selected = false,
-  onSelect
+  onSelect,
+  isTransitionDimmed = false,
+  isTransitionSource = false
 }) {
 
   const formattedDate = new Date(memory.date).toLocaleDateString("en-GB", {
@@ -24,6 +31,7 @@ function MemoryCard({
   const [isVisible, setIsVisible] = useState(false);
   const [hasRequestedOriginal, setHasRequestedOriginal] = useState(false);
   const [readyOriginals, setReadyOriginals] = useState([]);
+  const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
   const displayImages = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
   const hasSeparateThumbnails = Boolean(memory.thumbnails?.length);
@@ -56,7 +64,7 @@ function MemoryCard({
     }
 
     if(onPreview){
-      onPreview(memory);
+      onPreview(memory, cardRef.current);
       return;
     }
 
@@ -91,16 +99,20 @@ function MemoryCard({
 
   return (
 
-    <div
+    <motion.div
       ref={cardRef}
-      className={`timeline-item hidden ${isVisible ? "show" : ""} ${index % 2 === 0 ? "left" : "right"} ${selectionMode ? "selection-mode" : ""} ${selected ? "selected-memory" : ""}`}
+      className={`timeline-item hidden ${isVisible ? "show" : ""} ${index % 2 === 0 ? "left" : "right"} ${selectionMode ? "selection-mode" : ""} ${selected ? "selected-memory" : ""} ${isTransitionSource ? "shared-transition-source" : ""}`}
       onClick={handleDetails}
+      animate={isTransitionDimmed ? "dimmed" : "visible"}
+      variants={timelineItemPresenceVariants}
+      initial={false}
     >
 
-      <div
+      <motion.div
         className={`timeline-card ${displayImages[0] ? "" : "no-photo"}`}
         onMouseEnter={requestOriginalImage}
         onFocusCapture={requestOriginalImage}
+        layout={!prefersReducedMotion}
       >
         {selectionMode && (
           <button
@@ -117,7 +129,11 @@ function MemoryCard({
           </button>
         )}
 
-        <div className={`memory-photo-wrap collage-${Math.min(displayImages.length || 1, 4)}`}>
+        <motion.div
+          className={`memory-photo-wrap collage-${Math.min(displayImages.length || 1, 4)}`}
+          layoutId={prefersReducedMotion ? undefined : `memory-image-${memory._id}`}
+          transition={memorySharedLayoutTransition}
+        >
           {cardImages[0] ? (
             cardImages.slice(0,4).map((image, imageIndex)=>(
               <div className="memory-image-cell" key={`${image}-${imageIndex}`}>
@@ -173,13 +189,18 @@ function MemoryCard({
           <small className="memory-date-badge">{formattedDate}</small>
 
           <div className="memory-card-overlay">
-            <h3>{memory.title}</h3>
+            <motion.h3
+              layoutId={prefersReducedMotion ? undefined : `memory-title-${memory._id}`}
+              transition={memorySharedLayoutTransition}
+            >
+              {memory.title}
+            </motion.h3>
           </div>
-        </div>
+        </motion.div>
 
-      </div>
+      </motion.div>
 
-    </div>
+    </motion.div>
   );
 }
 

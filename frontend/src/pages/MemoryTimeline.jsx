@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import JSZip from "jszip";
 import MemoryCard from "../components/MemoryCard";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -9,6 +10,12 @@ import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
 import { playAppSound } from "../sound";
 import { shareUrl } from "../share";
+import {
+  memorySharedLayoutTransition,
+  previewContentChildVariants,
+  previewDialogVariants,
+  previewOverlayVariants
+} from "../components/memoryTransition/transitions";
 
 const VIEW_MODES = ["timeline", "calendar", "compact"];
 const VIEW_MODE_LABELS = {
@@ -137,6 +144,9 @@ function MemoryTimeline() {
   const filterMenuRef = useRef(null);
   const previewHistoryGuardRef = useRef(false);
   const previewDragRef = useRef(null);
+  const previewHeadingRef = useRef(null);
+  const previewReturnFocusRef = useRef(null);
+  const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
   const location = useLocation();
   const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
@@ -874,9 +884,21 @@ function MemoryTimeline() {
     }
   };
 
+  const openPreviewMemory = (memory, sourceNode = null) => {
+    previewReturnFocusRef.current = sourceNode || document.activeElement;
+    setPreviewMemory(memory);
+    setPreviewImageIndex(0);
+    setShowPreviewImageDetails(false);
+  };
+
   const closePreviewToTimeline = () => {
     setPreviewMemory(null);
+    setShowPreviewImageDetails(false);
     navigate("/timeline", {replace:true});
+
+    window.setTimeout(() => {
+      previewReturnFocusRef.current?.focus?.();
+    }, prefersReducedMotion ? 180 : 720);
   };
 
   useAutoDismissMessage(message, setMessage);
@@ -913,6 +935,19 @@ function MemoryTimeline() {
   useEffect(() => {
     setShowPreviewImageDetails(false);
   }, [previewMemory?._id, previewImageIndex]);
+
+  useEffect(() => {
+    if(!previewMemory){
+      return;
+    }
+
+    const focusDelay = prefersReducedMotion ? 60 : 520;
+    const focusTimer = window.setTimeout(() => {
+      previewHeadingRef.current?.focus?.();
+    }, focusDelay);
+
+    return () => window.clearTimeout(focusTimer);
+  }, [prefersReducedMotion, previewMemory]);
 
   useEffect(() => {
     if(!previewMemory){
@@ -975,6 +1010,34 @@ function MemoryTimeline() {
     ? "Loading"
     : formatImageBytes(currentPreviewImageDetails.size);
   const previewImageAddedDate = formatImageAddedDate(previewMemory?.createdAt || previewMemory?.updatedAt || previewMemory?.date);
+  const activePreviewOverlayVariants = prefersReducedMotion
+    ? {
+      hidden:{opacity:0},
+      visible:{opacity:1, transition:{duration:0.15, ease:"easeOut"}},
+      exit:{opacity:0, transition:{duration:0.15, ease:"easeOut"}}
+    }
+    : previewOverlayVariants;
+  const activePreviewDialogVariants = prefersReducedMotion
+    ? {
+      hidden:{opacity:0},
+      visible:{
+        opacity:1,
+        transition:{
+          duration:0.15,
+          ease:"easeOut",
+          when:"beforeChildren",
+          staggerChildren:0.02
+        }
+      },
+      exit:{opacity:0, transition:{duration:0.15, ease:"easeOut"}}
+    }
+    : previewDialogVariants;
+  const activePreviewContentChildVariants = prefersReducedMotion
+    ? {
+      hidden:{opacity:0},
+      visible:{opacity:1, transition:{duration:0.15, ease:"easeOut"}}
+    }
+    : previewContentChildVariants;
   const visibleTimelineMemories = shouldVirtualizeTimeline
     ? memories.slice(virtualRange.start, virtualRange.end)
     : memories;
@@ -1188,7 +1251,7 @@ function MemoryTimeline() {
 
   return (
 
-    <>
+    <LayoutGroup id="memory-preview-shared-transition">
 
     <PageTransition>
 
@@ -1229,7 +1292,7 @@ function MemoryTimeline() {
                       className="reminder-popover-item"
                       key={memory._id}
                       onClick={()=>{
-                        setPreviewMemory(memory);
+                        openPreviewMemory(memory);
                         setShowReminderPanel(false);
                       }}
                     >
@@ -1540,7 +1603,9 @@ function MemoryTimeline() {
                 index={virtualRange.start + index}
                 onDelete={handleDeleteRequest}
                 onFavorite={handleFavorite}
-                onPreview={setPreviewMemory}
+                onPreview={openPreviewMemory}
+                isTransitionDimmed={Boolean(previewMemory) && previewMemory._id !== memory._id}
+                isTransitionSource={previewMemory?._id === memory._id}
                 selectionMode={exportPanel === "selected"}
                 selected={selectedMemoryIds.includes(memory._id)}
                 onSelect={toggleMemorySelection}
@@ -1654,17 +1719,28 @@ function MemoryTimeline() {
       </div>
     )}
 
+    <AnimatePresence>
     {previewMemory && (
-      <div
+      <motion.div
+        key={previewMemory._id}
         className="preview-overlay"
+        variants={activePreviewOverlayVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
         onClick={()=>{
           if(!previewDeleteActive){
             closePreviewToTimeline();
           }
         }}
       >
-        <div
+        <motion.div
           className="preview-dialog"
+          layout={!prefersReducedMotion}
+          variants={activePreviewDialogVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
           onClick={(event)=>{
             event.stopPropagation();
             setShowPreviewImageDetails(false);
@@ -1679,8 +1755,10 @@ function MemoryTimeline() {
             &#8592;
           </button>
 
-          <div
+          <motion.div
             className="preview-media"
+            layoutId={prefersReducedMotion ? undefined : `memory-image-${previewMemory._id}`}
+            transition={memorySharedLayoutTransition}
             onPointerDown={handlePreviewDragStart}
             onPointerUp={handlePreviewDragEnd}
             onPointerCancel={()=>{ previewDragRef.current = null; }}
@@ -1741,17 +1819,28 @@ function MemoryTimeline() {
                 </span>
               </>
             )}
-          </div>
+          </motion.div>
 
-          <div className="preview-content">
-            <h3>{previewMemory.title}</h3>
-            <div
+          <motion.div className="preview-content">
+            <motion.h3
+              ref={previewHeadingRef}
+              tabIndex="-1"
+              layoutId={prefersReducedMotion ? undefined : `memory-title-${previewMemory._id}`}
+              transition={memorySharedLayoutTransition}
+            >
+              {previewMemory.title}
+            </motion.h3>
+            <motion.div
               className={`preview-description ${previewMemory.description ? "" : "empty"}`}
+              variants={activePreviewContentChildVariants}
               dangerouslySetInnerHTML={{
                 __html:previewMemory.description || "<p>No description added for this memory.</p>"
               }}
             />
-            <div className="preview-actions">
+            <motion.div
+              className="preview-actions"
+              variants={activePreviewContentChildVariants}
+            >
               {currentPreviewImage && (
                 <span className="preview-image-info-wrap">
                   <button
@@ -1842,8 +1931,8 @@ function MemoryTimeline() {
               >
                 <span aria-hidden="true">🗑️</span>
               </button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {previewDeleteActive && (
             <div className="preview-confirm">
@@ -1871,9 +1960,10 @@ function MemoryTimeline() {
               </div>
             </div>
           )}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     )}
+    </AnimatePresence>
 
     {memoryToDelete && !previewDeleteActive && (
       <div className="confirm-overlay">
@@ -1902,7 +1992,7 @@ function MemoryTimeline() {
       </div>
     )}
 
-    </>
+    </LayoutGroup>
 
   );
 }

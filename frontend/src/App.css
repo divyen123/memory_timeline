@@ -258,6 +258,179 @@ button:hover{
   margin-bottom:22px;
 }
 
+.login-live-layer{
+  position:relative;
+  width:min(760px,92vw);
+  display:flex;
+  justify-content:center;
+  isolation:isolate;
+}
+
+.animated-login-card{
+  width:min(720px,92vw);
+  margin:0 auto 22px;
+  padding:clamp(30px,4vw,54px);
+  overflow:visible;
+}
+
+.animated-login-card h2{
+  margin:0 0 24px;
+  font-size:clamp(30px,3.2vw,42px);
+  font-weight:800;
+  letter-spacing:-0.02em;
+}
+
+.login-motion-form{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.animated-field{
+  display:block;
+  margin:0;
+}
+
+.animated-field > span:first-child{
+  display:block;
+  max-height:0;
+  opacity:0;
+  transform:translateY(10px);
+  color:rgba(255,255,255,0.7);
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:0.02em;
+  pointer-events:none;
+  transition:
+    max-height 0.24s ease,
+    opacity 0.24s ease,
+    transform 0.24s ease;
+}
+
+.animated-field.focused > span:first-child,
+.animated-field.filled > span:first-child{
+  max-height:22px;
+  opacity:0.9;
+  transform:translateY(0);
+  margin-bottom:6px;
+}
+
+.login-field-shell{
+  display:flex;
+  align-items:center;
+  min-height:62px;
+  padding:0 18px;
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:16px;
+  background:rgba(255,255,255,0.14);
+  box-shadow:0 12px 34px rgba(7,7,25,0.13) inset;
+  transition:
+    border-color 0.24s ease,
+    box-shadow 0.24s ease,
+    background 0.24s ease,
+    transform 0.24s ease;
+}
+
+.animated-field.focused .login-field-shell{
+  border-color:rgba(255,45,110,0.76);
+  background:
+    linear-gradient(135deg,rgba(255,45,110,0.16),rgba(108,99,255,0.18)),
+    rgba(255,255,255,0.15);
+  box-shadow:
+    0 0 0 4px rgba(255,45,110,0.1),
+    0 0 36px rgba(108,99,255,0.26),
+    0 12px 34px rgba(7,7,25,0.13) inset;
+  transform:translateY(-1px);
+}
+
+.login-motion-input{
+  width:100%;
+  min-height:0;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  outline:0;
+  background:transparent;
+  box-shadow:none;
+  color:inherit;
+  font:inherit;
+  font-size:18px;
+  font-weight:600;
+}
+
+.login-motion-input::placeholder{
+  color:rgba(255,255,255,0.68);
+}
+
+.login-submit-btn{
+  margin:0;
+  background:linear-gradient(135deg,#ff2d6e 0%,#ff5f83 100%);
+  box-shadow:0 18px 40px rgba(255,45,110,0.22);
+}
+
+.login-submit-btn.success{
+  background:linear-gradient(135deg,#ff2d6e 0%,#6c63ff 100%);
+}
+
+.login-submit-btn:disabled{
+  cursor:wait;
+  opacity:0.86;
+}
+
+.login-register-btn,
+.login-forgot-btn{
+  margin:0;
+  background:linear-gradient(135deg,#6c63ff 0%,#4f46e5 100%);
+  box-shadow:0 18px 40px rgba(76,70,229,0.18);
+}
+
+.login-forgot-btn{
+  width:100%;
+}
+
+.login-spinner{
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,0.36);
+  border-top-color:#ffffff;
+  animation:loginSpinner 0.72s linear infinite;
+}
+
+.login-button-heart{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:26px;
+  line-height:1;
+  text-shadow:0 0 18px rgba(255,255,255,0.55);
+}
+
+.login-particle{
+  position:fixed;
+  z-index:-1;
+  color:#ff4b7d;
+  font-size:24px;
+  text-shadow:0 0 24px rgba(255,45,110,0.58);
+  pointer-events:none;
+}
+
+body.light .animated-field > span:first-child{
+  color:rgba(32,28,52,0.72);
+}
+
+body.light .login-field-shell{
+  border-color:rgba(255,255,255,0.38);
+  background:rgba(255,255,255,0.36);
+  color:#242038;
+}
+
+body.light .login-motion-input::placeholder{
+  color:rgba(36,32,56,0.58);
+}
+
 .login-brand{
   width:min(760px,92vw);
   text-align:center;
@@ -290,6 +463,20 @@ body.light .login-brand p{
     linear-gradient(135deg,rgba(10,8,28,0.96),rgba(25,24,72,0.98));
   color:white;
   opacity:1;
+}
+
+.login-intro-overlay.cinematic{
+  background:#070719;
+}
+
+.login-intro-overlay.cinematic > div,
+.login-intro-overlay.cinematic > div > div,
+.login-intro-overlay.cinematic video,
+.login-intro-overlay.cinematic canvas{
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
 }
 
 .login-intro-overlay.desktop > div,
@@ -458,6 +645,10 @@ body.light .login-brand p{
 
 @keyframes introSheen{
   to{transform:translateX(30%);}
+}
+
+@keyframes loginSpinner{
+  to{transform:rotate(360deg);}
 }
 
 .login-intro-scene{

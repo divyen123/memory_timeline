@@ -1,0 +1,435 @@
+.sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0, 0, 0, 0);
+  white-space:nowrap;
+  border:0;
+}
+
+.add-memory-page .glass-card{
+  position:relative;
+  overflow:hidden;
+}
+
+.add-memory-form-body{
+  transition:opacity 0.28s ease, filter 0.28s ease, transform 0.28s ease;
+}
+
+.add-memory-page .glass-card.success-active .add-memory-form-body{
+  opacity:0.3;
+  filter:blur(4px);
+  transform:scale(0.985);
+}
+
+.add-memory-page .glass-card.success-active .timeline-btn{
+  opacity:0.38;
+  pointer-events:none;
+}
+
+.add-memory-page .glass-card.submit-error{
+  animation:successSubmitShake 0.34s ease both;
+}
+
+.submit-morph-btn{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:45px;
+  overflow:hidden;
+}
+
+.submit-morph-btn:disabled{
+  cursor:not-allowed;
+}
+
+.submit-morph-btn.loading,
+.submit-morph-btn.success,
+.submit-morph-btn.error{
+  pointer-events:none;
+}
+
+.submit-morph-btn.loading{
+  animation:submitButtonBreath 0.65s ease-in-out infinite alternate;
+}
+
+.submit-spinner{
+  width:21px;
+  height:21px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,0.36);
+  border-top-color:#ff2d6e;
+  animation:submitSpinnerSpin 0.7s linear infinite;
+}
+
+.submit-check,
+.submit-error-mark{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.18);
+  box-shadow:0 0 26px rgba(255,45,110,0.36);
+}
+
+.submit-check svg{
+  width:25px;
+  height:25px;
+  fill:none;
+}
+
+.submit-check-path{
+  stroke:white;
+  stroke-width:4.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:42;
+  stroke-dashoffset:42;
+  animation:submitCheckDraw 0.28s 0.08s ease forwards;
+}
+
+.submit-error-mark{
+  background:rgba(255,45,110,0.26);
+  color:white;
+  font-size:22px;
+  font-weight:900;
+  animation:submitErrorPop 0.24s ease both;
+}
+
+.success-card-animation{
+  position:absolute;
+  left:50%;
+  top:50%;
+  z-index:15;
+  display:grid;
+  justify-items:center;
+  gap:12px;
+  width:min(280px,78vw);
+  pointer-events:none;
+  transform:translate(-50%, -45%);
+}
+
+.success-card-preview{
+  position:relative;
+  width:100%;
+  padding:10px;
+  border:1px solid rgba(255,255,255,0.24);
+  border-radius:25px;
+  background:linear-gradient(145deg, rgba(255,45,110,0.22), rgba(108,99,255,0.22));
+  box-shadow:0 24px 60px rgba(12,12,42,0.36), 0 0 42px rgba(255,45,110,0.2);
+  backdrop-filter:blur(14px);
+  animation:successCardPopIn 0.7s cubic-bezier(0.2, 1.25, 0.3, 1) both;
+}
+
+.success-card-animation.update .success-card-preview{
+  animation:successCardRefresh 0.72s ease both;
+}
+
+.success-card-glow{
+  position:absolute;
+  inset:-14px;
+  border-radius:32px;
+  background:radial-gradient(circle, rgba(255,45,110,0.22), transparent 62%);
+  opacity:0;
+  animation:successGlowPulse 0.85s 0.12s ease-out both;
+}
+
+.success-card-image{
+  position:relative;
+  height:150px;
+  overflow:hidden;
+  border-radius:19px;
+  background:linear-gradient(135deg, rgba(255,255,255,0.2), rgba(108,99,255,0.22));
+  clip-path:inset(0 100% 0 0 round 19px);
+  animation:successImageWipe 0.55s 0.18s ease-out forwards;
+}
+
+.success-card-animation.update .success-card-image::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(100deg, transparent, rgba(255,255,255,0.34), transparent);
+  transform:translateX(-120%);
+  animation:successUpdateShimmer 0.62s 0.25s ease-out forwards;
+}
+
+.success-card-image img,
+.success-card-placeholder{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.success-card-placeholder{
+  background:
+    radial-gradient(circle at 35% 32%, rgba(255,255,255,0.58), transparent 16%),
+    linear-gradient(135deg, #ff2d6e, #6c63ff);
+}
+
+.success-card-copy{
+  position:absolute;
+  left:22px;
+  right:22px;
+  bottom:18px;
+  color:white;
+  font-size:18px;
+  font-weight:800;
+  line-height:1.1;
+  text-shadow:0 2px 12px rgba(0,0,0,0.56);
+}
+
+.success-card-label{
+  padding:8px 16px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.18);
+  border:1px solid rgba(255,255,255,0.22);
+  color:white;
+  font-size:15px;
+  font-weight:800;
+  letter-spacing:0.01em;
+  box-shadow:0 14px 36px rgba(12,12,42,0.24);
+  animation:successLabelPop 0.42s 0.32s ease-out both;
+}
+
+.success-particles{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+.success-sparkle,
+.success-confetti{
+  position:absolute;
+  left:50%;
+  top:45%;
+  opacity:0;
+  transform:translate(-50%, -50%);
+  animation-delay:var(--delay);
+}
+
+.success-sparkle{
+  width:13px;
+  height:13px;
+  color:var(--particle-color);
+  animation-name:successSparkleBurst;
+  animation-duration:0.82s;
+  animation-timing-function:ease-out;
+  animation-fill-mode:both;
+}
+
+.success-sparkle::before,
+.success-sparkle::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:3px;
+  height:13px;
+  border-radius:999px;
+  background:currentColor;
+  transform:translate(-50%, -50%);
+}
+
+.success-sparkle::after{
+  width:13px;
+  height:3px;
+}
+
+.success-confetti{
+  width:7px;
+  height:13px;
+  border-radius:3px;
+  background:var(--particle-color);
+  animation-name:successConfettiBurst;
+  animation-duration:0.9s;
+  animation-timing-function:cubic-bezier(0.2, 0.8, 0.3, 1);
+  animation-fill-mode:both;
+}
+
+@keyframes submitSpinnerSpin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+@keyframes submitCheckDraw{
+  to{
+    stroke-dashoffset:0;
+  }
+}
+
+@keyframes submitButtonBreath{
+  from{
+    filter:brightness(1);
+  }
+  to{
+    filter:brightness(1.12);
+  }
+}
+
+@keyframes submitErrorPop{
+  from{
+    transform:scale(0.75);
+  }
+  to{
+    transform:scale(1);
+  }
+}
+
+@keyframes successSubmitShake{
+  0%, 100%{
+    transform:translateX(0);
+  }
+  25%{
+    transform:translateX(-6px);
+  }
+  55%{
+    transform:translateX(5px);
+  }
+  78%{
+    transform:translateX(-2px);
+  }
+}
+
+@keyframes successCardPopIn{
+  0%{
+    opacity:0;
+    transform:translateY(18px) scale(0.82) rotate(-2deg);
+  }
+  60%{
+    opacity:1;
+    transform:translateY(-4px) scale(1.04) rotate(1deg);
+  }
+  100%{
+    opacity:1;
+    transform:translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes successCardRefresh{
+  0%{
+    opacity:0;
+    transform:scale(0.94);
+  }
+  45%{
+    opacity:1;
+    transform:scale(1.025);
+  }
+  100%{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
+@keyframes successImageWipe{
+  to{
+    clip-path:inset(0 0 0 0 round 19px);
+  }
+}
+
+@keyframes successGlowPulse{
+  0%{
+    opacity:0;
+    transform:scale(0.78);
+  }
+  45%{
+    opacity:1;
+  }
+  100%{
+    opacity:0;
+    transform:scale(1.2);
+  }
+}
+
+@keyframes successLabelPop{
+  from{
+    opacity:0;
+    transform:translateY(8px) scale(0.92);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+@keyframes successSparkleBurst{
+  0%{
+    opacity:0;
+    transform:translate(-50%, -50%) scale(0.2) rotate(0deg);
+  }
+  25%{
+    opacity:1;
+  }
+  100%{
+    opacity:0;
+    transform:translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1) rotate(var(--r));
+  }
+}
+
+@keyframes successConfettiBurst{
+  0%{
+    opacity:0;
+    transform:translate(-50%, -50%) scale(0.4) rotate(0deg);
+  }
+  20%{
+    opacity:1;
+  }
+  100%{
+    opacity:0;
+    transform:translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1) rotate(var(--r));
+  }
+}
+
+@keyframes successUpdateShimmer{
+  to{
+    transform:translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .add-memory-page .glass-card.success-active .add-memory-form-body{
+    filter:none;
+    transform:none;
+  }
+
+  .submit-morph-btn,
+  .submit-spinner,
+  .submit-check-path,
+  .submit-error-mark,
+  .add-memory-page .glass-card.submit-error,
+  .success-card-preview,
+  .success-card-glow,
+  .success-card-image,
+  .success-card-label,
+  .success-sparkle,
+  .success-confetti,
+  .success-card-animation.update .success-card-image::after{
+    animation:none !important;
+  }
+
+  .success-card-preview,
+  .success-card-label{
+    opacity:1;
+    transform:none;
+  }
+
+  .success-card-image{
+    clip-path:none;
+  }
+
+  .success-sparkle,
+  .success-confetti{
+    display:none;
+  }
+
+  .submit-check-path{
+    stroke-dashoffset:0;
+  }
+}

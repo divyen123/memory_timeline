@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { addMemory, updateMemory } from "../services/api";
+import { useReducedMotion } from "framer-motion";
+import { addMemory, getMemoryImageUrl, updateMemory } from "../services/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import PageTransition from "../components/PageTransition";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { playAppSound } from "../sound";
+import SubmitButtonMorph from "../components/successAnimation/SubmitButtonMorph";
+import SuccessCardAnimation from "../components/successAnimation/SuccessCardAnimation";
+import "../components/successAnimation/success-animations.css";
 
 const MAX_MEMORY_IMAGES = 10;
 const MAX_IMAGE_MB = 8;
@@ -126,6 +130,8 @@ function AddMemory() {
   const editorRef = useRef(null);
   const selectionRef = useRef(null);
   const fileInputRef = useRef(null);
+  const previewObjectUrlRef = useRef("");
+  const prefersReducedMotion = useReducedMotion();
 
   const [title, setTitle] = useState(editingMemory?.title || "");
   const [description, setDescription] = useState(editingMemory?.description || "");
@@ -135,6 +141,10 @@ function AddMemory() {
   const [images, setImages] = useState([]);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStage, setSubmitStage] = useState("idle");
+  const [successMode, setSuccessMode] = useState(isEditing ? "update" : "create");
+  const [successPreview, setSuccessPreview] = useState({title:"", imageUrl:""});
+  const [successAnnouncement, setSuccessAnnouncement] = useState("");
   const categories = ["Personal","Family","Friends","Travel","School","Work","Other"];
 
   const validateImages = (files) => {
@@ -182,6 +192,12 @@ function AddMemory() {
     }
   },[description]);
 
+  useEffect(()=>()=> {
+    if(previewObjectUrlRef.current){
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+    }
+  },[]);
+
   useAutoDismissMessage(message, setMessage);
 
   const saveEditorSelection = () => {
@@ -192,11 +208,49 @@ function AddMemory() {
     }
   };
 
+  const createSuccessPreview = () => {
+    if(previewObjectUrlRef.current){
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+      previewObjectUrlRef.current = "";
+    }
+
+    let imageUrl = "";
+
+    if(images[0]){
+      imageUrl = URL.createObjectURL(images[0]);
+      previewObjectUrlRef.current = imageUrl;
+    }else if(isEditing){
+      imageUrl = getMemoryImageUrl(editingMemory, "images", 0);
+    }
+
+    return {
+      title:title.trim() || "Untitled memory",
+      imageUrl
+    };
+  };
+
   const handleSubmit = async (e) => {
 
     e.preventDefault();
 
+    if(isSubmitting || submitStage !== "idle"){
+      return;
+    }
+
+    const validationMessage = validateImages(images);
+
+    if(validationMessage){
+      setMessage(validationMessage);
+      setSubmitStage("error");
+      setTimeout(()=>setSubmitStage("idle"), 650);
+      return;
+    }
+
     setIsSubmitting(true);
+    setSubmitStage("loading");
+    setSuccessMode(isEditing ? "update" : "create");
+    setSuccessPreview(createSuccessPreview());
+    setSuccessAnnouncement("");
     setMessage(images.length ? "Optimizing images..." : "");
 
     try{
@@ -209,12 +263,6 @@ function AddMemory() {
       formData.append("category",category);
       formData.append("reminderDate",reminderDate);
 
-      const validationMessage = validateImages(images);
-      if(validationMessage){
-        setMessage(validationMessage);
-        return;
-      }
-
       const optimizedImages = await optimizeImages(images);
       const fullImages = optimizedImages.map(({full})=>full);
       const thumbnailImages = optimizedImages.map(({thumbnail})=>thumbnail);
@@ -222,6 +270,9 @@ function AddMemory() {
 
       if(optimizedValidationMessage){
         setMessage(optimizedValidationMessage);
+        setSubmitStage("error");
+        setTimeout(()=>setSubmitStage("idle"), 650);
+        setIsSubmitting(false);
         return;
       }
 
@@ -236,29 +287,38 @@ function AddMemory() {
       if(isEditing){
 
         const res = await updateMemory(editingMemory._id,formData);
+        const successText = "Memory updated!";
 
         playAppSound("update");
-        setMessage("Memory updated successfully");
+        setMessage(successText);
+        setSuccessAnnouncement(successText);
+        setSubmitStage("success");
 
         setTimeout(()=>{
           navigate("/timeline", {
             state: editingMemory.returnToPreview ? {previewMemory:res.data} : null
           });
-        },1200);
+        }, prefersReducedMotion ? 450 : 1300);
+
+        return;
 
       } else {
 
-        await addMemory(formData);
+        const res = await addMemory(formData);
+        const successText = "Memory added!";
 
         playAppSound("create");
-        setMessage("Memory added successfully");
+        setMessage(successText);
+        setSuccessAnnouncement(successText);
+        setSubmitStage("success");
 
-        setTitle("");
-        setDescription("");
-        setDate("");
-        setCategory("Personal");
-        setReminderDate("");
-        clearImages();
+        setTimeout(()=>{
+          navigate("/timeline", {
+            state:res.data?._id ? {highlightMemoryId:res.data._id} : null
+          });
+        }, prefersReducedMotion ? 450 : 1500);
+
+        return;
 
       }
 
@@ -267,9 +327,10 @@ function AddMemory() {
 
       console.error(err);
       setMessage(getUploadErrorMessage(err));
-
-    }finally{
+      setSubmitStage("error");
+      setTimeout(()=>setSubmitStage("idle"), 700);
       setIsSubmitting(false);
+
     }
 
   };
@@ -279,7 +340,7 @@ function AddMemory() {
 
   <div className="add-memory-page">
 
-    <div className="glass-card">
+    <div className={`glass-card ${submitStage === "success" ? "success-active" : ""} ${submitStage === "error" ? "submit-error" : ""}`}>
 
       {message && (
         <div className="toast">
@@ -291,102 +352,108 @@ function AddMemory() {
 
       <form onSubmit={handleSubmit}>
 
-        <input
-          type="text"
-          placeholder="Memory Title"
-          value={title}
-          onChange={(e)=>setTitle(e.target.value)}
-          required
-        />
+        <div className="add-memory-form-body">
 
-        <div
-          ref={editorRef}
-          className="rich-editor"
-          contentEditable
-          onInput={(e)=>{
-            saveEditorSelection();
-            setDescription(e.currentTarget.innerHTML);
-          }}
-          onKeyUp={saveEditorSelection}
-          onMouseUp={saveEditorSelection}
-          onBlur={saveEditorSelection}
-          data-placeholder="Description"
-        />
+          <input
+            type="text"
+            placeholder="Memory Title"
+            value={title}
+            onChange={(e)=>setTitle(e.target.value)}
+            required
+          />
 
-        <div className="date-input-row">
-          <label>
-            <span>Memory date</span>
-            <input
-              type="date"
-              value={date}
-              onChange={(e)=>setDate(e.target.value)}
-              required
-            />
-          </label>
+          <div
+            ref={editorRef}
+            className="rich-editor"
+            contentEditable
+            onInput={(e)=>{
+              saveEditorSelection();
+              setDescription(e.currentTarget.innerHTML);
+            }}
+            onKeyUp={saveEditorSelection}
+            onMouseUp={saveEditorSelection}
+            onBlur={saveEditorSelection}
+            data-placeholder="Description"
+          />
 
-          <label>
-            <span>Reminder date</span>
-            <input
-              type="date"
-              value={reminderDate}
-              onChange={(e)=>setReminderDate(e.target.value)}
-            />
-          </label>
-        </div>
+          <div className="date-input-row">
+            <label>
+              <span>Memory date</span>
+              <input
+                type="date"
+                value={date}
+                onChange={(e)=>setDate(e.target.value)}
+                required
+              />
+            </label>
 
-        <label className="field-label">Category</label>
-        <select
-          value={category}
-          onChange={(e)=>setCategory(e.target.value)}
-          required
-        >
-          {categories.map((item)=>(
-            <option key={item} value={item}>{item}</option>
-          ))}
-        </select>
-
-        {isEditing && (
-          <label className="file-label">Change Images (optional)</label>
-        )}
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-          multiple
-          onChange={handleImagesChange}
-          required={!isEditing}
-        />
-
-        <div className="upload-helper">
-          <span>Upload up to {MAX_MEMORY_IMAGES} images. JPG, PNG, and WebP are optimized into fast thumbnails and full-view images.</span>
-          {images.length > 0 && (
-            <button type="button" onClick={clearImages}>
-              Clear
-            </button>
-          )}
-        </div>
-
-        {images.length > 0 && (
-          <div className="selected-files-panel">
-            <div className="selected-files-header">
-              <strong>{images.length} {images.length === 1 ? "image" : "images"} selected</strong>
-              <small>Maximum {MAX_MEMORY_IMAGES}</small>
-            </div>
-            <div className="selected-files-list">
-              {images.map((image)=>(
-                <span key={`${image.name}-${image.size}`}>
-                  {image.name}
-                  <small>{formatFileSize(image.size)}</small>
-                </span>
-              ))}
-            </div>
+            <label>
+              <span>Reminder date</span>
+              <input
+                type="date"
+                value={reminderDate}
+                onChange={(e)=>setReminderDate(e.target.value)}
+              />
+            </label>
           </div>
-        )}
 
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : (isEditing ? "Update Memory" : "Add Memory")}
-        </button>
+          <label className="field-label">Category</label>
+          <select
+            value={category}
+            onChange={(e)=>setCategory(e.target.value)}
+            required
+          >
+            {categories.map((item)=>(
+              <option key={item} value={item}>{item}</option>
+            ))}
+          </select>
+
+          {isEditing && (
+            <label className="file-label">Change Images (optional)</label>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+            multiple
+            onChange={handleImagesChange}
+            required={!isEditing}
+          />
+
+          <div className="upload-helper">
+            <span>Upload up to {MAX_MEMORY_IMAGES} images. JPG, PNG, and WebP are optimized into fast thumbnails and full-view images.</span>
+            {images.length > 0 && (
+              <button type="button" onClick={clearImages}>
+                Clear
+              </button>
+            )}
+          </div>
+
+          {images.length > 0 && (
+            <div className="selected-files-panel">
+              <div className="selected-files-header">
+                <strong>{images.length} {images.length === 1 ? "image" : "images"} selected</strong>
+                <small>Maximum {MAX_MEMORY_IMAGES}</small>
+              </div>
+              <div className="selected-files-list">
+                {images.map((image)=>(
+                  <span key={`${image.name}-${image.size}`}>
+                    {image.name}
+                    <small>{formatFileSize(image.size)}</small>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        <SubmitButtonMorph
+          label={isEditing ? "Update Memory" : "Add Memory"}
+          state={submitStage}
+          disabled={isSubmitting || submitStage !== "idle"}
+        />
 
         <button
           type="button"
@@ -397,6 +464,17 @@ function AddMemory() {
         </button>
 
       </form>
+
+      <SuccessCardAnimation
+        mode={successMode}
+        title={successPreview.title}
+        imageUrl={successPreview.imageUrl}
+        visible={submitStage === "success"}
+      />
+
+      <span className="sr-only" aria-live="polite">
+        {successAnnouncement}
+      </span>
 
     </div>
 

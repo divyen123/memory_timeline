@@ -260,22 +260,22 @@ button:hover{
 
 .login-live-layer{
   position:relative;
-  width:min(760px,92vw);
+  width:min(560px,92vw);
   display:flex;
   justify-content:center;
   isolation:isolate;
 }
 
 .animated-login-card{
-  width:min(720px,92vw);
+  width:min(500px,92vw);
   margin:0 auto 22px;
-  padding:clamp(30px,4vw,54px);
+  padding:40px;
   overflow:visible;
 }
 
 .animated-login-card h2{
-  margin:0 0 24px;
-  font-size:clamp(30px,3.2vw,42px);
+  margin:0 0 22px;
+  font-size:clamp(30px,3vw,38px);
   font-weight:800;
   letter-spacing:-0.02em;
 }
@@ -283,7 +283,7 @@ button:hover{
 .login-motion-form{
   display:flex;
   flex-direction:column;
-  gap:16px;
+  gap:14px;
 }
 
 .animated-field{
@@ -318,12 +318,13 @@ button:hover{
 .login-field-shell{
   display:flex;
   align-items:center;
-  min-height:62px;
-  padding:0 18px;
+  min-height:56px;
+  padding:0 16px;
   border:1px solid rgba(255,255,255,0.2);
   border-radius:16px;
-  background:rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.16);
   box-shadow:0 12px 34px rgba(7,7,25,0.13) inset;
+  backdrop-filter:blur(16px);
   transition:
     border-color 0.24s ease,
     box-shadow 0.24s ease,
@@ -344,6 +345,8 @@ button:hover{
 }
 
 .login-motion-input{
+  appearance:none;
+  -webkit-appearance:none;
   width:100%;
   min-height:0;
   margin:0;
@@ -351,12 +354,25 @@ button:hover{
   border:0;
   border-radius:0;
   outline:0;
-  background:transparent;
-  box-shadow:none;
+  background:transparent !important;
+  background-color:transparent !important;
+  box-shadow:none !important;
   color:inherit;
+  caret-color:currentColor;
   font:inherit;
   font-size:18px;
   font-weight:600;
+}
+
+.login-motion-input:-webkit-autofill,
+.login-motion-input:-webkit-autofill:hover,
+.login-motion-input:-webkit-autofill:focus,
+.login-motion-input:-webkit-autofill:active{
+  border:0;
+  background:transparent !important;
+  background-color:transparent !important;
+  box-shadow:0 0 0 1000px transparent inset !important;
+  transition:background-color 9999s ease-in-out 0s;
 }
 
 .login-motion-input::placeholder{
@@ -423,8 +439,18 @@ body.light .animated-field > span:first-child{
 
 body.light .login-field-shell{
   border-color:rgba(255,255,255,0.38);
-  background:rgba(255,255,255,0.36);
+  background:rgba(255,255,255,0.24);
   color:#242038;
+}
+
+body:not(.light) .login-motion-input,
+body:not(.light) .login-motion-input:-webkit-autofill{
+  -webkit-text-fill-color:#fff;
+}
+
+body.light .login-motion-input,
+body.light .login-motion-input:-webkit-autofill{
+  -webkit-text-fill-color:#242038;
 }
 
 body.light .login-motion-input::placeholder{

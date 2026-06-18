@@ -316,6 +316,8 @@ button:hover{
 }
 
 .login-field-shell{
+  position:relative;
+  isolation:isolate;
   display:flex;
   align-items:center;
   min-height:56px;
@@ -325,6 +327,7 @@ button:hover{
   background:rgba(255,255,255,0.16);
   box-shadow:0 12px 34px rgba(7,7,25,0.13) inset;
   backdrop-filter:blur(16px);
+  overflow:hidden;
   transition:
     border-color 0.24s ease,
     box-shadow 0.24s ease,
@@ -347,7 +350,9 @@ button:hover{
 .login-motion-input{
   appearance:none;
   -webkit-appearance:none;
+  display:block;
   width:100%;
+  height:100%;
   min-height:0;
   margin:0;
   padding:0;
@@ -356,12 +361,18 @@ button:hover{
   outline:0;
   background:transparent !important;
   background-color:transparent !important;
+  background-image:none !important;
   box-shadow:none !important;
+  filter:none !important;
   color:inherit;
   caret-color:currentColor;
   font:inherit;
   font-size:18px;
   font-weight:600;
+}
+
+.login-motion-input::selection{
+  background:rgba(255,45,110,0.28);
 }
 
 .login-motion-input:-webkit-autofill,
@@ -371,7 +382,12 @@ button:hover{
   border:0;
   background:transparent !important;
   background-color:transparent !important;
-  box-shadow:0 0 0 1000px transparent inset !important;
+  background-image:none !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  box-shadow:0 0 0 1000px rgba(255,255,255,0) inset !important;
+  -webkit-text-fill-color:currentColor !important;
+  caret-color:currentColor;
   transition:background-color 9999s ease-in-out 0s;
 }
 
@@ -10143,5 +10159,74 @@ body.light .settings-tip-bubble{
 
   .settings-tip-bubble::before{
     right:24px;
+  }
+}
+
+.trash-page .trash-header-actions{
+  left:calc(50% + 58px);
+  top:calc(50% + 3px);
+  gap:0;
+}
+
+.trash-page .trash-menu-toggle{
+  width:24px;
+  height:24px;
+  min-height:24px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  color:white;
+}
+
+.trash-page .trash-menu-toggle::before{
+  font-size:22px;
+  line-height:1;
+  transform:none;
+}
+
+.trash-page .trash-menu-toggle:hover,
+.trash-page .trash-menu-toggle:focus-visible{
+  background:transparent !important;
+  box-shadow:none !important;
+  color:#ff4b7d;
+  transform:translateY(-1px);
+}
+
+body.light .trash-page .trash-menu-toggle{
+  color:#2a2140;
+}
+
+body.light .trash-page .trash-card{
+  background:rgba(255,255,255,0.18);
+  border-color:rgba(68,46,103,0.18);
+  box-shadow:0 16px 36px rgba(78,48,116,0.14);
+}
+
+body.light .trash-page .trash-thumb::after{
+  background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.08) 58%,rgba(255,255,255,0.24) 100%);
+}
+
+body.light .trash-page .trash-copy h2{
+  color:#2a2140;
+  text-shadow:0 2px 14px rgba(255,255,255,0.62);
+}
+
+@media (max-width:760px){
+  .trash-page .trash-header-actions{
+    left:calc(50% + 52px);
+    top:calc(50% + 2px);
+  }
+
+  .trash-page .trash-menu-toggle{
+    width:22px;
+    height:22px;
+    min-height:22px;
+  }
+
+  .trash-page .trash-menu-toggle::before{
+    font-size:20px;
   }
 }

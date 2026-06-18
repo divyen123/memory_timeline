@@ -144,10 +144,6 @@ function Trash() {
           </div>
           {hasTrashMemories && (
             <div className="trash-header-actions">
-            <div className="trash-count">
-              <strong>{selectionMode ? selectedCount : memories.length}</strong>
-              <span>{selectionMode ? "selected" : (memories.length === 1 ? "memory in bin" : "memories in bin")}</span>
-            </div>
             <div className="trash-menu-wrap">
               <button
                 type="button"
@@ -208,7 +204,7 @@ function Trash() {
                   checked={allSelected}
                   onChange={toggleSelectAll}
                 />
-                Select all
+                {selectedCount ? `${selectedCount} selected` : "Select all"}
               </label>
             </section>
             <div className="trash-selection-dock" aria-label="Selected memory actions">

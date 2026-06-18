@@ -108,11 +108,10 @@ function MemoryCard({
       initial={false}
     >
 
-      <motion.div
+      <div
         className={`timeline-card ${displayImages[0] ? "" : "no-photo"}`}
         onMouseEnter={requestOriginalImage}
         onFocusCapture={requestOriginalImage}
-        layout={!prefersReducedMotion}
       >
         {selectionMode && (
           <button
@@ -198,7 +197,7 @@ function MemoryCard({
           </div>
         </motion.div>
 
-      </motion.div>
+      </div>
 
     </motion.div>
   );

@@ -2543,10 +2543,33 @@ body.light .toggle-btn::before{
   display:flex;
   flex-direction:column;
   align-items:center;
+  padding-top:82px;
 }
 
 .timeline-title{
+  position:fixed;
+  top:28px;
+  left:28px;
+  right:auto;
+  z-index:1050;
+  width:auto;
+  max-width:calc(100vw - 220px);
+  margin:0;
   color:white;
+  font-family:Poppins, "Segoe UI", Arial, sans-serif;
+  font-size:clamp(20px,2vw,26px);
+  font-weight:700;
+  line-height:1.1;
+  text-align:left;
+  letter-spacing:0.01em;
+  pointer-events:none;
+  text-shadow:0 8px 24px rgba(0,0,0,0.28);
+}
+
+body.top-actions-left .timeline-title{
+  left:auto;
+  right:28px;
+  text-align:right;
 }
 
 .timeline-controls{
@@ -2555,7 +2578,7 @@ body.light .toggle-btn::before{
   align-items:center;
   justify-content:center;
   gap:var(--toolbar-control-gap, 12px);
-  margin:10px 0 6px;
+  margin:0 0 6px;
   position:relative;
   z-index:5;
   --toolbar-button-width:var(--toolbar-button-size);
@@ -6249,7 +6272,7 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
 
 .trash-hero h1{
   margin:0;
-  font-size:clamp(28px,3.1vw,38px);
+  font-size:clamp(24px,2.5vw,32px);
   line-height:1;
 }
 
@@ -7125,16 +7148,28 @@ body.light .days-counter{
   }
 
   .timeline-container{
-    padding-top:24px;
+    padding-top:72px;
   }
 
   .timeline-title{
-    margin:-2px 0 8px;
+    position:fixed;
+    top:16px;
+    left:16px;
+    right:auto;
+    z-index:1050;
+    max-width:calc(100vw - 150px);
+    margin:0;
     font-family:Poppins, "Segoe UI", Arial, sans-serif;
-    font-size:clamp(25px,7.2vw,30px);
-    font-weight:800;
-    line-height:1.15;
-    text-align:center;
+    font-size:clamp(17px,5vw,22px);
+    font-weight:700;
+    line-height:1.1;
+    text-align:left;
+  }
+
+  body.top-actions-left .timeline-title{
+    left:auto;
+    right:16px;
+    text-align:right;
   }
 
   .timeline-controls-shell{
@@ -7924,7 +7959,7 @@ select{
 }
 
 .timeline-title{
-  --heading-font-size:36px;
+  --heading-font-size:24px;
 }
 
 .profile-summary-content h1,

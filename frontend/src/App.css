@@ -320,10 +320,10 @@ button:hover{
   isolation:isolate;
   display:flex;
   align-items:center;
-  min-height:56px;
-  padding:0 16px;
+  min-height:46px;
+  padding:0 14px;
   border:1px solid rgba(255,255,255,0.2);
-  border-radius:16px;
+  border-radius:14px;
   background:rgba(255,255,255,0.16);
   box-shadow:0 12px 34px rgba(7,7,25,0.13) inset;
   backdrop-filter:blur(16px);
@@ -352,7 +352,7 @@ button:hover{
   -webkit-appearance:none;
   display:block;
   width:100%;
-  height:100%;
+  height:auto;
   min-height:0;
   margin:0;
   padding:0;
@@ -362,13 +362,14 @@ button:hover{
   background:transparent !important;
   background-color:transparent !important;
   background-image:none !important;
-  box-shadow:none !important;
+  box-shadow:0 0 0 1000px transparent inset !important;
   filter:none !important;
   color:inherit;
   caret-color:currentColor;
   font:inherit;
-  font-size:18px;
+  font-size:16px;
   font-weight:600;
+  line-height:1.2;
 }
 
 .login-motion-input::selection{
@@ -383,8 +384,6 @@ button:hover{
   background:transparent !important;
   background-color:transparent !important;
   background-image:none !important;
-  -webkit-background-clip:text !important;
-  background-clip:text !important;
   box-shadow:0 0 0 1000px rgba(255,255,255,0) inset !important;
   -webkit-text-fill-color:currentColor !important;
   caret-color:currentColor;
@@ -492,8 +491,42 @@ body.light .login-motion-input::placeholder{
   line-height:1.5;
 }
 
+.login-brand-typing{
+  min-height:28px;
+}
+
+.login-brand-typing span{
+  display:inline-block;
+  max-width:100%;
+  width:0;
+  overflow:hidden;
+  white-space:nowrap;
+  border-right:2px solid currentColor;
+  animation:
+    loginDescriptionTyping 3.2s steps(58,end) 0.35s forwards,
+    loginDescriptionCaret 0.75s step-end infinite;
+}
+
 body.light .login-brand p{
   color:rgba(44,44,44,0.7);
+}
+
+@keyframes loginDescriptionTyping{
+  from{
+    width:0;
+  }
+  to{
+    width:100%;
+  }
+}
+
+@keyframes loginDescriptionCaret{
+  0%, 100%{
+    border-color:transparent;
+  }
+  50%{
+    border-color:currentColor;
+  }
 }
 
 .login-intro-overlay{

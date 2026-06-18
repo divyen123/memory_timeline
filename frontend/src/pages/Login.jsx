@@ -160,7 +160,9 @@ return(
 
 <div className="login-brand">
   <h1 className="main-title">Memory Timeline</h1>
-  <p>Keep every special moment beautifully organized in one place.</p>
+  <p className="login-brand-typing">
+    <span>Keep every special moment beautifully organized in one place.</span>
+  </p>
 </div>
 
 </div>

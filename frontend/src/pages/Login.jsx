@@ -7,16 +7,14 @@ import { setAuthenticatedUser } from "../auth";
 import LoginCard from "../components/LoginCard";
 
 const LoginIntroMotion = React.lazy(()=>import("../components/LoginIntroMotion"));
-const INTRO_SESSION_KEY = "memory-timeline-intro-seen";
 
 function Login(){
 
 const [email,setEmail] = useState("");
 const [password,setPassword] = useState("");
 const [message,setMessage] = useState("");
-const [showIntro,setShowIntro] = useState(() => (
-  sessionStorage.getItem(INTRO_SESSION_KEY) !== "true"
-));
+const [showIntro,setShowIntro] = useState(true);
+const [introPurpose,setIntroPurpose] = useState("entry");
 const [showOnboarding,setShowOnboarding] = useState(false);
 const [loginStatus,setLoginStatus] = useState("idle");
 const introCompletedRef = useRef(false);
@@ -32,9 +30,20 @@ const finishIntro = useCallback(() => {
   }
 
   introCompletedRef.current = true;
-  sessionStorage.setItem(INTRO_SESSION_KEY, "true");
   setShowIntro(false);
-}, []);
+
+  if(introPurpose === "entry"){
+    return;
+  }
+
+  if(onboardingRequiredRef.current){
+    setLoginStatus("idle");
+    setShowOnboarding(true);
+    return;
+  }
+
+  navigate("/timeline", {replace:true});
+}, [introPurpose, navigate]);
 
 const handleLogin = async () => {
   if(loginStatus === "loading"){
@@ -51,16 +60,12 @@ const handleLogin = async () => {
     setAuthenticatedUser(res.data.userId);
 
     onboardingRequiredRef.current = Boolean(res.data.onboardingRequired);
+    introCompletedRef.current = false;
     setLoginStatus("success");
 
     setTimeout(() => {
-      if(onboardingRequiredRef.current){
-        setLoginStatus("idle");
-        setShowOnboarding(true);
-        return;
-      }
-
-      navigate("/timeline", {replace:true});
+      setIntroPurpose("login");
+      setShowIntro(true);
     }, 420);
 
   } catch (err) {
@@ -85,11 +90,11 @@ useEffect(() => {
     return;
   }
 
-  // The video onEnded callback controls the normal handoff. This is only a
+  // Remotion's onEnded callback controls normal navigation. This is only a
   // recovery path in case playback is interrupted by a browser-level issue.
   const timer = setTimeout(() => {
     finishIntro();
-  }, 12000);
+  }, 6500);
 
   return () => clearTimeout(timer);
 }, [finishIntro, showIntro]);
@@ -108,7 +113,7 @@ return(
   <OnboardingTour onComplete={handleOnboardingComplete} />
 )}
 
-{!showIntro && (
+{(!showIntro || introPurpose !== "entry") && (
   <LoginCard
     email={email}
     password={password}

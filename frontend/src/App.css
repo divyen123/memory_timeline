@@ -2558,7 +2558,7 @@ body.light .toggle-btn::before{
   color:white;
   font-family:Poppins, "Segoe UI", Arial, sans-serif;
   font-size:clamp(18px,1.65vw,23px);
-  font-weight:600;
+  font-weight:500;
   line-height:1.1;
   text-align:left;
   letter-spacing:0.01em;
@@ -6376,20 +6376,22 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
 }
 
 .trash-menu-toggle{
-  width:34px;
-  min-height:34px;
+  width:30px;
+  height:30px;
+  min-height:30px;
   padding:0;
   display:grid;
   place-items:center;
-  border-radius:12px;
+  border-radius:50%;
   font-size:0;
   line-height:1;
 }
 
 .trash-menu-toggle::before{
   content:"\22EE";
-  font-size:20px;
+  font-size:17px;
   line-height:1;
+  transform:translateY(-1px);
 }
 
 .trash-actions-menu{
@@ -6623,6 +6625,29 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
   margin-top:6px;
   display:flex;
   gap:6px;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translateY(5px);
+  transition:opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+}
+
+.trash-card:hover .trash-card-actions,
+.trash-card:focus-within .trash-card-actions,
+.trash-card.selected .trash-card-actions{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translateY(0);
+}
+
+@media (hover:none){
+  .trash-card-actions{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transform:none;
+  }
 }
 
 .trash-card-actions button{
@@ -8124,7 +8149,7 @@ select{
     max-width:calc(100vw - 150px);
     margin:0;
     font-family:Poppins, "Segoe UI", Arial, sans-serif;
-    font-weight:600;
+    font-weight:500;
     line-height:1.1;
     text-align:left;
   }
@@ -9587,15 +9612,16 @@ body.light .calendar-memory{
   }
 
   .trash-menu-toggle{
-    width:30px;
-    min-height:30px;
+    width:28px;
+    height:28px;
+    min-height:28px;
     padding:0;
-    border-radius:10px;
+    border-radius:50%;
     font-size:0;
   }
 
   .trash-menu-toggle::before{
-    font-size:17px;
+    font-size:16px;
   }
 
   .trash-actions-menu{

@@ -40,18 +40,20 @@ function LoginCard({
   const cardVariants = {
     hidden: {
       opacity: 0,
-      y: prefersReducedMotion ? 0 : 20,
-      scale: prefersReducedMotion ? 1 : 0.92
+      y: prefersReducedMotion ? 0 : -18,
+      scale: prefersReducedMotion ? 1 : 1.12,
+      filter: prefersReducedMotion ? "none" : "blur(8px)"
     },
     show: {
       opacity: 1,
       y: 0,
       scale: 1,
+      filter: "blur(0px)",
       transition: {
-        duration: prefersReducedMotion ? 0.18 : 0.5,
+        duration: prefersReducedMotion ? 0.18 : 0.62,
         ease: memoryTheme.motion.easeOut,
         when: "beforeChildren",
-        staggerChildren: prefersReducedMotion ? 0 : 0.08
+        staggerChildren: prefersReducedMotion ? 0 : 0.07
       }
     },
     exit: {

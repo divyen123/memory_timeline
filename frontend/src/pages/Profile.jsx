@@ -458,7 +458,7 @@ function Profile() {
 
               <div className="settings-section-title">Appearance</div>
 
-              <div className="settings-row two-column">
+              <div className="settings-row">
                 <label className="settings-field">
                   <span>Top buttons placement</span>
                   <select
@@ -482,10 +482,8 @@ function Profile() {
                     <option value="box">Fixed box icons</option>
                   </select>
                 </label>
-              </div>
 
-              {!isMobileProfile && (
-                <div className="settings-row two-column">
+                {!isMobileProfile && (
                   <label className="settings-field">
                     <span>Top buttons size</span>
                     <input
@@ -497,8 +495,8 @@ function Profile() {
                       onChange={(e)=>updateSetting("topButtonsSize", Number(e.target.value))}
                     />
                   </label>
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="settings-row">
                 <label className="settings-field">

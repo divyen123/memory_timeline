@@ -288,6 +288,13 @@ function AddMemory() {
 
         const res = await updateMemory(editingMemory._id,formData);
         const successText = "Memory updated!";
+        const updatedMemory = {
+          ...editingMemory,
+          ...res.data,
+          image:res.data.image || editingMemory.image || "",
+          images:res.data.images?.length ? res.data.images : (editingMemory.images || []),
+          thumbnails:res.data.thumbnails?.length ? res.data.thumbnails : (editingMemory.thumbnails || [])
+        };
 
         playAppSound("update");
         setMessage(successText);
@@ -296,7 +303,7 @@ function AddMemory() {
 
         setTimeout(()=>{
           navigate("/timeline", {
-            state: editingMemory.returnToPreview ? {previewMemory:res.data} : null
+            state: editingMemory.returnToPreview ? {previewMemory:updatedMemory} : null
           });
         }, prefersReducedMotion ? 450 : 1300);
 

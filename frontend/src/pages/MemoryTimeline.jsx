@@ -909,6 +909,8 @@ function MemoryTimeline() {
 
     if(returnedPreview){
       setPreviewMemory(returnedPreview);
+      setPreviewImageIndex(0);
+      setShowPreviewImageDetails(false);
       setMemories(prevMemories => prevMemories.map(memory =>
         memory._id === returnedPreview._id ? returnedPreview : memory
       ));

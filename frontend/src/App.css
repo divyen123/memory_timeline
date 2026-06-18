@@ -581,6 +581,19 @@ body.light .login-motion-input::placeholder{
 
 .login-brand-typing{
   min-height:32px;
+  width:fit-content;
+  max-width:min(560px,100%);
+  margin:0 auto;
+  padding:4px 10px;
+  border-radius:10px;
+  font-weight:700;
+  text-wrap:balance;
+  color:rgba(255,255,255,0.94);
+  text-shadow:
+    0 2px 3px rgba(0,0,0,0.58),
+    0 10px 28px rgba(0,0,0,0.38);
+  background:linear-gradient(135deg,rgba(8,8,24,0.12),rgba(8,8,24,0.04));
+  backdrop-filter:blur(2px);
 }
 
 .login-brand-typing span{
@@ -594,7 +607,7 @@ body.light .login-motion-input::placeholder{
   animation:loginDescriptionCaret 0.72s step-end infinite;
 }
 
-body.light .login-brand p{
+body.light .login-brand p:not(.login-brand-typing){
   color:rgba(44,44,44,0.7);
 }
 
@@ -604,10 +617,27 @@ body.light .login-brand p{
   text-shadow:0 12px 32px rgba(6,7,20,0.38);
 }
 
+.split-login-page.login-contrast-dark .login-brand-typing{
+  color:rgba(255,255,255,0.96);
+  text-shadow:
+    0 2px 3px rgba(0,0,0,0.72),
+    0 0 18px rgba(255,255,255,0.22),
+    0 14px 32px rgba(0,0,0,0.42);
+  background:linear-gradient(135deg,rgba(0,0,0,0.18),rgba(0,0,0,0.06));
+}
+
 .login-contrast-light .login-brand,
 .login-contrast-light .login-brand p{
   color:#1a1a2e;
   text-shadow:none;
+}
+
+.split-login-page.login-contrast-light .login-brand-typing{
+  color:#171426;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.72),
+    0 8px 18px rgba(255,255,255,0.28);
+  background:linear-gradient(135deg,rgba(255,255,255,0.26),rgba(255,255,255,0.08));
 }
 
 .login-contrast-light .login-brand .main-title{

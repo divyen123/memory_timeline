@@ -13,7 +13,7 @@ function Login(){
 const [email,setEmail] = useState("");
 const [password,setPassword] = useState("");
 const [message,setMessage] = useState("");
-const [showIntro,setShowIntro] = useState(true);
+const [showIntro,setShowIntro] = useState(false);
 const [introPurpose,setIntroPurpose] = useState("entry");
 const [showOnboarding,setShowOnboarding] = useState(false);
 const [loginStatus,setLoginStatus] = useState("idle");

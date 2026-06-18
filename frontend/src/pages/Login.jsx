@@ -1,6 +1,6 @@
 import React,{Suspense,useCallback,useEffect,useRef,useState} from "react";
 import { useNavigate } from "react-router-dom";
-import { completeOnboarding, loginUser } from "../services/api";
+import { completeOnboarding, loginUser, refreshSession } from "../services/api";
 import OnboardingTour from "../components/OnboardingTour";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { setAuthenticatedUser } from "../auth";
@@ -23,6 +23,25 @@ const onboardingRequiredRef = useRef(false);
 const navigate = useNavigate();
 
 useAutoDismissMessage(message, setMessage);
+
+useEffect(() => {
+  let active = true;
+
+  refreshSession()
+    .then(({data}) => {
+      if(!active){
+        return;
+      }
+
+      setAuthenticatedUser(data.userId);
+      navigate("/timeline", {replace:true});
+    })
+    .catch(()=>{});
+
+  return () => {
+    active = false;
+  };
+}, [navigate]);
 
 const finishIntro = useCallback(() => {
   if(introCompletedRef.current){

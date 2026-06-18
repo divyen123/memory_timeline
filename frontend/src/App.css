@@ -471,6 +471,10 @@ button:hover{
   opacity:0.86;
 }
 
+.register-submit-btn{
+  width:100%;
+}
+
 .login-register-btn,
 .login-forgot-btn{
   margin:0;
@@ -492,6 +496,20 @@ button:hover{
   border-top-color:#ffffff;
   animation:loginSpinner 0.72s linear infinite;
   vertical-align:middle;
+}
+
+.login-field-error{
+  display:block;
+  margin:6px 2px 0;
+  color:#ff174d;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.3;
+  text-shadow:none;
+}
+
+.login-contrast-dark .login-field-error{
+  color:#ff7aa3;
 }
 
 .login-button-heart{

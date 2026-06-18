@@ -2,7 +2,6 @@ import React,{ useState,useEffect,useRef } from "react";
 import { Routes,Route,useNavigate,useLocation } from "react-router-dom";
 
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import AddMemory from "./pages/AddMemory";
 import MemoryTimeline from "./pages/MemoryTimeline";
@@ -64,7 +63,7 @@ function App(){
       location.pathname === "/trash" ||
       location.pathname.startsWith("/memory/")
     );
-  const authPages = ["/", "/register", "/forgot-password"];
+  const authPages = ["/", "/forgot-password"];
   const isAuthPage = authPages.includes(location.pathname);
   const isPublicSharePage = location.pathname.startsWith("/share/");
   const showTopButtons = !isAuthPage && !isPublicSharePage;
@@ -394,8 +393,6 @@ function App(){
       <Routes>
 
         <Route path="/" element={<Login />} />
-
-        <Route path="/register" element={<Register />} />
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
 

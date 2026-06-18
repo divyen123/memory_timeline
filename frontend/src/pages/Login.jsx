@@ -1,10 +1,12 @@
 import React,{Suspense,useCallback,useEffect,useRef,useState} from "react";
+import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { completeOnboarding, loginUser, refreshSession } from "../services/api";
+import { completeOnboarding, loginUser, refreshSession, registerUser } from "../services/api";
 import OnboardingTour from "../components/OnboardingTour";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { setAuthenticatedUser } from "../auth";
 import LoginCard from "../components/LoginCard";
+import RegisterCard from "../components/RegisterCard";
 import { loadBackgroundPreference } from "../settings";
 
 const LoginIntroMotion = React.lazy(()=>import("../components/LoginIntroMotion"));
@@ -72,6 +74,13 @@ function Login(){
 const [email,setEmail] = useState("");
 const [password,setPassword] = useState("");
 const [message,setMessage] = useState("");
+const [authMode,setAuthMode] = useState("login");
+const [registerEmail,setRegisterEmail] = useState("");
+const [registerPassword,setRegisterPassword] = useState("");
+const [registerConfirmPassword,setRegisterConfirmPassword] = useState("");
+const [registerErrors,setRegisterErrors] = useState({});
+const [registerMessage,setRegisterMessage] = useState("");
+const [registerStatus,setRegisterStatus] = useState("idle");
 const [showIntro,setShowIntro] = useState(false);
 const [introPurpose,setIntroPurpose] = useState("entry");
 const [showOnboarding,setShowOnboarding] = useState(false);
@@ -89,6 +98,7 @@ const refreshAbortRef = useRef(null);
 const navigate = useNavigate();
 
 useAutoDismissMessage(message, setMessage);
+useAutoDismissMessage(registerMessage, setRegisterMessage);
 
 useEffect(() => {
   let index = 0;
@@ -203,6 +213,83 @@ const handleLogin = async () => {
 
 };
 
+const validateRegisterForm = () => {
+  const nextErrors = {};
+  const trimmedEmail = registerEmail.trim();
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if(!trimmedEmail){
+    nextErrors.email = "Email is required.";
+  }
+  else if(!emailPattern.test(trimmedEmail)){
+    nextErrors.email = "Enter a valid email address.";
+  }
+
+  if(!registerPassword){
+    nextErrors.password = "Password is required.";
+  }
+  else if(registerPassword.length < 8){
+    nextErrors.password = "Password must be at least 8 characters.";
+  }
+
+  if(!registerConfirmPassword){
+    nextErrors.confirmPassword = "Confirm your password.";
+  }
+  else if(registerConfirmPassword !== registerPassword){
+    nextErrors.confirmPassword = "Passwords do not match.";
+  }
+
+  setRegisterErrors(nextErrors);
+  return Object.keys(nextErrors).length === 0;
+};
+
+const handleRegisterSubmit = async () => {
+  if(registerStatus === "loading"){
+    return;
+  }
+
+  setRegisterMessage("");
+
+  if(!validateRegisterForm()){
+    return;
+  }
+
+  setRegisterStatus("loading");
+
+  try{
+    const trimmedEmail = registerEmail.trim();
+
+    await registerUser({email:trimmedEmail, password:registerPassword});
+
+    setEmail(trimmedEmail);
+    setPassword("");
+    setRegisterPassword("");
+    setRegisterConfirmPassword("");
+    setRegisterErrors({});
+    setRegisterStatus("idle");
+    setAuthMode("login");
+    setMessage("Account created successfully. Please log in.");
+  }
+  catch(err){
+    setRegisterMessage(err.response?.data?.message || "Registration failed");
+    setRegisterStatus("idle");
+  }
+};
+
+const showRegisterForm = () => {
+  setMessage("");
+  setRegisterMessage("");
+  setRegisterErrors({});
+  setRegisterEmail(email);
+  setAuthMode("register");
+};
+
+const showLoginForm = () => {
+  setRegisterMessage("");
+  setRegisterErrors({});
+  setAuthMode("login");
+};
+
 const handleOnboardingComplete = async () => {
   await completeOnboarding();
   onboardingRequiredRef.current = false;
@@ -255,17 +342,37 @@ return(
 
 <section className="login-form-panel" aria-label="Login">
   {(!showIntro || introPurpose !== "entry") && (
-    <LoginCard
-      email={email}
-      password={password}
-      message={message}
-      status={loginStatus}
-      onEmailChange={setEmail}
-      onPasswordChange={setPassword}
-      onSubmit={handleLogin}
-      onRegister={()=>navigate("/register")}
-      onForgotPassword={()=>navigate("/forgot-password")}
-    />
+    <AnimatePresence mode="wait" initial={false}>
+      {authMode === "login" ? (
+        <LoginCard
+          key="login"
+          email={email}
+          password={password}
+          message={message}
+          status={loginStatus}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
+          onSubmit={handleLogin}
+          onRegister={showRegisterForm}
+          onForgotPassword={()=>navigate("/forgot-password")}
+        />
+      ) : (
+        <RegisterCard
+          key="register"
+          email={registerEmail}
+          password={registerPassword}
+          confirmPassword={registerConfirmPassword}
+          errors={registerErrors}
+          message={registerMessage}
+          status={registerStatus}
+          onEmailChange={setRegisterEmail}
+          onPasswordChange={setRegisterPassword}
+          onConfirmPasswordChange={setRegisterConfirmPassword}
+          onSubmit={handleRegisterSubmit}
+          onBackToLogin={showLoginForm}
+        />
+      )}
+    </AnimatePresence>
   )}
 </section>
 

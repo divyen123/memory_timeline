@@ -470,7 +470,22 @@ function Profile() {
                   </select>
                 </label>
 
-                {!isMobileProfile && (
+                <label className="settings-field">
+                  <span>Top buttons icon style</span>
+                  <select
+                    value={appSettings.topButtonsIconStyle || "circle"}
+                    onChange={(e)=>updateSetting("topButtonsIconStyle", e.target.value)}
+                  >
+                    <option value="soft">Soft glass icons</option>
+                    <option value="minimal">Minimal glow icons</option>
+                    <option value="circle">Circle icons</option>
+                    <option value="box">Fixed box icons</option>
+                  </select>
+                </label>
+              </div>
+
+              {!isMobileProfile && (
+                <div className="settings-row two-column">
                   <label className="settings-field">
                     <span>Top buttons size</span>
                     <input
@@ -482,8 +497,8 @@ function Profile() {
                       onChange={(e)=>updateSetting("topButtonsSize", Number(e.target.value))}
                     />
                   </label>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="settings-row">
                 <label className="settings-field">

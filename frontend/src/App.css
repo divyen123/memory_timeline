@@ -9870,6 +9870,57 @@ body.toolbar-icons-minimal:not(.button-glass-on) .timeline-toolbar button{
   color:var(--adaptive-icon-color);
 }
 
+body.top-icons-box .top-buttons .toggle-btn,
+body.top-icons-box .top-buttons .logout-btn,
+body.top-icons-box .reminder-menu .reminder-icon-btn{
+  border-radius:16px !important;
+  background:var(--button-bg-color) !important;
+  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white) !important;
+  box-shadow:0 12px 26px rgba(0,0,0,0.18) !important;
+  backdrop-filter:none !important;
+}
+
+body.top-icons-circle .top-buttons .toggle-btn,
+body.top-icons-circle .top-buttons .logout-btn,
+body.top-icons-circle .reminder-menu .reminder-icon-btn{
+  border-radius:999px !important;
+  background:var(--button-bg-color) !important;
+  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white) !important;
+  box-shadow:0 12px 26px rgba(0,0,0,0.18) !important;
+  backdrop-filter:none !important;
+}
+
+body.top-icons-soft .top-buttons .toggle-btn,
+body.top-icons-soft .top-buttons .logout-btn,
+body.top-icons-soft .reminder-menu .reminder-icon-btn{
+  border-radius:999px !important;
+  background:linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08)) !important;
+  border:1px solid rgba(255,255,255,0.3) !important;
+  box-shadow:0 16px 34px rgba(5,8,30,0.16), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+  backdrop-filter:blur(16px) !important;
+}
+
+body.top-icons-minimal .top-buttons .toggle-btn,
+body.top-icons-minimal .top-buttons .logout-btn,
+body.top-icons-minimal .reminder-menu .reminder-icon-btn{
+  border-radius:12px !important;
+  background:rgba(255,255,255,0.05) !important;
+  border:1px solid rgba(255,255,255,0.12) !important;
+  box-shadow:0 8px 24px rgba(0,0,0,0.1) !important;
+  backdrop-filter:blur(10px) !important;
+  color:var(--adaptive-icon-color);
+}
+
+body.top-icons-box .top-buttons .toggle-btn:hover,
+body.top-icons-box .top-buttons .logout-btn:hover,
+body.top-icons-box .reminder-menu .reminder-icon-btn:hover,
+body.top-icons-circle .top-buttons .toggle-btn:hover,
+body.top-icons-circle .top-buttons .logout-btn:hover,
+body.top-icons-circle .reminder-menu .reminder-icon-btn:hover{
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white) !important;
+  border-color:color-mix(in srgb, var(--button-bg-color) 78%, white) !important;
+}
+
 .timeline-controls.toolbar-icons-circle .timeline-search-shell,
 .timeline-controls.toolbar-icons-circle .timeline-icon-control,
 .timeline-controls.toolbar-icons-circle .filter-toggle,

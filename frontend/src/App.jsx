@@ -87,6 +87,8 @@ function App(){
     document.body.classList.toggle("button-glass-on", Boolean(settings.buttonGlass));
     document.body.classList.toggle("memory-hover-off", !settings.hoverEnabled);
     document.body.classList.toggle("top-actions-left", settings.topButtonsPosition === "left");
+    document.body.classList.remove("top-icons-box", "top-icons-circle", "top-icons-soft", "top-icons-minimal");
+    document.body.classList.add(`top-icons-${settings.topButtonsIconStyle || "circle"}`);
     document.body.classList.remove("toolbar-icons-box", "toolbar-icons-circle", "toolbar-icons-separate", "toolbar-icons-pill", "toolbar-icons-soft", "toolbar-icons-minimal");
     document.body.classList.add(`toolbar-icons-${settings.toolbarIconStyle || "box"}`);
     document.body.classList.remove("hearts-slow", "hearts-normal", "hearts-fast", "hearts-fixed");

@@ -8,6 +8,7 @@ export const defaultSettings = {
   cardSize:"medium",
   cardBorderRadius:16,
   topButtonsPosition:"right",
+  topButtonsIconStyle:"circle",
   topButtonsSize:50,
   toolbarIconStyle:"box",
   toolbarIconSize:24,

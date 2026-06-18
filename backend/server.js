@@ -48,6 +48,7 @@ const SETTINGS_KEYS = new Set([
   "cardSize",
   "cardBorderRadius",
   "topButtonsPosition",
+  "topButtonsIconStyle",
   "topButtonsSize",
   "toolbarIconStyle",
   "toolbarIconSize",

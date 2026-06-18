@@ -19,6 +19,8 @@ const [showOnboarding,setShowOnboarding] = useState(false);
 const [loginStatus,setLoginStatus] = useState("idle");
 const introCompletedRef = useRef(false);
 const onboardingRequiredRef = useRef(false);
+const loginStartedRef = useRef(false);
+const refreshAbortRef = useRef(null);
 
 const navigate = useNavigate();
 
@@ -26,10 +28,13 @@ useAutoDismissMessage(message, setMessage);
 
 useEffect(() => {
   let active = true;
+  const controller = new AbortController();
 
-  refreshSession()
+  refreshAbortRef.current = controller;
+
+  refreshSession({signal:controller.signal})
     .then(({data}) => {
-      if(!active){
+      if(!active || loginStartedRef.current){
         return;
       }
 
@@ -40,6 +45,11 @@ useEffect(() => {
 
   return () => {
     active = false;
+    controller.abort();
+
+    if(refreshAbortRef.current === controller){
+      refreshAbortRef.current = null;
+    }
   };
 }, [navigate]);
 
@@ -71,6 +81,8 @@ const handleLogin = async () => {
 
   setMessage("");
   setLoginStatus("loading");
+  loginStartedRef.current = true;
+  refreshAbortRef.current?.abort();
 
   try {
 

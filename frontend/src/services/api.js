@@ -123,7 +123,7 @@ export const getPublicShare = (token)=>API.get(`/public/share/${token}`);
 export const loginUser = (data)=>API.post("/login",data);
 export const registerUser = (data)=>API.post("/register",data);
 export const getSession = ()=>API.get("/auth/session");
-export const refreshSession = ()=>API.post("/auth/refresh");
+export const refreshSession = (config = {})=>API.post("/auth/refresh", {}, config);
 export const logoutUser = ()=>API.post("/logout");
 export const logoutAllSessions = ()=>API.post("/logout-all");
 export const completeOnboarding = ()=>API.patch("/onboarding/complete");

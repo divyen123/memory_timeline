@@ -1,6 +1,15 @@
 export const SETTINGS_STORAGE_KEY = "memory-app-settings";
 export const SETTINGS_UPDATED_EVENT = "memory-app-settings-updated";
 export const SETTINGS_PREVIEW_EVENT = "memory-app-settings-preview";
+export const USER_BACKGROUND_PREFERENCE_KEY = "user_background_preference";
+
+export const DEFAULT_BACKGROUND_PREFERENCE = {
+  type:"gradient",
+  start:"#f857a6",
+  middle:"#c850c0",
+  end:"#4158d0",
+  direction:"diagonal"
+};
 
 export const defaultSettings = {
   reminderLeadDays:2,
@@ -42,6 +51,51 @@ const numberOrDefault = (value, fallback) => {
 };
 
 const getStoredUserId = () => localStorage.getItem("memory-app-user-id") || "guest";
+
+const buildBackgroundPreference = (settings = defaultSettings) => {
+  const normalized = normalizeSettings(settings);
+  const isDark = normalized.defaultTheme === "dark";
+
+  return {
+    type:"gradient",
+    start:isDark ? normalized.darkGradientStart : normalized.lightGradientStart,
+    middle:isDark ? normalized.darkGradientMiddle : normalized.lightGradientMiddle,
+    end:isDark ? normalized.darkGradientEnd : normalized.lightGradientEnd,
+    direction:"diagonal"
+  };
+};
+
+export const saveBackgroundPreference = (settings) => {
+  const preference = buildBackgroundPreference(settings);
+
+  localStorage.setItem(USER_BACKGROUND_PREFERENCE_KEY, JSON.stringify(preference));
+
+  return preference;
+};
+
+export const loadBackgroundPreference = () => {
+  try{
+    const savedPreference = localStorage.getItem(USER_BACKGROUND_PREFERENCE_KEY);
+
+    if(savedPreference){
+      return {
+        ...DEFAULT_BACKGROUND_PREFERENCE,
+        ...JSON.parse(savedPreference)
+      };
+    }
+
+    const scopedSettings = localStorage.getItem(getSettingsStorageKey(getDeviceProfile()));
+    const legacySettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+
+    if(scopedSettings || legacySettings){
+      return buildBackgroundPreference(JSON.parse(scopedSettings || legacySettings));
+    }
+
+    return {...DEFAULT_BACKGROUND_PREFERENCE};
+  }catch{
+    return {...DEFAULT_BACKGROUND_PREFERENCE};
+  }
+};
 
 export const getDeviceProfile = () => {
   if(typeof navigator === "undefined"){
@@ -94,6 +148,7 @@ export const loadSettings = (profile = getDeviceProfile()) => {
 export const previewSettings = (settings) => {
   const nextSettings = normalizeSettings(settings);
 
+  saveBackgroundPreference(nextSettings);
   window.dispatchEvent(new CustomEvent(SETTINGS_PREVIEW_EVENT, {detail:nextSettings}));
 
   return nextSettings;
@@ -103,6 +158,7 @@ export const saveSettings = (settings, profile = getDeviceProfile()) => {
   const nextSettings = normalizeSettings(settings);
 
   localStorage.setItem(getSettingsStorageKey(profile), JSON.stringify(nextSettings));
+  saveBackgroundPreference(nextSettings);
 
   if(getStoredUserId() !== "guest"){
     localStorage.removeItem(SETTINGS_STORAGE_KEY);

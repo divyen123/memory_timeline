@@ -31,6 +31,27 @@ const VIEW_MODE_ICONS = {
 const SETTINGS_TIP_PENDING_KEY = "memory-settings-tip-pending";
 const SETTINGS_TIP_DISMISSED_KEY = "memory-settings-tip-dismissed";
 
+const getMemoryImageList = (memory) => (
+  memory?.images?.length ? memory.images : (memory?.image ? [memory.image] : [])
+);
+
+const mergeMemoryWithExistingMedia = (memory, existingMemory) => {
+  const returnedImages = getMemoryImageList(memory);
+  const existingImages = getMemoryImageList(existingMemory);
+  const images = returnedImages.length ? returnedImages : existingImages;
+  const thumbnails = memory?.thumbnails?.length
+    ? memory.thumbnails
+    : (existingMemory?.thumbnails || []);
+
+  return {
+    ...existingMemory,
+    ...memory,
+    image:memory?.image || images[0] || existingMemory?.image || "",
+    images,
+    thumbnails
+  };
+};
+
 const formatImageBytes = (bytes) => {
   if(!Number.isFinite(bytes) || bytes <= 0){
     return "Unknown";
@@ -112,6 +133,7 @@ function MemoryTimeline() {
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
   const [previewImageDetails, setPreviewImageDetails] = useState({});
   const [showPreviewImageDetails, setShowPreviewImageDetails] = useState(false);
+  const [disablePreviewSharedLayout, setDisablePreviewSharedLayout] = useState(false);
   const [exportPanel, setExportPanel] = useState(null);
   const [selectedMemoryIds, setSelectedMemoryIds] = useState([]);
   const [exportCategory, setExportCategory] = useState("All");
@@ -838,7 +860,7 @@ function MemoryTimeline() {
   };
 
   const getMemoryImages = (memory) => (
-    memory.images?.length ? memory.images : (memory.image ? [memory.image] : [])
+    getMemoryImageList(memory)
   );
 
   const showPreviousPreviewImage = () => {
@@ -886,12 +908,14 @@ function MemoryTimeline() {
 
   const openPreviewMemory = (memory, sourceNode = null) => {
     previewReturnFocusRef.current = sourceNode || document.activeElement;
+    setDisablePreviewSharedLayout(false);
     setPreviewMemory(memory);
     setPreviewImageIndex(0);
     setShowPreviewImageDetails(false);
   };
 
   const closePreviewToTimeline = () => {
+    setDisablePreviewSharedLayout(false);
     setPreviewMemory(null);
     setShowPreviewImageDetails(false);
     navigate("/timeline", {replace:true});
@@ -908,12 +932,18 @@ function MemoryTimeline() {
     const shouldShowSettingsTip = location.state?.showSettingsTip;
 
     if(returnedPreview){
-      setPreviewMemory(returnedPreview);
+      const existingPreviewMemory = memories.find(memory => memory._id === returnedPreview._id);
+      const mergedPreview = mergeMemoryWithExistingMedia(returnedPreview, existingPreviewMemory);
+
+      setDisablePreviewSharedLayout(true);
       setPreviewImageIndex(0);
       setShowPreviewImageDetails(false);
       setMemories(prevMemories => prevMemories.map(memory =>
-        memory._id === returnedPreview._id ? returnedPreview : memory
+        memory._id === returnedPreview._id
+          ? mergeMemoryWithExistingMedia(returnedPreview, memory)
+          : memory
       ));
+      setPreviewMemory(mergedPreview);
       navigate(location.pathname, {replace:true, state:null});
     }
 
@@ -922,7 +952,7 @@ function MemoryTimeline() {
       setShowSettingsTip(true);
       navigate(location.pathname, {replace:true, state:null});
     }
-  }, [location.pathname, location.state, navigate]);
+  }, [location.pathname, location.state, navigate, memories]);
 
   useEffect(() => {
     if(reminderPage >= reminderPageCount){
@@ -1607,7 +1637,7 @@ function MemoryTimeline() {
                 onFavorite={handleFavorite}
                 onPreview={openPreviewMemory}
                 isTransitionDimmed={Boolean(previewMemory) && previewMemory._id !== memory._id}
-                isTransitionSource={previewMemory?._id === memory._id}
+                isTransitionSource={!disablePreviewSharedLayout && previewMemory?._id === memory._id}
                 selectionMode={exportPanel === "selected"}
                 selected={selectedMemoryIds.includes(memory._id)}
                 onSelect={toggleMemorySelection}
@@ -1759,7 +1789,7 @@ function MemoryTimeline() {
 
           <motion.div
             className="preview-media"
-            layoutId={prefersReducedMotion ? undefined : `memory-image-${previewMemory._id}`}
+            layoutId={prefersReducedMotion || disablePreviewSharedLayout ? undefined : `memory-image-${previewMemory._id}`}
             transition={memorySharedLayoutTransition}
             onPointerDown={handlePreviewDragStart}
             onPointerUp={handlePreviewDragEnd}

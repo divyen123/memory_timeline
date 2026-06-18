@@ -145,8 +145,8 @@ function Trash() {
           {hasTrashMemories && (
             <div className="trash-header-actions">
             <div className="trash-count">
-              <strong>{memories.length}</strong>
-              <span>{memories.length === 1 ? "memory in bin" : "memories in bin"}</span>
+              <strong>{selectionMode ? selectedCount : memories.length}</strong>
+              <span>{selectionMode ? "selected" : (memories.length === 1 ? "memory in bin" : "memories in bin")}</span>
             </div>
             <div className="trash-menu-wrap">
               <button
@@ -210,7 +210,6 @@ function Trash() {
                 />
                 Select all
               </label>
-              <span>{selectedCount} selected</span>
             </section>
             <div className="trash-selection-dock" aria-label="Selected memory actions">
               <button type="button" className="danger" onClick={()=>askDelete(selectedIds)} disabled={!selectedCount}>

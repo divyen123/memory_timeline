@@ -1932,7 +1932,7 @@ function MemoryTimeline() {
                 type="button"
                 title="Favorite"
                 aria-label="Favorite"
-                className={previewMemory.favorite ? "active" : ""}
+                className={`preview-favorite-btn ${previewMemory.favorite ? "active" : ""}`}
                 onClick={()=>togglePreviewFavorite(previewMemory)}
               >
                 <span aria-hidden="true">{previewMemory.favorite ? "\u2605" : "\u2606"}</span>

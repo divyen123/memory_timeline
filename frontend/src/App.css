@@ -580,24 +580,25 @@ body.light .login-motion-input::placeholder{
 }
 
 .login-brand-typing{
-  min-height:32px;
+  min-height:24px;
   width:fit-content;
-  max-width:min(560px,100%);
+  max-width:min(720px,100%);
   margin:0 auto;
-  padding:4px 10px;
-  border-radius:10px;
-  font-weight:700;
-  text-wrap:balance;
+  padding:0;
+  border-radius:0;
+  font-size:clamp(13px,1.25vw,16px);
+  font-weight:650;
+  line-height:1.35;
   color:rgba(255,255,255,0.94);
   text-shadow:
-    0 2px 3px rgba(0,0,0,0.58),
-    0 10px 28px rgba(0,0,0,0.38);
-  background:linear-gradient(135deg,rgba(8,8,24,0.12),rgba(8,8,24,0.04));
-  backdrop-filter:blur(2px);
+    0 1px 2px rgba(0,0,0,0.78),
+    0 8px 20px rgba(0,0,0,0.5);
+  background:transparent;
+  backdrop-filter:none;
 }
 
 .login-brand-typing span{
-  white-space:normal;
+  white-space:nowrap;
 }
 
 .login-brand-typing i{
@@ -620,10 +621,10 @@ body.light .login-brand p:not(.login-brand-typing){
 .split-login-page.login-contrast-dark .login-brand-typing{
   color:rgba(255,255,255,0.96);
   text-shadow:
-    0 2px 3px rgba(0,0,0,0.72),
-    0 0 18px rgba(255,255,255,0.22),
-    0 14px 32px rgba(0,0,0,0.42);
-  background:linear-gradient(135deg,rgba(0,0,0,0.18),rgba(0,0,0,0.06));
+    0 1px 2px rgba(0,0,0,0.82),
+    0 0 14px rgba(255,255,255,0.16),
+    0 10px 24px rgba(0,0,0,0.46);
+  background:transparent;
 }
 
 .login-contrast-light .login-brand,
@@ -635,9 +636,9 @@ body.light .login-brand p:not(.login-brand-typing){
 .split-login-page.login-contrast-light .login-brand-typing{
   color:#171426;
   text-shadow:
-    0 1px 0 rgba(255,255,255,0.72),
-    0 8px 18px rgba(255,255,255,0.28);
-  background:linear-gradient(135deg,rgba(255,255,255,0.26),rgba(255,255,255,0.08));
+    0 1px 0 rgba(255,255,255,0.82),
+    0 6px 16px rgba(255,255,255,0.34);
+  background:transparent;
 }
 
 .login-contrast-light .login-brand .main-title{
@@ -10225,9 +10226,14 @@ body:not(.button-glass-on) .preview-actions button:last-child:hover {
   }
 
   .login-brand-typing{
-    min-height:46px;
+    min-height:34px;
     max-width:360px;
     margin:6px auto 0;
+    font-size:13px;
+  }
+
+  .login-brand-typing span{
+    white-space:normal;
   }
 }
 

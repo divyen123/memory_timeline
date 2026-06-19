@@ -326,6 +326,7 @@ button:hover{
 }
 
 .animated-login-card{
+  --login-card-surface:rgba(68,68,94,0.94);
   width:min(500px,92vw);
   margin:0 auto 22px;
   padding:40px;
@@ -360,14 +361,14 @@ button:hover{
   isolation:isolate;
   display:flex;
   align-items:center;
-  min-height:42px;
+  min-height:46px;
   padding:0;
   border:1px solid rgba(255,255,255,0.2);
   border-radius:12px;
   background:rgba(255,255,255,0.14);
   box-shadow:0 10px 28px rgba(7,7,25,0.12) inset;
   backdrop-filter:blur(16px);
-  overflow:hidden;
+  overflow:visible;
   color-scheme:dark;
   transition:
     border-color 0.24s ease,
@@ -378,18 +379,18 @@ button:hover{
 
 .login-floating-label{
   position:absolute;
-  left:12px;
+  left:16px;
   top:50%;
   z-index:2;
   display:inline-flex;
   align-items:center;
-  max-width:calc(100% - 24px);
-  padding:0 5px;
-  border-radius:999px;
+  max-width:calc(100% - 32px);
+  padding:0 6px;
+  border-radius:6px;
   color:rgba(255,255,255,0.7);
   font-size:15px;
   font-weight:700;
-  line-height:1;
+  line-height:1.1;
   letter-spacing:0;
   pointer-events:none;
   transform:translateY(-50%);
@@ -403,14 +404,24 @@ button:hover{
 }
 
 .animated-field.focused .login-floating-label,
-.animated-field.filled .login-floating-label{
-  top:0;
-  color:#a9c7ff;
+.animated-field.filled .login-floating-label,
+.animated-field:focus-within .login-floating-label,
+.animated-field:has(.login-motion-input:not(:placeholder-shown)) .login-floating-label,
+.animated-field:has(.login-motion-input:-webkit-autofill) .login-floating-label{
+  top:-1px;
+  color:rgba(255,255,255,0.82);
   font-size:12px;
   font-weight:700;
-  background:rgba(65,66,88,0.96);
-  box-shadow:0 0 0 2px rgba(65,66,88,0.82);
+  background:var(--login-card-surface);
+  box-shadow:
+    0 0 0 2px var(--login-card-surface),
+    0 0 14px rgba(7,7,25,0.14);
   transform:translateY(-50%);
+}
+
+.animated-field.focused .login-floating-label,
+.animated-field:focus-within .login-floating-label{
+  color:#a9c7ff;
 }
 
 .animated-field.focused .login-field-shell{
@@ -430,10 +441,10 @@ button:hover{
   -webkit-appearance:none;
   display:block;
   width:100%;
-  height:42px;
+  height:46px;
   min-height:0;
   margin:0;
-  padding:0 16px 0 17px;
+  padding:0 18px;
   border:0;
   border-radius:inherit;
   outline:0;
@@ -570,11 +581,19 @@ body.light .login-floating-label,
 
 body.light .animated-field.focused .login-floating-label,
 body.light .animated-field.filled .login-floating-label,
+body.light .animated-field:focus-within .login-floating-label,
+body.light .animated-field:has(.login-motion-input:not(:placeholder-shown)) .login-floating-label,
+body.light .animated-field:has(.login-motion-input:-webkit-autofill) .login-floating-label,
 .login-contrast-light .animated-field.focused .login-floating-label,
-.login-contrast-light .animated-field.filled .login-floating-label{
+.login-contrast-light .animated-field.filled .login-floating-label,
+.login-contrast-light .animated-field:focus-within .login-floating-label,
+.login-contrast-light .animated-field:has(.login-motion-input:not(:placeholder-shown)) .login-floating-label,
+.login-contrast-light .animated-field:has(.login-motion-input:-webkit-autofill) .login-floating-label{
   color:#1b4fb9;
-  background:rgba(231,213,239,0.96);
-  box-shadow:0 0 0 2px rgba(231,213,239,0.82);
+  background:var(--login-card-surface);
+  box-shadow:
+    0 0 0 2px var(--login-card-surface),
+    0 0 14px rgba(58,44,106,0.12);
 }
 
 body:not(.light) .login-motion-input,
@@ -684,6 +703,7 @@ body.light .login-brand p:not(.login-brand-typing){
 }
 
 .login-contrast-light .animated-login-card{
+  --login-card-surface:rgba(232,196,229,0.9);
   background:rgba(255,255,255,0.24);
   border-color:rgba(255,255,255,0.42);
   box-shadow:0 24px 70px rgba(58,44,106,0.16);

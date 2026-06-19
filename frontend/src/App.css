@@ -329,10 +329,10 @@ button:hover{
   width:min(500px,92vw);
   margin:0 auto 22px;
   padding:40px;
-  background:rgba(255,255,255,0.24);
-  border-color:rgba(255,255,255,0.38);
-  backdrop-filter:blur(24px) saturate(1.12);
-  box-shadow:0 24px 70px rgba(5,6,22,0.28);
+  background:rgba(255,255,255,0.16);
+  border-color:rgba(255,255,255,0.32);
+  backdrop-filter:blur(26px) saturate(1.16);
+  box-shadow:0 24px 70px rgba(5,6,22,0.24);
   overflow:visible;
 }
 
@@ -581,13 +581,13 @@ body.light .login-motion-input::placeholder{
 }
 
 .login-brand-typing{
-  min-height:18px;
+  min-height:20px;
   width:fit-content;
   max-width:calc(100% - 12px);
-  margin:0 auto;
+  margin:8px auto 0;
   padding:0;
   border-radius:0;
-  font-size:clamp(11px,0.92vw,14px);
+  font-size:clamp(12px,1vw,15px);
   font-weight:500;
   line-height:1.25;
   color:rgba(255,255,255,0.94);
@@ -599,7 +599,7 @@ body.light .login-motion-input::placeholder{
 }
 
 .login-brand p.login-brand-typing{
-  font-size:clamp(11px,0.92vw,14px);
+  font-size:clamp(12px,1vw,15px);
   font-weight:500;
   line-height:1.25;
 }
@@ -653,9 +653,9 @@ body.light .login-brand p:not(.login-brand-typing){
 }
 
 .login-contrast-light .animated-login-card{
-  background:rgba(255,255,255,0.38);
-  border-color:rgba(255,255,255,0.56);
-  box-shadow:0 24px 70px rgba(58,44,106,0.2);
+  background:rgba(255,255,255,0.24);
+  border-color:rgba(255,255,255,0.42);
+  box-shadow:0 24px 70px rgba(58,44,106,0.16);
 }
 
 @keyframes loginLogoFloat{

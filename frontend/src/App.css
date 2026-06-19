@@ -326,7 +326,6 @@ button:hover{
 }
 
 .animated-login-card{
-  --login-label-surface:rgb(70,70,96);
   width:min(500px,92vw);
   margin:0 auto 22px;
   padding:40px;
@@ -387,7 +386,7 @@ button:hover{
   max-width:calc(100% - 24px);
   padding:0 4px;
   border-radius:0;
-  color:rgba(255,255,255,0.82);
+  color:#ffffff;
   font-size:16px;
   font-weight:500;
   line-height:1.1;
@@ -412,10 +411,10 @@ button:hover{
 .animated-field:has(.login-motion-input:not(:placeholder-shown)) .login-floating-label,
 .animated-field:has(.login-motion-input:-webkit-autofill) .login-floating-label{
   top:-1px;
-  color:#8ab4f8;
+  color:#ffffff;
   font-size:12px;
   font-weight:600;
-  background:var(--login-label-surface);
+  background:transparent;
   box-shadow:none;
   text-shadow:none;
   transform:translateY(-50%);
@@ -423,7 +422,7 @@ button:hover{
 
 .animated-field.focused .login-floating-label,
 .animated-field:focus-within .login-floating-label{
-  color:#8ab4f8;
+  color:#ffffff;
 }
 
 .animated-field.focused .login-field-shell{
@@ -578,7 +577,7 @@ body.light .login-field-shell{
 
 body.light .login-floating-label,
 .login-contrast-light .login-floating-label{
-  color:rgba(32,28,52,0.66);
+  color:#ffffff;
 }
 
 body.light .animated-field.focused .login-floating-label,
@@ -591,8 +590,8 @@ body.light .animated-field:has(.login-motion-input:-webkit-autofill) .login-floa
 .login-contrast-light .animated-field:focus-within .login-floating-label,
 .login-contrast-light .animated-field:has(.login-motion-input:not(:placeholder-shown)) .login-floating-label,
 .login-contrast-light .animated-field:has(.login-motion-input:-webkit-autofill) .login-floating-label{
-  color:#1b4fb9;
-  background:var(--login-label-surface);
+  color:#ffffff;
+  background:transparent;
   box-shadow:none;
   text-shadow:none;
 }
@@ -704,7 +703,6 @@ body.light .login-brand p:not(.login-brand-typing){
 }
 
 .login-contrast-light .animated-login-card{
-  --login-label-surface:rgb(230,195,226);
   background:rgba(255,255,255,0.24);
   border-color:rgba(255,255,255,0.42);
   box-shadow:0 24px 70px rgba(58,44,106,0.16);

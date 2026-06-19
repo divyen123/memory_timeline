@@ -168,6 +168,8 @@ function MemoryTimeline() {
   const previewDragRef = useRef(null);
   const previewHeadingRef = useRef(null);
   const previewReturnFocusRef = useRef(null);
+  const memoriesRef = useRef([]);
+  const handledReturnedPreviewRef = useRef("");
   const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
   const location = useLocation();
@@ -918,7 +920,7 @@ function MemoryTimeline() {
     setDisablePreviewSharedLayout(false);
     setPreviewMemory(null);
     setShowPreviewImageDetails(false);
-    navigate("/timeline", {replace:true});
+    navigate("/timeline", {replace:true, state:null});
 
     window.setTimeout(() => {
       previewReturnFocusRef.current?.focus?.();
@@ -932,7 +934,16 @@ function MemoryTimeline() {
     const shouldShowSettingsTip = location.state?.showSettingsTip;
 
     if(returnedPreview){
-      const existingPreviewMemory = memories.find(memory => memory._id === returnedPreview._id);
+      const returnedPreviewKey = `${returnedPreview._id || "memory"}-${returnedPreview.updatedAt || ""}`;
+
+      if(handledReturnedPreviewRef.current === returnedPreviewKey){
+        navigate(location.pathname, {replace:true, state:null});
+        return;
+      }
+
+      handledReturnedPreviewRef.current = returnedPreviewKey;
+
+      const existingPreviewMemory = memoriesRef.current.find(memory => memory._id === returnedPreview._id);
       const mergedPreview = mergeMemoryWithExistingMedia(returnedPreview, existingPreviewMemory);
 
       setDisablePreviewSharedLayout(true);
@@ -952,7 +963,7 @@ function MemoryTimeline() {
       setShowSettingsTip(true);
       navigate(location.pathname, {replace:true, state:null});
     }
-  }, [location.pathname, location.state, navigate, memories]);
+  }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
     if(reminderPage >= reminderPageCount){
@@ -1026,6 +1037,10 @@ function MemoryTimeline() {
       window.removeEventListener("storage", handleSettingsUpdated);
     };
   }, []);
+
+  useEffect(() => {
+    memoriesRef.current = memories;
+  }, [memories]);
 
   const previewDeleteActive = Boolean(
     memoryToDelete && previewMemory && memoryToDelete._id === previewMemory._id

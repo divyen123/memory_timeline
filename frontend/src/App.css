@@ -346,13 +346,13 @@ button:hover{
 .login-motion-form{
   display:flex;
   flex-direction:column;
-  gap:18px;
+  gap:20px;
 }
 
 .animated-field{
   display:block;
   margin:0;
-  padding-top:8px;
+  padding-top:24px;
 }
 
 .login-field-shell{
@@ -410,14 +410,14 @@ button:hover{
 .animated-field:focus-within .login-floating-label,
 .animated-field:has(.login-motion-input:not(:placeholder-shown)) .login-floating-label,
 .animated-field:has(.login-motion-input:-webkit-autofill) .login-floating-label{
-  top:-3px;
+  top:-22px;
   color:#ffffff;
-  font-size:12px;
+  font-size:14px;
   font-weight:600;
   background:rgba(68, 68, 94, 0);
   box-shadow:none;
   text-shadow:none;
-  transform:translateY(-50%);
+  transform:translateY(0);
 }
 
 .animated-field.focused .login-floating-label,
@@ -442,7 +442,7 @@ button:hover{
   height:48px;
   min-height:0;
   margin:0;
-  padding:16px 12px 10px;
+  padding:0 12px;
   border:0;
   border-radius:inherit;
   outline:0;

@@ -587,8 +587,8 @@ body.light .login-motion-input::placeholder{
   margin:0 auto;
   padding:0;
   border-radius:0;
-  font-size:clamp(10px,0.82vw,13px);
-  font-weight:650;
+  font-size:clamp(11px,0.92vw,14px);
+  font-weight:500;
   line-height:1.25;
   color:rgba(255,255,255,0.94);
   text-shadow:
@@ -599,7 +599,8 @@ body.light .login-motion-input::placeholder{
 }
 
 .login-brand p.login-brand-typing{
-  font-size:clamp(10px,0.82vw,13px);
+  font-size:clamp(11px,0.92vw,14px);
+  font-weight:500;
   line-height:1.25;
 }
 

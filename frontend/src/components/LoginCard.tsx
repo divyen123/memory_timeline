@@ -131,12 +131,13 @@ function LoginCard({
             className={`animated-field ${focusedField === "email" ? "focused" : ""} ${email ? "filled" : ""}`}
             variants={childVariants}
           >
-            <span>Email</span>
             <span className="login-field-shell">
+              <span className="login-floating-label">Email</span>
               <input
                 className="login-motion-input"
                 type="email"
-                placeholder="Email"
+                placeholder=" "
+                aria-label="Email"
                 value={email}
                 onFocus={()=>setFocusedField("email")}
                 onBlur={()=>setFocusedField("")}
@@ -149,12 +150,13 @@ function LoginCard({
             className={`animated-field ${focusedField === "password" ? "focused" : ""} ${password ? "filled" : ""}`}
             variants={childVariants}
           >
-            <span>Password</span>
             <span className="login-field-shell">
+              <span className="login-floating-label">Password</span>
               <input
                 className="login-motion-input"
                 type="password"
-                placeholder="Password"
+                placeholder=" "
+                aria-label="Password"
                 value={password}
                 onFocus={()=>setFocusedField("password")}
                 onBlur={()=>setFocusedField("")}

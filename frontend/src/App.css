@@ -329,10 +329,10 @@ button:hover{
   width:min(500px,92vw);
   margin:0 auto 22px;
   padding:40px;
-  background:rgba(255,255,255,0.34);
-  border-color:rgba(255,255,255,0.46);
+  background:rgba(255,255,255,0.24);
+  border-color:rgba(255,255,255,0.38);
   backdrop-filter:blur(24px) saturate(1.12);
-  box-shadow:0 24px 70px rgba(5,6,22,0.34);
+  box-shadow:0 24px 70px rgba(5,6,22,0.28);
   overflow:visible;
 }
 
@@ -652,9 +652,9 @@ body.light .login-brand p:not(.login-brand-typing){
 }
 
 .login-contrast-light .animated-login-card{
-  background:rgba(255,255,255,0.54);
-  border-color:rgba(255,255,255,0.68);
-  box-shadow:0 24px 70px rgba(58,44,106,0.24);
+  background:rgba(255,255,255,0.38);
+  border-color:rgba(255,255,255,0.56);
+  box-shadow:0 24px 70px rgba(58,44,106,0.2);
 }
 
 @keyframes loginLogoFloat{

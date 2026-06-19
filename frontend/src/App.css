@@ -346,7 +346,7 @@ button:hover{
 .login-motion-form{
   display:flex;
   flex-direction:column;
-  gap:14px;
+  gap:12px;
 }
 
 .animated-field{
@@ -383,14 +383,15 @@ button:hover{
   isolation:isolate;
   display:flex;
   align-items:center;
-  min-height:46px;
-  padding:0 14px;
+  min-height:38px;
+  padding:0 12px;
   border:1px solid rgba(255,255,255,0.2);
-  border-radius:14px;
-  background:rgba(255,255,255,0.16);
-  box-shadow:0 12px 34px rgba(7,7,25,0.13) inset;
+  border-radius:12px;
+  background:rgba(255,255,255,0.14);
+  box-shadow:0 10px 28px rgba(7,7,25,0.12) inset;
   backdrop-filter:blur(16px);
   overflow:hidden;
+  color-scheme:dark;
   transition:
     border-color 0.24s ease,
     box-shadow 0.24s ease,
@@ -406,7 +407,7 @@ button:hover{
   box-shadow:
     0 0 0 4px rgba(255,45,110,0.1),
     0 0 36px rgba(108,99,255,0.26),
-    0 12px 34px rgba(7,7,25,0.13) inset;
+    0 10px 28px rgba(7,7,25,0.13) inset;
   transform:translateY(-1px);
 }
 
@@ -425,14 +426,16 @@ button:hover{
   background:transparent !important;
   background-color:transparent !important;
   background-image:none !important;
-  box-shadow:0 0 0 1000px transparent inset !important;
+  background-clip:text !important;
+  -webkit-background-clip:text !important;
+  box-shadow:none !important;
   filter:none !important;
   color:inherit;
   caret-color:currentColor;
   font:inherit;
-  font-size:16px;
+  font-size:15px;
   font-weight:600;
-  line-height:1.2;
+  line-height:1.1;
 }
 
 .login-motion-input::selection{
@@ -447,7 +450,10 @@ button:hover{
   background:transparent !important;
   background-color:transparent !important;
   background-image:none !important;
-  box-shadow:0 0 0 1000px rgba(255,255,255,0) inset !important;
+  background-clip:text !important;
+  -webkit-background-clip:text !important;
+  box-shadow:none !important;
+  -webkit-box-shadow:0 0 0 1000px transparent inset !important;
   -webkit-text-fill-color:currentColor !important;
   caret-color:currentColor;
   transition:background-color 9999s ease-in-out 0s;

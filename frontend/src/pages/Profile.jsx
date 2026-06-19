@@ -21,6 +21,18 @@ import {
 } from "../settings";
 import { playAppSound } from "../sound";
 
+const LIGHT_BACKGROUND_PRESETS = [
+  {label:"White background", color:"#ffffff"},
+  {label:"Grey background", color:"#b8b8b8"},
+  {label:"Dark grey background", color:"#5f6368"}
+];
+
+const DARK_BACKGROUND_PRESETS = [
+  {label:"Dark grey background", color:"#2f333a"},
+  {label:"Extra dark grey background", color:"#181a20"},
+  {label:"Black background", color:"#000000"}
+];
+
 const getColorHue = (hexColor) => {
   const normalized = String(hexColor || "").replace("#", "");
   const value = normalized.length === 3
@@ -285,6 +297,20 @@ function Profile() {
       return previewedSettings;
     });
   };
+
+  const updateBackgroundColor = (theme, color) => {
+    const prefix = theme === "light" ? "lightGradient" : "darkGradient";
+
+    updateSettings({
+      [`${prefix}Start`]:color,
+      [`${prefix}Middle`]:color,
+      [`${prefix}End`]:color
+    });
+  };
+
+  const isSelectedBackgroundColor = (currentColor, presetColor) => (
+    String(currentColor || "").toLowerCase() === presetColor.toLowerCase()
+  );
 
   const createSettingsBackup = () => {
     const reminderState = Object.keys(localStorage)
@@ -689,7 +715,22 @@ function Profile() {
                   <label className="theme-color-control">
                     <span className="theme-color-heading">
                       <span>Light background</span>
-                      <output>{appSettings.lightGradientStart.toUpperCase()}</output>
+                      <span className="theme-color-heading-actions">
+                        <output>{appSettings.lightGradientStart.toUpperCase()}</output>
+                        <span className="theme-palette-buttons" aria-label="Light background presets">
+                          {LIGHT_BACKGROUND_PRESETS.map((preset)=>(
+                            <button
+                              key={preset.color}
+                              type="button"
+                              className={`theme-palette-button ${isSelectedBackgroundColor(appSettings.lightGradientStart, preset.color) ? "selected" : ""}`}
+                              style={{"--palette-color":preset.color}}
+                              aria-label={preset.label}
+                              title={preset.label}
+                              onClick={()=>updateBackgroundColor("light", preset.color)}
+                            />
+                          ))}
+                        </span>
+                      </span>
                     </span>
                     <span className="theme-color-slider">
                       <input
@@ -714,7 +755,22 @@ function Profile() {
                   <label className="theme-color-control">
                     <span className="theme-color-heading">
                       <span>Dark background</span>
-                      <output>{appSettings.darkGradientStart.toUpperCase()}</output>
+                      <span className="theme-color-heading-actions">
+                        <output>{appSettings.darkGradientStart.toUpperCase()}</output>
+                        <span className="theme-palette-buttons" aria-label="Dark background presets">
+                          {DARK_BACKGROUND_PRESETS.map((preset)=>(
+                            <button
+                              key={preset.color}
+                              type="button"
+                              className={`theme-palette-button ${isSelectedBackgroundColor(appSettings.darkGradientStart, preset.color) ? "selected" : ""}`}
+                              style={{"--palette-color":preset.color}}
+                              aria-label={preset.label}
+                              title={preset.label}
+                              onClick={()=>updateBackgroundColor("dark", preset.color)}
+                            />
+                          ))}
+                        </span>
+                      </span>
                     </span>
                     <span className="theme-color-slider theme-color-slider-dark">
                       <input

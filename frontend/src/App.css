@@ -384,16 +384,17 @@ button:hover{
   display:inline-flex;
   align-items:center;
   max-width:calc(100% - 24px);
-  padding:0 4px;
-  border-radius:0;
+  padding:2px 7px;
+  border-radius:7px;
   color:#ffffff;
   font-size:16px;
   font-weight:500;
   line-height:1.1;
   letter-spacing:0;
-  background:transparent;
+  background:rgba(68,68,94,0.42);
   box-shadow:none;
-  text-shadow:none;
+  backdrop-filter:blur(10px);
+  text-shadow:0 1px 2px rgba(7,7,25,0.2);
   pointer-events:none;
   transform:translateY(-50%);
   transform-origin:left center;
@@ -410,13 +411,13 @@ button:hover{
 .animated-field:focus-within .login-floating-label,
 .animated-field:has(.login-motion-input:not(:placeholder-shown)) .login-floating-label,
 .animated-field:has(.login-motion-input:-webkit-autofill) .login-floating-label{
-  top:-1px;
+  top:-3px;
   color:#ffffff;
   font-size:12px;
   font-weight:600;
-  background:transparent;
+  background:rgba(68,68,94,0.58);
   box-shadow:none;
-  text-shadow:none;
+  text-shadow:0 1px 2px rgba(7,7,25,0.22);
   transform:translateY(-50%);
 }
 
@@ -578,6 +579,8 @@ body.light .login-field-shell{
 body.light .login-floating-label,
 .login-contrast-light .login-floating-label{
   color:#ffffff;
+  background:rgba(72,62,92,0.36);
+  text-shadow:0 1px 2px rgba(7,7,25,0.2);
 }
 
 body.light .animated-field.focused .login-floating-label,
@@ -591,9 +594,9 @@ body.light .animated-field:has(.login-motion-input:-webkit-autofill) .login-floa
 .login-contrast-light .animated-field:has(.login-motion-input:not(:placeholder-shown)) .login-floating-label,
 .login-contrast-light .animated-field:has(.login-motion-input:-webkit-autofill) .login-floating-label{
   color:#ffffff;
-  background:transparent;
+  background:rgba(72,62,92,0.52);
   box-shadow:none;
-  text-shadow:none;
+  text-shadow:0 1px 2px rgba(7,7,25,0.22);
 }
 
 body:not(.light) .login-motion-input,

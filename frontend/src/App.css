@@ -581,21 +581,26 @@ body.light .login-motion-input::placeholder{
 }
 
 .login-brand-typing{
-  min-height:24px;
+  min-height:18px;
   width:fit-content;
-  max-width:min(720px,100%);
+  max-width:calc(100% - 12px);
   margin:0 auto;
   padding:0;
   border-radius:0;
-  font-size:clamp(13px,1.25vw,16px);
+  font-size:clamp(10px,0.82vw,13px);
   font-weight:650;
-  line-height:1.35;
+  line-height:1.25;
   color:rgba(255,255,255,0.94);
   text-shadow:
     0 1px 2px rgba(0,0,0,0.78),
     0 8px 20px rgba(0,0,0,0.5);
   background:transparent;
   backdrop-filter:none;
+}
+
+.login-brand p.login-brand-typing{
+  font-size:clamp(10px,0.82vw,13px);
+  line-height:1.25;
 }
 
 .login-brand-typing span{
@@ -10177,7 +10182,7 @@ body:not(.button-glass-on) .preview-actions button:last-child:hover {
   }
 
   .login-brand-typing{
-    max-width:520px;
+    max-width:calc(100% - 12px);
     margin:0 auto;
   }
 }

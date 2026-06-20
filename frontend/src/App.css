@@ -3030,8 +3030,9 @@ body.top-actions-left .timeline-title{
   align-self:center;
   width:min(360px,100%);
   margin-top:2px;
-  background:linear-gradient(135deg,#6c63ff 0%,#4f46e5 100%);
-  box-shadow:0 18px 44px rgba(76,70,229,0.24);
+  background:var(--button-bg-color);
+  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white);
+  box-shadow:0 18px 44px rgba(0,0,0,0.18);
 }
 
 body.light .about-hero,
@@ -5136,7 +5137,8 @@ body.light .theme-palette-button{
 .settings-sound-control button,
 .profile-grid > .profile-card:not(.settings-card) form button[type="submit"],
 .password-card button,
-.profile-back-btn{
+.profile-back-btn,
+.about-back-btn{
   background:var(--button-bg-color);
 }
 
@@ -5145,7 +5147,8 @@ body.button-glass-on .settings-save-actions button,
 body.button-glass-on .settings-sound-control button,
 body.button-glass-on .profile-grid > .profile-card:not(.settings-card) form button[type="submit"],
 body.button-glass-on .password-card button,
-body.button-glass-on .profile-back-btn{
+body.button-glass-on .profile-back-btn,
+body.button-glass-on .about-back-btn{
   background:color-mix(in srgb, var(--button-bg-color) calc(var(--button-glass-alpha) * 100%), transparent);
   border:1px solid rgba(255,255,255,0.22);
   backdrop-filter:blur(14px);
@@ -5157,7 +5160,8 @@ body.button-glass-on .profile-back-btn{
 .settings-sound-control button:hover,
 .profile-grid > .profile-card:not(.settings-card) form button[type="submit"]:hover,
 .password-card button:hover,
-.profile-back-btn:hover{
+.profile-back-btn:hover,
+.about-back-btn:hover{
   background:color-mix(in srgb, var(--button-bg-color) 86%, white);
 }
 
@@ -10394,7 +10398,8 @@ body:not(.button-glass-on) .timeline-controls .filter-toggle,
 body:not(.button-glass-on) .timeline-controls .timeline-icon-control,
 body:not(.button-glass-on) .timeline-controls .timeline-action-btn,
 body:not(.button-glass-on) .timeline-toolbar button,
-body:not(.button-glass-on) .preview-actions button:not(:last-child):not(.preview-image-info-btn) {
+body:not(.button-glass-on) .preview-actions button:not(:last-child):not(.preview-image-info-btn),
+body:not(.button-glass-on) .about-back-btn {
   background: var(--button-bg-color) !important;
   border-color: color-mix(in srgb, var(--button-bg-color) 68%, white) !important;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18) !important;
@@ -10408,7 +10413,8 @@ body:not(.button-glass-on) .timeline-controls .filter-toggle:hover,
 body:not(.button-glass-on) .timeline-controls .timeline-icon-control:hover,
 body:not(.button-glass-on) .timeline-controls .timeline-action-btn:hover,
 body:not(.button-glass-on) .timeline-toolbar button:hover,
-body:not(.button-glass-on) .preview-actions button:not(:last-child):not(.preview-image-info-btn):hover {
+body:not(.button-glass-on) .preview-actions button:not(:last-child):not(.preview-image-info-btn):hover,
+body:not(.button-glass-on) .about-back-btn:hover {
   background: color-mix(in srgb, var(--button-bg-color) 86%, white) !important;
   border-color: color-mix(in srgb, var(--button-bg-color) 78%, white) !important;
 }

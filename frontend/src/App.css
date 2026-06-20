@@ -2978,6 +2978,7 @@ body.top-actions-left .timeline-title{
 }
 
 .about-info-card{
+  position:relative;
   min-height:190px;
   padding:20px;
   display:flex;
@@ -2992,21 +2993,24 @@ body.top-actions-left .timeline-title{
   backdrop-filter:blur(16px);
   cursor:pointer;
   overflow:hidden;
+  isolation:isolate;
   transition:
+    transform 0.35s ease,
     border-color 0.24s ease,
     background 0.24s ease,
-    min-height 0.28s ease,
     box-shadow 0.24s ease;
 }
 
 .about-info-card:hover,
 .about-info-card:focus-visible,
 .about-info-card.active{
-  border-color:rgba(255,255,255,0.42);
+  transform:translateY(-8px) scale(var(--memory-hover-scale));
+  border-color:rgba(255,116,166,0.58);
   background:rgba(255,255,255,calc(var(--container-glass-alpha) + 0.08));
-  box-shadow:0 24px 70px rgba(3,5,20,0.26);
+  box-shadow:
+    0 26px 60px rgba(3,4,18,0.5),
+    0 0 34px rgba(255,75,125,0.28);
   outline:none;
-  min-height:260px;
 }
 
 .about-card-index{
@@ -3034,28 +3038,38 @@ body.top-actions-left .timeline-title{
 }
 
 .about-info-card p{
-  max-height:0;
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:18px;
+  z-index:3;
+  max-height:96px;
   margin:0;
+  padding:12px 13px;
+  border:1px solid rgba(255,255,255,0.16);
+  border-radius:12px;
+  background:rgba(8,9,28,0.38);
+  box-shadow:0 14px 34px rgba(0,0,0,0.2);
+  backdrop-filter:blur(14px);
   opacity:0;
-  transform:translateY(12px);
+  overflow:auto;
+  transform:translateY(16px) scale(0.98);
   color:rgba(255,255,255,0.78);
   font-size:13px;
   font-weight:600;
   line-height:1.55;
   transition:
-    max-height 0.34s ease,
-    margin 0.24s ease,
     opacity 0.26s ease,
     transform 0.26s ease;
+  pointer-events:none;
 }
 
 .about-info-card:hover p,
 .about-info-card:focus-visible p,
 .about-info-card.active p{
-  max-height:150px;
-  margin-top:16px;
   opacity:1;
-  transform:translateY(0);
+  transform:translateY(0) scale(1);
+  pointer-events:auto;
 }
 
 .about-disclaimer{
@@ -3112,9 +3126,15 @@ body.light .about-eyebrow,
 body.light .about-hero p:last-child,
 body.light .about-card-index,
 body.light .about-info-card > span:not(.about-card-index),
-body.light .about-info-card p,
 body.light .about-disclaimer p{
   color:rgba(26,26,46,0.72);
+}
+
+body.light .about-info-card p{
+  border-color:rgba(255,255,255,0.36);
+  background:rgba(255,255,255,0.46);
+  color:rgba(26,26,46,0.78);
+  box-shadow:0 14px 34px rgba(58,44,106,0.16);
 }
 
 body.light .about-hero h1,

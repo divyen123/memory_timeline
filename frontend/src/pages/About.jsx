@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PageTransition from "../components/PageTransition";
 
@@ -40,9 +40,10 @@ const heroDescription = "A simple, personal memory organizer for preserving spec
 
 function About(){
   const navigate = useNavigate();
-  const [activeCard, setActiveCard] = useState(null);
+  const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [typedDescription, setTypedDescription] = useState("");
   const [showCursor, setShowCursor] = useState(true);
+  const selectedCard = selectedCardIndex !== null ? aboutCards[selectedCardIndex] : null;
 
   useEffect(()=>{
     let index = 0;
@@ -63,6 +64,17 @@ function About(){
       window.clearInterval(typingTimer);
     };
   },[]);
+
+  useEffect(()=>{
+    if(selectedCardIndex === null) return undefined;
+
+    const handleKeyDown = (event)=>{
+      if(event.key === "Escape") setSelectedCardIndex(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return ()=>window.removeEventListener("keydown", handleKeyDown);
+  },[selectedCardIndex]);
 
   return (
     <PageTransition>
@@ -86,24 +98,21 @@ function About(){
             <motion.button
               key={card.title}
               type="button"
-              className={`about-info-card ${activeCard === index ? "active" : ""}`}
-              initial={{ opacity:0, y:22 }}
-              animate={{ opacity:1, y:0 }}
+              className="about-info-card"
+              aria-haspopup="dialog"
+              aria-expanded={selectedCardIndex === index}
+              initial={{ opacity:0 }}
+              animate={{ opacity:1 }}
               transition={{
                 delay:0.06 + index * 0.045,
-                opacity:{ duration:0.3, ease:"easeOut" },
-                y:{ type:"spring", stiffness:260, damping:22 }
+                opacity:{ duration:0.3, ease:"easeOut" }
               }}
-              onClick={()=>setActiveCard(activeCard === index ? null : index)}
-              onFocus={()=>setActiveCard(index)}
-              onBlur={()=>setActiveCard(null)}
-              whileHover={{ y:-6 }}
+              onClick={()=>setSelectedCardIndex(index)}
               whileTap={{ scale:0.98 }}
             >
               <span className="about-card-index">{String(index + 1).padStart(2, "0")}</span>
               <strong>{card.title}</strong>
               <span>{card.summary}</span>
-              <p>{card.details}</p>
             </motion.button>
           ))}
         </section>
@@ -131,6 +140,46 @@ function About(){
         >
           Back to timeline
         </motion.button>
+
+        <AnimatePresence>
+          {selectedCard && (
+            <motion.div
+              className="about-modal-overlay"
+              role="presentation"
+              initial={{ opacity:0 }}
+              animate={{ opacity:1 }}
+              exit={{ opacity:0 }}
+              transition={{ duration:0.2, ease:"easeOut" }}
+              onClick={()=>setSelectedCardIndex(null)}
+            >
+              <motion.section
+                className="about-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="about-modal-title"
+                initial={{ opacity:0, y:24, scale:0.94 }}
+                animate={{ opacity:1, y:0, scale:1 }}
+                exit={{ opacity:0, y:18, scale:0.96 }}
+                transition={{ type:"spring", stiffness:260, damping:24 }}
+                onClick={(event)=>event.stopPropagation()}
+              >
+                <span className="about-modal-index">
+                  {String(selectedCardIndex + 1).padStart(2, "0")}
+                </span>
+                <h2 id="about-modal-title">{selectedCard.title}</h2>
+                <p className="about-modal-summary">{selectedCard.summary}</p>
+                <p className="about-modal-details">{selectedCard.details}</p>
+                <button
+                  type="button"
+                  className="about-modal-close"
+                  onClick={()=>setSelectedCardIndex(null)}
+                >
+                  Close
+                </button>
+              </motion.section>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </PageTransition>
   );

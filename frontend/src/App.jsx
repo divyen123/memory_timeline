@@ -9,6 +9,7 @@ import MemoryDetails from "./pages/MemoryDetails";
 import Profile from "./pages/Profile";
 import Trash from "./pages/Trash";
 import PublicShare from "./pages/PublicShare";
+import About from "./pages/About";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReminderWidget from "./components/ReminderWidget";
 import { getAppearanceSettings, logoutUser, updateAppearanceSettings } from "./services/api";
@@ -60,6 +61,7 @@ function App(){
   const showLogout = authenticatedUserId &&
     (
       ["/add","/timeline","/profile"].includes(location.pathname) ||
+      location.pathname === "/about" ||
       location.pathname === "/trash" ||
       location.pathname.startsWith("/memory/")
     );
@@ -67,7 +69,7 @@ function App(){
   const isAuthPage = authPages.includes(location.pathname);
   const isPublicSharePage = location.pathname.startsWith("/share/");
   const showTopButtons = !isAuthPage && !isPublicSharePage;
-  const showSharedReminder = !isAuthPage && !isPublicSharePage && location.pathname !== "/timeline";
+  const showSharedReminder = !isAuthPage && !isPublicSharePage && !["/timeline", "/about"].includes(location.pathname);
 
   useEffect(()=>{
 
@@ -407,6 +409,12 @@ function App(){
         <Route path="/timeline" element={
           <ProtectedRoute>
             <MemoryTimeline />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/about" element={
+          <ProtectedRoute>
+            <About />
           </ProtectedRoute>
         } />
 

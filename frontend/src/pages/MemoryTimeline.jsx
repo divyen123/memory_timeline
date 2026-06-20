@@ -1384,7 +1384,15 @@ function MemoryTimeline() {
           )}
         </div>
 
-        <h2 className="timeline-title">Memory Timeline</h2>
+        <button
+          type="button"
+          className="timeline-title timeline-title-button"
+          onClick={()=>navigate("/about")}
+          aria-label="Open About Memory Timeline"
+          title="About Memory Timeline"
+        >
+          Memory Timeline
+        </button>
 
         <div className="timeline-controls-shell">
           <div className={`timeline-controls toolbar-icons-${settings.toolbarIconStyle || "box"}`}>

@@ -200,6 +200,37 @@ function Profile() {
     }
   };
 
+  const handleHidePasswordSave = async (e) => {
+    e.preventDefault();
+
+    if(appSettings.hidePasswordEnabled && !String(appSettings.hidePasswordValue || "").trim()){
+      setMessage("Enter a hiding password");
+      return;
+    }
+
+    if(appSettings.hidePasswordEnabled && appSettings.hidePasswordType === "six" && !/^[a-z0-9]{6}$/i.test(appSettings.hidePasswordValue || "")){
+      setMessage("Use exactly 6 letters or numbers");
+      return;
+    }
+
+    const savedSettings = saveSettings(
+      collapseDesktopBackgroundColors(appSettings, deviceProfile),
+      deviceProfile
+    );
+
+    try{
+      const {data} = await updateAppearanceSettings(deviceProfile, savedSettings);
+      setAppSettings(saveSettings({
+        ...savedSettings,
+        ...(data.settings || {})
+      }, deviceProfile));
+      setMessage("Hiding password saved");
+    }catch{
+      setAppSettings(savedSettings);
+      setMessage("Hiding password saved on this device, but cloud sync failed");
+    }
+  };
+
   const closeDangerConfirm = () => {
     if(!isDangerBusy){
       setConfirmAction(null);
@@ -985,6 +1016,45 @@ function Profile() {
                 required
               />
               <button type="submit">Change Password</button>
+            </form>
+
+            <form className="hide-password-settings" onSubmit={handleHidePasswordSave}>
+              <label className="settings-check-row">
+                <input
+                  type="checkbox"
+                  checked={Boolean(appSettings.hidePasswordEnabled)}
+                  onChange={(e)=>updateSetting("hidePasswordEnabled", e.target.checked)}
+                />
+                <span>Set password for hiding</span>
+              </label>
+
+              {appSettings.hidePasswordEnabled && (
+                <div className="hide-password-fields">
+                  <label>
+                    <span>Password type</span>
+                    <select
+                      value={appSettings.hidePasswordType || "pin"}
+                      onChange={(e)=>updateSetting("hidePasswordType", e.target.value)}
+                    >
+                      <option value="pin">PIN</option>
+                      <option value="pattern">Pattern</option>
+                      <option value="six">6-digit password</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Hiding password</span>
+                    <input
+                      type={appSettings.hidePasswordType === "pattern" ? "text" : "password"}
+                      placeholder={appSettings.hidePasswordType === "six" ? "Letters and numbers" : "Type password"}
+                      value={appSettings.hidePasswordValue || ""}
+                      maxLength={appSettings.hidePasswordType === "six" ? 6 : undefined}
+                      onChange={(e)=>updateSetting("hidePasswordValue", e.target.value)}
+                    />
+                  </label>
+                </div>
+              )}
+
+              <button type="submit">Save hiding password</button>
             </form>
           </div>
         </div>

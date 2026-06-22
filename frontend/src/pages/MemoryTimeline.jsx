@@ -3,7 +3,7 @@ import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-m
 import JSZip from "jszip";
 import MemoryCard from "../components/MemoryCard";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createCategoryShare, createMemoryShare, downloadMemoryImage, getImageUrl, getMemories, getMemoryImageUrl, deleteMemory, toggleFavorite } from "../services/api";
+import { createCategoryShare, createMemoryShare, downloadMemoryImage, getImageUrl, getMemories, getMemoryImageUrl, deleteMemory, hideMemory, toggleFavorite } from "../services/api";
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
@@ -115,6 +115,7 @@ function MemoryTimeline() {
   const [memories, setMemories] = useState([]);
   const [message, setMessage] = useState("");
   const [memoryToDelete, setMemoryToDelete] = useState(null);
+  const [memoryToHide, setMemoryToHide] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [sortOrder, setSortOrder] = useState("newest");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -433,6 +434,39 @@ function MemoryTimeline() {
 
     }
 
+  };
+
+  const closeHideDialog = () => {
+    setMemoryToHide(null);
+  };
+
+  const confirmHide = async () => {
+    if(!memoryToHide){
+      return;
+    }
+
+    try{
+      await hideMemory(memoryToHide._id);
+      setMemories(prevMemories => prevMemories.filter(memory => memory._id !== memoryToHide._id));
+      if(previewMemory?._id === memoryToHide._id){
+        setPreviewMemory(null);
+      }
+      setMemoryToHide(null);
+      setMessage("Image hidden");
+    }catch(err){
+      setMessage(err.response?.data?.message || "Unable to hide image");
+    }
+  };
+
+  const openHiddenImagesShortcut = () => {
+    if(searchText.trim().toLowerCase() === "app/hide-image/"){
+      setSearchText("");
+      setShowSearch(false);
+      navigate("/hide-image");
+      return true;
+    }
+
+    return false;
   };
 
   const exportTimeline = () => {
@@ -1453,9 +1487,25 @@ function MemoryTimeline() {
               placeholder="Search memories"
               value={searchText}
               onChange={(e)=>setSearchText(e.target.value)}
+              onKeyDown={(event)=>{
+                if(event.key === "Enter"){
+                  openHiddenImagesShortcut();
+                }
+              }}
               onFocus={()=>setShowSearch(true)}
               tabIndex={showSearch || searchText ? 0 : -1}
             />
+            {(showSearch || searchText) && (
+              <button
+                type="button"
+                className="timeline-search-go"
+                aria-label="Open typed location"
+                title="Open typed location"
+                onClick={openHiddenImagesShortcut}
+              >
+                &#8594;
+              </button>
+            )}
           </div>
 
           <div className="timeline-filter-menu" ref={filterMenuRef}>
@@ -2026,6 +2076,15 @@ function MemoryTimeline() {
               </button>
               <button
                 type="button"
+                className="preview-hide-btn"
+                title="Hide image"
+                aria-label="Hide image"
+                onClick={()=>setMemoryToHide(previewMemory)}
+              >
+                <span aria-hidden="true">◌</span>
+              </button>
+              <button
+                type="button"
                 className="preview-delete-btn"
                 title="Delete"
                 aria-label="Delete"
@@ -2057,6 +2116,33 @@ function MemoryTimeline() {
                     onClick={confirmDelete}
                   >
                     Move to bin
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {memoryToHide && previewMemory && memoryToHide._id === previewMemory._id && (
+            <div className="preview-confirm">
+              <div className="preview-confirm-dialog hide-confirm-dialog">
+                <h3>Hide this image?</h3>
+                <p>
+                  "{memoryToHide.title}" will move out of your normal timeline. You can open hidden images with app/hide-image/.
+                </p>
+                <div className="confirm-actions">
+                  <button
+                    type="button"
+                    className="cancel-delete-btn"
+                    onClick={closeHideDialog}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="confirm-hide-btn"
+                    onClick={confirmHide}
+                  >
+                    Hide
                   </button>
                 </div>
               </div>

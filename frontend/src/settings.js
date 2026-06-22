@@ -42,7 +42,10 @@ export const defaultSettings = {
   soundEnabled:true,
   createSound:"sparkle",
   updateSound:"chime",
-  reminderSound:"bell"
+  reminderSound:"bell",
+  hidePasswordEnabled:false,
+  hidePasswordType:"pin",
+  hidePasswordValue:""
 };
 
 const numberOrDefault = (value, fallback) => {

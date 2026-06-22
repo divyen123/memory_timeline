@@ -8,6 +8,7 @@ import MemoryTimeline from "./pages/MemoryTimeline";
 import MemoryDetails from "./pages/MemoryDetails";
 import Profile from "./pages/Profile";
 import Trash from "./pages/Trash";
+import HiddenImages from "./pages/HiddenImages";
 import PublicShare from "./pages/PublicShare";
 import About from "./pages/About";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -63,13 +64,15 @@ function App(){
       ["/add","/timeline","/profile"].includes(location.pathname) ||
       location.pathname === "/about" ||
       location.pathname === "/trash" ||
+      location.pathname === "/hide-image" ||
       location.pathname.startsWith("/memory/")
     );
   const authPages = ["/", "/forgot-password"];
   const isAuthPage = authPages.includes(location.pathname);
   const isPublicSharePage = location.pathname.startsWith("/share/");
-  const showTopButtons = !isAuthPage && !isPublicSharePage;
-  const showSharedReminder = !isAuthPage && !isPublicSharePage && !["/timeline", "/about"].includes(location.pathname);
+  const isHiddenImagesPage = location.pathname === "/hide-image";
+  const showTopButtons = !isAuthPage && !isPublicSharePage && !isHiddenImagesPage;
+  const showSharedReminder = !isAuthPage && !isPublicSharePage && !isHiddenImagesPage && !["/timeline", "/about"].includes(location.pathname);
 
   useEffect(()=>{
 
@@ -433,6 +436,12 @@ function App(){
         <Route path="/trash" element={
           <ProtectedRoute>
             <Trash />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/hide-image" element={
+          <ProtectedRoute>
+            <HiddenImages />
           </ProtectedRoute>
         } />
 

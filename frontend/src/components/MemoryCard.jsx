@@ -13,7 +13,9 @@ function MemoryCard({
   index,
   onDelete,
   onFavorite,
+  onUnhide,
   onPreview,
+  hiddenMode = false,
   selectionMode = false,
   selected = false,
   onSelect,
@@ -78,6 +80,10 @@ function MemoryCard({
   const handleFavorite = (e) => {
     e.stopPropagation();
     onFavorite(memory._id);
+  };
+
+  const handleUnhide = () => {
+    onUnhide?.(memory);
   };
 
   const handleActionClick = (e, action) => {
@@ -162,27 +168,53 @@ function MemoryCard({
             </div>
           )}
 
-          <div className="memory-actions">
-            <button
-              type="button"
-              className={`favorite-btn ${memory.favorite ? "active" : ""}`}
-              title={memory.favorite ? "Remove from favorites" : "Add to favorites"}
-              aria-label={memory.favorite ? "Remove from favorites" : "Add to favorites"}
-              aria-pressed={Boolean(memory.favorite)}
-              onClick={handleFavorite}
-            >
-              {memory.favorite ? "\u2605" : "\u2606"}
-            </button>
+          <div className={`memory-actions ${hiddenMode ? "hidden-memory-actions" : ""}`}>
+            {hiddenMode ? (
+              <>
+                <button
+                  type="button"
+                  className="memory-unhide-btn"
+                  title="Unhide"
+                  aria-label="Unhide"
+                  onClick={(e)=>handleActionClick(e, handleUnhide)}
+                >
+                  <span aria-hidden="true">↩</span>
+                </button>
 
-            <button
-              type="button"
-              className="memory-delete-btn"
-              title="Delete"
-              aria-label="Delete"
-              onClick={(e)=>handleActionClick(e, handleDelete)}
-            >
-              <span aria-hidden="true">🗑️</span>
-            </button>
+                <button
+                  type="button"
+                  className="memory-delete-btn"
+                  title="Delete permanently"
+                  aria-label="Delete permanently"
+                  onClick={(e)=>handleActionClick(e, handleDelete)}
+                >
+                  <span aria-hidden="true">🗑️</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className={`favorite-btn ${memory.favorite ? "active" : ""}`}
+                  title={memory.favorite ? "Remove from favorites" : "Add to favorites"}
+                  aria-label={memory.favorite ? "Remove from favorites" : "Add to favorites"}
+                  aria-pressed={Boolean(memory.favorite)}
+                  onClick={handleFavorite}
+                >
+                  {memory.favorite ? "\u2605" : "\u2606"}
+                </button>
+
+                <button
+                  type="button"
+                  className="memory-delete-btn"
+                  title="Delete"
+                  aria-label="Delete"
+                  onClick={(e)=>handleActionClick(e, handleDelete)}
+                >
+                  <span aria-hidden="true">🗑️</span>
+                </button>
+              </>
+            )}
           </div>
 
           <small className="memory-date-badge">{formattedDate}</small>

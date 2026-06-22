@@ -330,12 +330,19 @@ const trusted = (filter) => mongoose.trusted(filter);
 
 const activeMemoryQuery = (extra = {}) => ({
   ...extra,
-  deletedAt:null
+  deletedAt:null,
+  hiddenAt:null
 });
 
 const trashMemoryQuery = (extra = {}) => ({
   ...extra,
   deletedAt:trusted({$exists:true, $ne:null})
+});
+
+const hiddenMemoryQuery = (extra = {}) => ({
+  ...extra,
+  deletedAt:null,
+  hiddenAt:trusted({$exists:true, $ne:null})
 });
 
 const purgeExpiredTrash = async () => {
@@ -618,6 +625,85 @@ exports.deleteMemory = async (req,res)=>{
     res.status(500).json(err);
   }
 
+};
+
+exports.hideMemory = async (req,res)=>{
+  try{
+    const memory = await Memory.findOne(activeMemoryQuery({
+      _id:req.params.id,
+      userId:req.user.userId
+    }));
+
+    if(!memory){
+      return res.status(404).json({message:"Memory not found"});
+    }
+
+    memory.hiddenAt = new Date();
+    await memory.save();
+
+    res.json({
+      message:"Memory hidden",
+      memory:await withSignedImages(memory)
+    });
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to hide memory"});
+  }
+};
+
+exports.getHiddenMemories = async (req,res)=>{
+  try{
+    const memories = await Memory.find(hiddenMemoryQuery({
+      userId:req.user.userId
+    })).sort({hiddenAt:-1});
+
+    res.json({
+      memories:await Promise.all(memories.map(withSignedImages))
+    });
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to load hidden memories"});
+  }
+};
+
+exports.unhideMemory = async (req,res)=>{
+  try{
+    const memory = await Memory.findOne(hiddenMemoryQuery({
+      _id:req.params.id,
+      userId:req.user.userId
+    }));
+
+    if(!memory){
+      return res.status(404).json({message:"Hidden memory not found"});
+    }
+
+    memory.hiddenAt = null;
+    await memory.save();
+
+    res.json({
+      message:"Memory unhidden",
+      memory:await withSignedImages(memory)
+    });
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to unhide memory"});
+  }
+};
+
+exports.permanentlyDeleteHiddenMemory = async (req,res)=>{
+  try{
+    const deleted = await Memory.findOneAndDelete(hiddenMemoryQuery({
+      _id:req.params.id,
+      userId:req.user.userId
+    }));
+
+    if(!deleted){
+      return res.status(404).json({message:"Hidden memory not found"});
+    }
+
+    await deleteStoredImages(deleted);
+
+    res.json({message:"Hidden memory permanently deleted"});
+  }catch(err){
+    res.status(500).json({message:err.message || "Unable to permanently delete hidden memory"});
+  }
 };
 
 exports.clearAllMemories = async (req,res)=>{

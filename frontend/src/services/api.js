@@ -97,9 +97,13 @@ export const addMemory = (data)=>API.post("/memories",data);
 export const deleteMemory = (id)=>API.delete(`/memories/${id}`);
 export const clearAllMemories = ()=>API.delete("/memories");
 export const getTrashMemories = ()=>API.get("/memories/trash");
+export const getHiddenMemories = ()=>API.get("/memories/hidden");
 export const restoreMemory = (id)=>API.patch(`/memories/${id}/restore`);
 export const restoreMemories = (ids)=>API.post("/memories/trash/restore", {ids});
 export const permanentlyDeleteMemory = (id)=>API.delete(`/memories/${id}/permanent`);
+export const hideMemory = (id)=>API.patch(`/memories/${id}/hide`);
+export const unhideMemory = (id)=>API.patch(`/memories/${id}/unhide`);
+export const permanentlyDeleteHiddenMemory = (id)=>API.delete(`/memories/${id}/hidden-permanent`);
 export const permanentlyDeleteMemories = (ids)=>API.post("/memories/trash/permanent-delete", {ids});
 export const emptyTrash = ()=>API.delete("/memories/trash/empty");
 

@@ -12,6 +12,7 @@ const {
   getMemories,
   getMemory,
   getTrashMemories,
+  getHiddenMemories,
   downloadMemoryImage,
   viewMemoryImage,
   viewPublicShareImage,
@@ -21,7 +22,10 @@ const {
   deleteAccount,
   restoreMemory,
   restoreMemories,
+  hideMemory,
+  unhideMemory,
   permanentlyDeleteMemory,
+  permanentlyDeleteHiddenMemory,
   permanentlyDeleteMemories,
   emptyTrash,
   updateMemory,
@@ -187,6 +191,7 @@ const memoryImagesUpload = (req, res, next) => {
 };
 
 router.get("/memories", authMiddleware, getMemories);
+router.get("/memories/hidden", authMiddleware, getHiddenMemories);
 router.get("/memories/trash", authMiddleware, getTrashMemories);
 router.post("/memories/trash/restore", authMiddleware, restoreMemories);
 router.post("/memories/trash/permanent-delete", authMiddleware, permanentlyDeleteMemories);
@@ -198,7 +203,10 @@ router.post("/memories", authMiddleware, memoryImagesUpload, addMemory);
 router.delete("/memories", authMiddleware, clearAllMemories);
 router.put("/memories/:id", authMiddleware, memoryImagesUpload, updateMemory);
 router.patch("/memories/:id/favorite", authMiddleware, toggleFavorite);
+router.patch("/memories/:id/hide", authMiddleware, hideMemory);
+router.patch("/memories/:id/unhide", authMiddleware, unhideMemory);
 router.patch("/memories/:id/restore", authMiddleware, restoreMemory);
+router.delete("/memories/:id/hidden-permanent", authMiddleware, permanentlyDeleteHiddenMemory);
 router.delete("/memories/:id/permanent", authMiddleware, permanentlyDeleteMemory);
 router.post("/memories/:id/share", authMiddleware, createMemoryShare);
 router.delete("/memories/:id/share", authMiddleware, revokeMemoryShare);

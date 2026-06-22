@@ -1429,7 +1429,7 @@ function MemoryTimeline() {
           <div className="timeline-filter-menu" ref={filterMenuRef}>
             <button
               type="button"
-              className={`timeline-icon-control filter-icon-control ${showFilterMenu ? "active" : ""}`}
+              className={`timeline-icon-control filter-icon-control ${showFilterMenu || sortOrder !== "newest" || categoryFilter !== "All" ? "active" : ""}`}
               title="Filter memories"
               aria-label="Filter memories"
               aria-expanded={showFilterMenu}

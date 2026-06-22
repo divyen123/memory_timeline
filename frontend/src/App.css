@@ -3529,7 +3529,8 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
   box-shadow:0 14px 30px color-mix(in srgb, var(--button-bg-color) 35%, transparent);
 }
 
-.timeline-action-btn.active{
+.timeline-action-btn.active,
+.filter-icon-control.active{
   background:var(--button-bg-color);
   box-shadow:0 14px 30px color-mix(in srgb, var(--button-bg-color) 35%, transparent);
 }
@@ -3623,6 +3624,8 @@ body.light .timeline-filter-section span{
   color:white;
   font-size:13px;
   line-height:1;
+  position:relative;
+  transition:transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 body.light .timeline-filter-section button{
@@ -3634,8 +3637,24 @@ body.light .timeline-filter-section button{
 .timeline-filter-section button:hover,
 .timeline-filter-section button.selected{
   transform:translateY(-2px);
-  background:var(--button-bg-color);
-  color:white;
+  background:linear-gradient(135deg,color-mix(in srgb, var(--button-bg-color) 92%, #1a1a2e),color-mix(in srgb, var(--button-bg-color) 70%, #ffffff)) !important;
+  border-color:rgba(255,255,255,0.72) !important;
+  color:white !important;
+  box-shadow:
+    0 10px 24px color-mix(in srgb, var(--button-bg-color) 34%, transparent),
+    0 0 0 2px rgba(255,255,255,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.42) !important;
+}
+
+.timeline-filter-section button.selected::after{
+  content:"";
+  width:6px;
+  height:6px;
+  margin-left:7px;
+  display:inline-block;
+  border-radius:50%;
+  background:white;
+  box-shadow:0 0 8px rgba(255,255,255,0.82);
 }
 
 .timeline-toolbar{
@@ -4613,7 +4632,8 @@ body.light .memory-card-overlay h3{
 }
 
 .memory-actions .favorite-btn{
-  background:rgba(255,255,255,0.22);
+  background:color-mix(in srgb, var(--button-bg-color) 76%, transparent);
+  border:1px solid rgba(255,255,255,0.22);
   color:white;
   font-size:14px;
   line-height:1;
@@ -4644,15 +4664,24 @@ body.light .memory-card-overlay h3{
 }
 
 body.light .memory-actions .favorite-btn{
-  background:rgba(255,255,255,0.74);
-  color:#514a68;
-  border:1px solid rgba(74,64,122,0.12);
+  background:var(--button-bg-color);
+  color:white;
+  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white);
+  box-shadow:0 8px 20px color-mix(in srgb, var(--button-bg-color) 24%, transparent);
 }
 
 body.light .memory-actions .favorite-btn.active{
   background:#ffb020;
   color:#362300;
   border-color:rgba(173,108,0,0.2);
+}
+
+body.light .memory-actions .memory-delete-btn{
+  background:linear-gradient(135deg,#ff1744,#d50000);
+  border:1px solid rgba(255,255,255,0.88);
+  color:white;
+  box-shadow:0 10px 24px rgba(213,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.28);
+  text-shadow:0 1px 2px rgba(0,0,0,0.34);
 }
 
 /* ================= EMPTY STATE ================= */
@@ -5751,9 +5780,9 @@ body.button-glass-on .carousel-nav,
   flex:0 0 40px;
   padding:0;
   border-radius:50%;
-  background:rgba(255,255,255,0.14);
-  border:1px solid rgba(255,255,255,0.16);
-  box-shadow:none;
+  background:color-mix(in srgb, var(--button-bg-color) 72%, transparent);
+  border:1px solid rgba(255,255,255,0.24);
+  box-shadow:0 12px 30px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.18);
   font-family:Poppins, "Segoe UI", sans-serif;
   font-size:17px;
   font-weight:900;
@@ -5762,9 +5791,9 @@ body.button-glass-on .carousel-nav,
 }
 
 .preview-actions .preview-image-info-btn:hover{
-  background:rgba(255,255,255,0.22);
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white);
   color:white;
-  box-shadow:none;
+  box-shadow:0 14px 32px color-mix(in srgb, var(--button-bg-color) 30%, transparent);
 }
 
 .preview-image-info-popover{
@@ -5776,11 +5805,11 @@ body.button-glass-on .carousel-nav,
   width:238px;
   padding:13px;
   border-radius:16px;
-  background:rgba(13,14,34,0.9);
-  border:1px solid rgba(255,255,255,0.18);
+  background:linear-gradient(145deg,rgba(255,255,255,0.2),rgba(255,255,255,0.08)), rgba(13,14,34,0.66);
+  border:1px solid rgba(255,255,255,0.32);
   color:white;
-  box-shadow:0 18px 42px rgba(0,0,0,0.34);
-  backdrop-filter:blur(18px);
+  box-shadow:0 18px 42px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.16);
+  backdrop-filter:blur(22px) saturate(1.18);
   animation:previewInfoIn 0.18s ease both;
 }
 
@@ -5803,7 +5832,7 @@ body.button-glass-on .carousel-nav,
 }
 
 .preview-image-info-row span{
-  color:rgba(255,255,255,0.62);
+  color:rgba(255,255,255,0.76);
 }
 
 .preview-image-info-row strong{
@@ -5912,17 +5941,17 @@ body.button-glass-on .carousel-nav,
 
 body.button-glass-on .preview-actions .preview-image-info-btn,
 body:not(.button-glass-on) .preview-actions .preview-image-info-btn{
-  background:color-mix(in srgb, var(--button-bg-color) calc(var(--button-glass-alpha) * 100%), transparent) !important;
-  border-color:rgba(255,255,255,0.22) !important;
-  box-shadow:0 12px 30px rgba(0,0,0,0.18) !important;
+  background:color-mix(in srgb, var(--button-bg-color) 72%, transparent) !important;
+  border-color:rgba(255,255,255,0.28) !important;
+  box-shadow:0 12px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2) !important;
   backdrop-filter:blur(14px) !important;
   color:white;
 }
 
 body.button-glass-on .preview-actions .preview-image-info-btn:hover,
 body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
-  background:color-mix(in srgb, var(--button-bg-color) min(calc(var(--button-glass-alpha) * 100% + 10%), 92%), transparent) !important;
-  border-color:rgba(255,255,255,0.24) !important;
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white) !important;
+  border-color:rgba(255,255,255,0.34) !important;
   color:white;
 }
 
@@ -6900,6 +6929,40 @@ body.light .preview-description{
 body.light .preview-actions{
   border-top-color:rgba(26,26,46,0.12);
   background:linear-gradient(180deg,transparent,rgba(255,255,255,0.18));
+}
+
+body.light .preview-image-info-popover{
+  background:linear-gradient(145deg,rgba(255,255,255,0.74),rgba(255,255,255,0.46));
+  border-color:rgba(31,31,51,0.16);
+  color:#17172a;
+  box-shadow:0 18px 46px rgba(31,31,51,0.18), inset 0 1px 0 rgba(255,255,255,0.86);
+  backdrop-filter:blur(22px) saturate(1.18);
+}
+
+body.light .preview-image-info-row{
+  border-top-color:rgba(31,31,51,0.12);
+}
+
+body.light .preview-image-info-row span{
+  color:rgba(23,23,42,0.68);
+}
+
+body.light .preview-image-info-row strong{
+  color:#17172a;
+}
+
+body.light .preview-actions .preview-delete-btn{
+  background:linear-gradient(135deg,#ff1744,#d50000);
+  border-color:rgba(255,255,255,0.88);
+  color:white;
+  box-shadow:0 12px 30px rgba(213,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.28);
+  text-shadow:0 1px 2px rgba(0,0,0,0.34);
+}
+
+body.light .preview-actions .preview-delete-btn:hover{
+  background:linear-gradient(135deg,#ff4568,#e00000);
+  color:white;
+  box-shadow:0 14px 34px rgba(213,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.34);
 }
 
 @media (max-width:760px){
@@ -10667,7 +10730,10 @@ body:not(.button-glass-on) .about-modal-close:hover {
 }
 
 body:not(.button-glass-on) .preview-actions .preview-favorite-btn.active,
-body:not(.button-glass-on) .details-favorite.active{
+body:not(.button-glass-on) .details-favorite.active,
+body.button-glass-on .preview-actions .preview-favorite-btn.active,
+body.button-glass-on .details-favorite.active,
+.memory-actions .favorite-btn.active{
   background:#ffb020 !important;
   border-color:rgba(255,217,112,0.72) !important;
   color:#362300 !important;
@@ -10675,7 +10741,10 @@ body:not(.button-glass-on) .details-favorite.active{
 }
 
 body:not(.button-glass-on) .preview-actions .preview-favorite-btn.active:hover,
-body:not(.button-glass-on) .details-favorite.active:hover{
+body:not(.button-glass-on) .details-favorite.active:hover,
+body.button-glass-on .preview-actions .preview-favorite-btn.active:hover,
+body.button-glass-on .details-favorite.active:hover,
+.memory-actions .favorite-btn.active:hover{
   background:#ffc247 !important;
   border-color:rgba(255,226,139,0.86) !important;
   color:#362300 !important;
@@ -10828,9 +10897,10 @@ body.top-icons-circle .reminder-menu .reminder-icon-btn:hover{
 .timeline-controls.toolbar-icons-separate .filter-toggle.active,
 .timeline-controls.toolbar-icons-separate .timeline-action-btn:hover,
 .timeline-controls.toolbar-icons-separate .timeline-action-btn.active{
-  background:transparent !important;
-  border-color:transparent !important;
+  background:color-mix(in srgb, var(--button-bg-color) 18%, transparent) !important;
+  border-color:color-mix(in srgb, var(--button-bg-color) 48%, transparent) !important;
   color:color-mix(in srgb, var(--button-bg-color) 86%, #ffffff) !important;
+  box-shadow:0 10px 24px color-mix(in srgb, var(--button-bg-color) 18%, transparent) !important;
   transform:translateY(-2px) scale(1.06);
 }
 

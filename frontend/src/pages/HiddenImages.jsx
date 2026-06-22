@@ -359,7 +359,7 @@ function HiddenImages() {
                       aria-label="Unhide"
                       onClick={()=>handleUnhide(previewMemory)}
                     >
-                      <span className="hidden-preview-icon hidden-preview-unhide-icon" aria-hidden="true" />
+                      <span className="hidden-preview-emoji" aria-hidden="true">&#8617;&#65039;</span>
                     </button>
                     <button
                       type="button"
@@ -368,7 +368,7 @@ function HiddenImages() {
                       aria-label="Delete permanently"
                       onClick={()=>requestPermanentDelete(previewMemory)}
                     >
-                      <span className="hidden-preview-icon hidden-preview-delete-icon" aria-hidden="true" />
+                      <span className="hidden-preview-emoji" aria-hidden="true">&#128465;&#65039;</span>
                     </button>
                   </motion.div>
                 </motion.div>

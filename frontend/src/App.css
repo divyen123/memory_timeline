@@ -8218,6 +8218,27 @@ body.light .days-counter{
     text-align:left;
   }
 
+  .hidden-images-title{
+    position:fixed;
+    top:16px;
+    left:16px;
+    right:auto;
+    z-index:1050;
+    max-width:calc(100vw - 120px);
+    margin:0;
+    font-size:clamp(17px,5vw,22px);
+    font-weight:700;
+    line-height:1.1;
+  }
+
+  .hidden-images-page{
+    padding:72px 16px 44px;
+  }
+
+  .hidden-images-heading{
+    margin:0 auto 28px;
+  }
+
   body.top-actions-left .timeline-title{
     left:auto;
     right:16px;
@@ -11120,23 +11141,32 @@ body.light .hide-confirm-dialog{
   z-index:1;
   width:100%;
   min-height:100vh;
-  padding:42px 28px 70px;
+  padding:34px 28px 70px;
+}
+
+.hidden-images-title{
+  position:fixed;
+  top:52px;
+  left:54px;
+  z-index:24;
+  margin:0;
+  color:var(--adaptive-icon-color);
+  font-size:30px;
+  font-weight:500;
+  line-height:1.1;
+  text-align:left;
+  letter-spacing:0.01em;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.22),
+    0 8px 24px rgba(0,0,0,0.24);
 }
 
 .hidden-images-heading{
-  width:min(1120px,92vw);
-  margin:0 auto 28px;
+  width:min(420px,90vw);
+  margin:86px auto 56px;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:16px;
-}
-
-.hidden-images-heading h1{
-  color:var(--adaptive-icon-color);
-  font-size:clamp(34px,4vw,58px);
-  line-height:1;
-  text-align:center;
 }
 
 .hidden-images-heading .timeline-action-btn{
@@ -11144,6 +11174,18 @@ body.light .hide-confirm-dialog{
   height:var(--toolbar-button-size);
   min-height:var(--toolbar-button-size);
   flex:0 0 var(--toolbar-button-size);
+}
+
+.hidden-images-timeline{
+  margin-top:0;
+}
+
+.hidden-memory-item{
+  cursor:default;
+}
+
+.hidden-memory-item .timeline-card{
+  cursor:default;
 }
 
 .hidden-unlock-panel,

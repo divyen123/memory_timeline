@@ -60,6 +60,10 @@ function MemoryCard({
   }, []);
 
   const handleDetails = () => {
+    if(hiddenMode){
+      return;
+    }
+
     if(selectionMode){
       onSelect?.(memory._id);
       return;
@@ -107,7 +111,7 @@ function MemoryCard({
 
     <motion.div
       ref={cardRef}
-      className={`timeline-item hidden ${isVisible ? "show" : ""} ${index % 2 === 0 ? "left" : "right"} ${selectionMode ? "selection-mode" : ""} ${selected ? "selected-memory" : ""} ${isTransitionSource ? "shared-transition-source" : ""}`}
+      className={`timeline-item hidden ${isVisible ? "show" : ""} ${index % 2 === 0 ? "left" : "right"} ${selectionMode ? "selection-mode" : ""} ${selected ? "selected-memory" : ""} ${hiddenMode ? "hidden-memory-item" : ""} ${isTransitionSource ? "shared-transition-source" : ""}`}
       onClick={handleDetails}
       animate={isTransitionDimmed ? "dimmed" : "visible"}
       variants={timelineItemPresenceVariants}

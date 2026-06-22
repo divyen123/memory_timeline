@@ -128,8 +128,8 @@ function HiddenImages() {
     <PageTransition>
       <main className="hidden-images-page">
         {message && <p className="message">{message}</p>}
+        <h1 className="hidden-images-title">Hided images</h1>
         <div className="hidden-images-heading">
-          <h1>Hided images</h1>
           {unlocked && (
             <button
               type="button"
@@ -180,7 +180,7 @@ function HiddenImages() {
             {memories.map((memory)=>renderSmallMemoryCard(memory, "calendar-memory small-container-memory"))}
           </div>
         ) : (
-          <div className="timeline">
+          <div className="timeline hidden-images-timeline">
             {memories.map((memory, index)=>(
               <MemoryCard
                 key={memory._id}

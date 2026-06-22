@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import MemoryCard from "../components/MemoryCard";
 import PageTransition from "../components/PageTransition";
@@ -6,6 +7,12 @@ import { getHiddenMemories, getMemoryImageUrl, permanentlyDeleteHiddenMemory, un
 import { loadSettings } from "../settings";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import SmartImage from "../components/SmartImage";
+import {
+  memorySharedLayoutTransition,
+  previewContentChildVariants,
+  previewDialogVariants,
+  previewOverlayVariants
+} from "../components/memoryTransition/transitions";
 
 const VIEW_MODES = ["timeline", "calendar", "compact"];
 const VIEW_MODE_LABELS = {
@@ -24,6 +31,10 @@ const monthLabel = (value) => new Date(value).toLocaleDateString("en-GB", {
   year:"numeric"
 });
 
+const getMemoryImages = (memory) => (
+  memory?.images?.length ? memory.images : (memory?.image ? [memory.image] : [])
+);
+
 function HiddenImages() {
   const navigate = useNavigate();
   const [memories, setMemories] = useState([]);
@@ -31,6 +42,10 @@ function HiddenImages() {
   const [message, setMessage] = useState("");
   const [viewMode, setViewMode] = useState("timeline");
   const [passwordInput, setPasswordInput] = useState("");
+  const [previewMemory, setPreviewMemory] = useState(null);
+  const [previewImageIndex, setPreviewImageIndex] = useState(0);
+  const previewReturnFocusRef = useRef(null);
+  const prefersReducedMotion = useReducedMotion();
   const settings = loadSettings();
   const passwordRequired = Boolean(settings.hidePasswordEnabled && settings.hidePasswordValue);
   const [unlocked, setUnlocked] = useState(!passwordRequired);
@@ -85,6 +100,7 @@ function HiddenImages() {
     try{
       await unhideMemory(memory._id);
       setMessage("Image unhidden");
+      setPreviewMemory(null);
       navigate("/timeline");
     }catch(error){
       setMessage(error.response?.data?.message || "Unable to unhide image");
@@ -95,10 +111,43 @@ function HiddenImages() {
     try{
       await permanentlyDeleteHiddenMemory(memory._id);
       setMemories(current => current.filter((item)=>item._id !== memory._id));
+      if(previewMemory?._id === memory._id){
+        setPreviewMemory(null);
+      }
       setMessage("Hidden image permanently deleted");
     }catch(error){
       setMessage(error.response?.data?.message || "Unable to delete hidden image");
     }
+  };
+
+  const openPreviewMemory = (memory, sourceNode = null) => {
+    previewReturnFocusRef.current = sourceNode || document.activeElement;
+    setPreviewMemory(memory);
+    setPreviewImageIndex(0);
+  };
+
+  const closePreview = () => {
+    setPreviewMemory(null);
+
+    window.setTimeout(() => {
+      previewReturnFocusRef.current?.focus?.();
+    }, prefersReducedMotion ? 120 : 520);
+  };
+
+  const showPreviousPreviewImage = (event) => {
+    event?.stopPropagation?.();
+    setPreviewImageIndex(current => {
+      const images = getMemoryImages(previewMemory);
+      return images.length ? (current - 1 + images.length) % images.length : 0;
+    });
+  };
+
+  const showNextPreviewImage = (event) => {
+    event?.stopPropagation?.();
+    setPreviewImageIndex(current => {
+      const images = getMemoryImages(previewMemory);
+      return images.length ? (current + 1) % images.length : 0;
+    });
   };
 
   const renderSmallMemoryCard = (memory, className = "calendar-memory") => {
@@ -106,7 +155,7 @@ function HiddenImages() {
     const kind = memory.thumbnails?.length ? "thumbnails" : "images";
 
     return (
-      <button type="button" className={className} key={memory._id}>
+      <button type="button" className={className} key={memory._id} onClick={(event)=>openPreviewMemory(memory, event.currentTarget)}>
         <span className={`calendar-memory-thumbnail ${images[0] ? "" : "empty"}`}>
           {images[0] ? (
             <SmartImage src={getMemoryImageUrl(memory, kind, 0)} alt={memory.title} detectFaces={false} />
@@ -123,6 +172,10 @@ function HiddenImages() {
       </button>
     );
   };
+
+  const previewImages = previewMemory ? getMemoryImages(previewMemory) : [];
+  const hasMultiplePreviewImages = previewImages.length > 1;
+  const currentPreviewImage = previewImages[previewImageIndex] || previewImages[0];
 
   return (
     <PageTransition>
@@ -189,10 +242,125 @@ function HiddenImages() {
                 hiddenMode
                 onDelete={handlePermanentDelete}
                 onUnhide={handleUnhide}
+                onPreview={openPreviewMemory}
+                isTransitionDimmed={Boolean(previewMemory) && previewMemory._id !== memory._id}
+                isTransitionSource={previewMemory?._id === memory._id}
               />
             ))}
           </div>
         )}
+
+        <AnimatePresence>
+          {previewMemory && (
+            <motion.div
+              key={previewMemory._id}
+              className="preview-overlay hidden-preview-overlay"
+              variants={previewOverlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={closePreview}
+            >
+              <motion.div
+                className="preview-dialog hidden-preview-dialog"
+                layout={!prefersReducedMotion}
+                variants={previewDialogVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                onClick={(event)=>event.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  className="preview-back-btn"
+                  aria-label="Back to hidden images"
+                  onClick={closePreview}
+                >
+                  &#8592;
+                </button>
+
+                <motion.div
+                  className={`preview-media ${hasMultiplePreviewImages ? "multiple-images" : "single-image"}`}
+                  layoutId={prefersReducedMotion ? undefined : `memory-image-${previewMemory._id}`}
+                  transition={memorySharedLayoutTransition}
+                >
+                  {currentPreviewImage && (
+                    <SmartImage
+                      key={`${currentPreviewImage}-hidden-preview-${previewImageIndex}`}
+                      className="preview-carousel-image"
+                      src={getMemoryImageUrl(previewMemory, "images", previewImageIndex)}
+                      alt={previewMemory.title}
+                      draggable={false}
+                    />
+                  )}
+
+                  {hasMultiplePreviewImages && (
+                    <>
+                      <button
+                        type="button"
+                        className="preview-image-nav left"
+                        aria-label="Previous image"
+                        onClick={showPreviousPreviewImage}
+                      >
+                        &#8249;
+                      </button>
+                      <button
+                        type="button"
+                        className="preview-image-nav right"
+                        aria-label="Next image"
+                        onClick={showNextPreviewImage}
+                      >
+                        &#8250;
+                      </button>
+                      <span className="preview-image-count">
+                        {previewImageIndex + 1} / {previewImages.length}
+                      </span>
+                    </>
+                  )}
+                </motion.div>
+
+                <motion.div className="preview-content">
+                  <motion.h3
+                    layoutId={prefersReducedMotion ? undefined : `memory-title-${previewMemory._id}`}
+                    transition={memorySharedLayoutTransition}
+                  >
+                    {previewMemory.title}
+                  </motion.h3>
+                  <motion.div
+                    className={`preview-description ${previewMemory.description ? "" : "empty"}`}
+                    variants={previewContentChildVariants}
+                    dangerouslySetInnerHTML={{
+                      __html:previewMemory.description || "<p>No description added for this hidden image.</p>"
+                    }}
+                  />
+                  <motion.div
+                    className="preview-actions hidden-preview-actions"
+                    variants={previewContentChildVariants}
+                  >
+                    <button
+                      type="button"
+                      className="preview-unhide-btn"
+                      title="Unhide"
+                      aria-label="Unhide"
+                      onClick={()=>handleUnhide(previewMemory)}
+                    >
+                      <span aria-hidden="true">&#8634;</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="preview-delete-btn"
+                      title="Delete permanently"
+                      aria-label="Delete permanently"
+                      onClick={()=>handlePermanentDelete(previewMemory)}
+                    >
+                      <span aria-hidden="true">ðŸ—‘ï¸</span>
+                    </button>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </PageTransition>
   );

@@ -61,6 +61,7 @@ function MemoryCard({
 
   const handleDetails = () => {
     if(hiddenMode){
+      onPreview?.(memory, cardRef.current);
       return;
     }
 

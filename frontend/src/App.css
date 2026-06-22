@@ -11141,32 +11141,37 @@ body.light .hide-confirm-dialog{
   z-index:1;
   width:100%;
   min-height:100vh;
-  padding:34px 28px 70px;
+  padding:112px 28px 70px;
 }
 
 .hidden-images-title{
   position:fixed;
-  top:52px;
+  top:48px;
   left:54px;
   z-index:24;
   margin:0;
   color:var(--adaptive-icon-color);
-  font-size:30px;
+  font-size:24px;
   font-weight:500;
   line-height:1.1;
   text-align:left;
-  letter-spacing:0.01em;
+  letter-spacing:0;
   text-shadow:
     0 1px 0 rgba(255,255,255,0.22),
     0 8px 24px rgba(0,0,0,0.24);
 }
 
 .hidden-images-heading{
-  width:min(420px,90vw);
-  margin:86px auto 56px;
+  position:fixed;
+  top:34px;
+  left:50%;
+  z-index:24;
+  width:auto;
+  margin:0;
   display:flex;
   align-items:center;
   justify-content:center;
+  transform:translateX(-50%);
 }
 
 .hidden-images-heading .timeline-action-btn{
@@ -11177,15 +11182,62 @@ body.light .hide-confirm-dialog{
 }
 
 .hidden-images-timeline{
-  margin-top:0;
+  width:min(1500px,calc(100vw - 112px));
+  margin:0 0 0 26px;
 }
 
 .hidden-memory-item{
-  cursor:default;
+  cursor:pointer;
 }
 
 .hidden-memory-item .timeline-card{
-  cursor:default;
+  cursor:pointer;
+}
+
+.hidden-preview-actions{
+  justify-content:flex-start;
+}
+
+.preview-actions .preview-unhide-btn{
+  background:linear-gradient(135deg,#18b77b,#047857);
+  color:#fff;
+  border-color:rgba(255,255,255,0.22);
+  box-shadow:0 16px 36px rgba(4,120,87,0.32);
+}
+
+.preview-actions .preview-unhide-btn:hover{
+  background:linear-gradient(135deg,#34d399,#059669);
+  transform:translateY(-2px) scale(1.04);
+}
+
+.hidden-preview-dialog .preview-content{
+  min-height:360px;
+}
+
+@media (max-width:760px){
+  .hidden-images-page{
+    padding:72px 16px 44px;
+  }
+
+  .hidden-images-title{
+    top:16px;
+    left:16px;
+    z-index:1050;
+    max-width:calc(100vw - 120px);
+    font-size:20px;
+    font-weight:700;
+  }
+
+  .hidden-images-heading{
+    top:12px;
+    left:50%;
+    z-index:1050;
+  }
+
+  .hidden-images-timeline{
+    width:100%;
+    margin:0;
+  }
 }
 
 .hidden-unlock-panel,

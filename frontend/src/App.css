@@ -11182,18 +11182,21 @@ body.light .hide-confirm-dialog{
 }
 
 .hidden-images-timeline{
-  width:min(1500px,92vw);
-  max-width:1500px;
-  margin:0 auto 0 0;
-  justify-items:start;
+  width:min(360px,calc(100vw - 108px)) !important;
+  max-width:min(360px,calc(100vw - 108px)) !important;
+  margin:0 0 0 26px !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  justify-items:stretch;
+  align-items:start;
 }
 
 body.card-size-small .hidden-images-timeline,
 body.card-size-medium .hidden-images-timeline,
 body.card-size-large .hidden-images-timeline{
-  width:min(1500px,92vw);
-  max-width:1500px;
-  margin-left:0;
+  width:min(360px,calc(100vw - 108px)) !important;
+  max-width:min(360px,calc(100vw - 108px)) !important;
+  margin-left:26px !important;
+  grid-template-columns:minmax(0,1fr) !important;
 }
 
 .hidden-memory-item{

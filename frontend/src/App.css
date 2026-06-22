@@ -11182,8 +11182,17 @@ body.light .hide-confirm-dialog{
 }
 
 .hidden-images-timeline{
-  width:min(1500px,calc(100vw - 112px));
-  margin:0 0 0 26px;
+  width:min(1500px,92vw);
+  max-width:1500px;
+  margin:0 auto 0 0;
+}
+
+body.card-size-small .hidden-images-timeline,
+body.card-size-medium .hidden-images-timeline,
+body.card-size-large .hidden-images-timeline{
+  width:min(1500px,92vw);
+  max-width:1500px;
+  margin-left:0;
 }
 
 .hidden-memory-item{
@@ -11196,6 +11205,75 @@ body.light .hide-confirm-dialog{
 
 .hidden-preview-actions{
   justify-content:flex-start;
+  gap:14px;
+}
+
+.hidden-preview-actions button{
+  position:relative;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+
+.hidden-preview-icon{
+  position:relative;
+  display:block;
+  width:26px;
+  height:26px;
+  color:#fff;
+}
+
+.hidden-preview-unhide-icon::before{
+  content:"";
+  position:absolute;
+  width:15px;
+  height:15px;
+  left:5px;
+  top:6px;
+  border:4px solid currentColor;
+  border-right-color:transparent;
+  border-radius:50%;
+  transform:rotate(-35deg);
+}
+
+.hidden-preview-unhide-icon::after{
+  content:"";
+  position:absolute;
+  left:2px;
+  top:13px;
+  width:0;
+  height:0;
+  border-top:7px solid transparent;
+  border-bottom:7px solid transparent;
+  border-right:10px solid currentColor;
+  transform:rotate(-8deg);
+}
+
+.hidden-preview-delete-icon::before{
+  content:"";
+  position:absolute;
+  left:6px;
+  top:8px;
+  width:14px;
+  height:15px;
+  border:3px solid currentColor;
+  border-top:0;
+  border-radius:0 0 4px 4px;
+  box-shadow:
+    inset 4px 0 0 -2px currentColor,
+    inset -4px 0 0 -2px currentColor;
+}
+
+.hidden-preview-delete-icon::after{
+  content:"";
+  position:absolute;
+  left:4px;
+  top:4px;
+  width:18px;
+  height:3px;
+  border-radius:999px;
+  background:currentColor;
+  box-shadow:5px -4px 0 -1px currentColor;
 }
 
 .preview-actions .preview-unhide-btn{

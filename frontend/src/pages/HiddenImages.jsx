@@ -44,6 +44,7 @@ function HiddenImages() {
   const [passwordInput, setPasswordInput] = useState("");
   const [previewMemory, setPreviewMemory] = useState(null);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
+  const [memoryToDelete, setMemoryToDelete] = useState(null);
   const previewReturnFocusRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
   const settings = loadSettings();
@@ -107,15 +108,29 @@ function HiddenImages() {
     }
   };
 
-  const handlePermanentDelete = async (memory) => {
+  const requestPermanentDelete = (memory) => {
+    setMemoryToDelete(memory);
+  };
+
+  const cancelPermanentDelete = () => {
+    setMemoryToDelete(null);
+  };
+
+  const confirmPermanentDelete = async () => {
+    if(!memoryToDelete){
+      return;
+    }
+
     try{
-      await permanentlyDeleteHiddenMemory(memory._id);
-      setMemories(current => current.filter((item)=>item._id !== memory._id));
-      if(previewMemory?._id === memory._id){
+      await permanentlyDeleteHiddenMemory(memoryToDelete._id);
+      setMemories(current => current.filter((item)=>item._id !== memoryToDelete._id));
+      if(previewMemory?._id === memoryToDelete._id){
         setPreviewMemory(null);
       }
+      setMemoryToDelete(null);
       setMessage("Hidden image permanently deleted");
     }catch(error){
+      setMemoryToDelete(null);
       setMessage(error.response?.data?.message || "Unable to delete hidden image");
     }
   };
@@ -240,7 +255,7 @@ function HiddenImages() {
                 memory={memory}
                 index={index}
                 hiddenMode
-                onDelete={handlePermanentDelete}
+                onDelete={requestPermanentDelete}
                 onUnhide={handleUnhide}
                 onPreview={openPreviewMemory}
                 isTransitionDimmed={Boolean(previewMemory) && previewMemory._id !== memory._id}
@@ -344,16 +359,16 @@ function HiddenImages() {
                       aria-label="Unhide"
                       onClick={()=>handleUnhide(previewMemory)}
                     >
-                      <span aria-hidden="true">&#8634;</span>
+                      <span className="hidden-preview-icon hidden-preview-unhide-icon" aria-hidden="true" />
                     </button>
                     <button
                       type="button"
                       className="preview-delete-btn"
                       title="Delete permanently"
                       aria-label="Delete permanently"
-                      onClick={()=>handlePermanentDelete(previewMemory)}
+                      onClick={()=>requestPermanentDelete(previewMemory)}
                     >
-                      <span aria-hidden="true">ðŸ—‘ï¸</span>
+                      <span className="hidden-preview-icon hidden-preview-delete-icon" aria-hidden="true" />
                     </button>
                   </motion.div>
                 </motion.div>
@@ -361,6 +376,33 @@ function HiddenImages() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {memoryToDelete && (
+          <div className="confirm-overlay hidden-delete-confirm-overlay">
+            <div className="confirm-dialog hidden-delete-confirm-dialog">
+              <h3>Delete permanently?</h3>
+              <p>
+                "{memoryToDelete.title}" will be deleted forever. This cannot be recovered from trash.
+              </p>
+              <div className="confirm-actions">
+                <button
+                  type="button"
+                  className="cancel-delete-btn"
+                  onClick={cancelPermanentDelete}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="confirm-delete-btn"
+                  onClick={confirmPermanentDelete}
+                >
+                  Delete forever
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </PageTransition>
   );

@@ -6804,7 +6804,8 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
   padding-top:18px;
   justify-content:flex-start;
   border-top:1px solid rgba(255,255,255,0.1);
-  background:linear-gradient(180deg,transparent,rgba(22,22,50,0.22));
+  background:transparent;
+  box-shadow:none;
 }
 
 .preview-actions button{
@@ -6928,7 +6929,8 @@ body.light .preview-description{
 
 body.light .preview-actions{
   border-top-color:rgba(26,26,46,0.12);
-  background:linear-gradient(180deg,transparent,rgba(255,255,255,0.18));
+  background:transparent;
+  box-shadow:none;
 }
 
 body.light .preview-image-info-popover{
@@ -10753,6 +10755,51 @@ body.button-glass-on .details-favorite.active:hover,
 body:not(.button-glass-on) .preview-actions button:last-child {
   background: rgba(255, 77, 109, 0.48);
   border-color: rgba(255, 255, 255, 0.18);
+}
+
+.preview-actions .preview-favorite-btn.active,
+body.light .preview-actions .preview-favorite-btn.active,
+body.dark .preview-actions .preview-favorite-btn.active,
+body.button-glass-on .preview-actions .preview-favorite-btn.active,
+body:not(.button-glass-on) .preview-actions .preview-favorite-btn.active{
+  background:#ffb020 !important;
+  border-color:#ffd970 !important;
+  color:#3a2500 !important;
+  box-shadow:none !important;
+}
+
+.preview-actions .preview-favorite-btn.active:hover,
+body.light .preview-actions .preview-favorite-btn.active:hover,
+body.dark .preview-actions .preview-favorite-btn.active:hover,
+body.button-glass-on .preview-actions .preview-favorite-btn.active:hover,
+body:not(.button-glass-on) .preview-actions .preview-favorite-btn.active:hover{
+  background:#ffc247 !important;
+  border-color:#ffe28b !important;
+  color:#3a2500 !important;
+  box-shadow:none !important;
+}
+
+.preview-actions .preview-delete-btn,
+body.light .preview-actions .preview-delete-btn,
+body.dark .preview-actions .preview-delete-btn,
+body.button-glass-on .preview-actions .preview-delete-btn,
+body:not(.button-glass-on) .preview-actions .preview-delete-btn{
+  background:linear-gradient(135deg,#ff1744,#c90021) !important;
+  border-color:rgba(255,255,255,0.72) !important;
+  color:white !important;
+  box-shadow:none !important;
+  text-shadow:0 1px 2px rgba(0,0,0,0.38);
+}
+
+.preview-actions .preview-delete-btn:hover,
+body.light .preview-actions .preview-delete-btn:hover,
+body.dark .preview-actions .preview-delete-btn:hover,
+body.button-glass-on .preview-actions .preview-delete-btn:hover,
+body:not(.button-glass-on) .preview-actions .preview-delete-btn:hover{
+  background:linear-gradient(135deg,#ff4568,#e00027) !important;
+  border-color:white !important;
+  color:white !important;
+  box-shadow:none !important;
 }
 
 body.toolbar-icons-separate:not(.button-glass-on) .timeline-controls .filter-toggle,

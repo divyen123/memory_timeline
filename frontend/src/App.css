@@ -231,13 +231,17 @@ body.light input[type="file"]{
 }
 
 input[type="file"]::file-selector-button{
-  background:#ff4d6d;
+  background:var(--button-bg-color);
   color:white;
-  border:none;
+  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white);
   padding:8px 14px;
   border-radius:8px;
   cursor:pointer;
   margin-right:10px;
+}
+
+input[type="file"]::file-selector-button:hover{
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white);
 }
 
 /* ================= BUTTONS ================= */
@@ -269,11 +273,12 @@ button:hover{
 
 .timeline-btn{
   margin-top:12px;
-  background:#6c63ff;
+  background:var(--button-bg-color);
+  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white);
 }
 
 .timeline-btn:hover{
-  background:#5148e5;
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white);
 }
 
 .login-actions{
@@ -3271,7 +3276,7 @@ body.light .about-modal-details{
 }
 
 .timeline-search-shell.open .timeline-icon-control{
-  background:#ff2f6d;
+  background:var(--button-bg-color);
   box-shadow:none;
 }
 
@@ -3438,7 +3443,7 @@ body.toolbar-icons-separate .filter-toggle.active,
 body.toolbar-icons-separate .timeline-action-btn:hover,
 body.toolbar-icons-separate .timeline-action-btn.active,
 body.toolbar-icons-separate .timeline-toolbar button:hover{
-  color:#ff4b7d;
+  color:color-mix(in srgb, var(--button-bg-color) 86%, #ffffff);
   transform:translateY(-2px) scale(1.06);
 }
 
@@ -3446,7 +3451,7 @@ body.toolbar-icons-separate .filter-icon-control:hover .filter-funnel-icon::befo
 body.toolbar-icons-separate .filter-icon-control:hover .filter-funnel-icon::after,
 body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::before,
 body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::after{
-  background:#ff4b7d;
+  background:color-mix(in srgb, var(--button-bg-color) 86%, #ffffff);
 }
 
 .timeline-icon-control{
@@ -3459,8 +3464,8 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
 
 .timeline-icon-control:hover,
 .timeline-icon-control.active{
-  background:#ff2f6d;
-  box-shadow:0 14px 30px rgba(255,47,109,0.35);
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white);
+  box-shadow:0 14px 30px color-mix(in srgb, var(--button-bg-color) 35%, transparent);
 }
 
 .filter-icon-control{
@@ -3511,13 +3516,13 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
 
 .timeline-action-btn:hover,
 .filter-toggle:hover{
-  background:#ff2f6d;
-  box-shadow:0 14px 30px rgba(255,47,109,0.35);
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white);
+  box-shadow:0 14px 30px color-mix(in srgb, var(--button-bg-color) 35%, transparent);
 }
 
 .timeline-action-btn.active{
-  background:#ff2f6d;
-  box-shadow:0 14px 30px rgba(255,47,109,0.35);
+  background:var(--button-bg-color);
+  box-shadow:0 14px 30px color-mix(in srgb, var(--button-bg-color) 35%, transparent);
 }
 
 .export-image-btn{
@@ -3540,7 +3545,7 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
 }
 
 .filter-toggle.active{
-  background:#ff2f6d;
+  background:var(--button-bg-color);
 }
 
 .timeline-filter-popover{
@@ -3601,7 +3606,7 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
 .timeline-filter-section button:hover,
 .timeline-filter-section button.selected{
   transform:translateY(-2px);
-  background:#ff4b7d;
+  background:var(--button-bg-color);
 }
 
 .timeline-toolbar{
@@ -3728,7 +3733,7 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
 }
 
 .export-confirm-btn{
-  background:#ff4b7d;
+  background:var(--button-bg-color);
 }
 
 .export-confirm-btn:disabled{
@@ -4068,13 +4073,13 @@ body.top-actions-left .reminder-popover{
 }
 
 .reminder-tomorrow-btn{
-  background:#ff4b7d;
-  box-shadow:0 12px 26px rgba(255,75,125,0.28);
+  background:var(--button-bg-color);
+  box-shadow:0 12px 26px color-mix(in srgb, var(--button-bg-color) 28%, transparent);
 }
 
 .reminder-tomorrow-btn:hover{
-  background:#ff2f6d;
-  box-shadow:0 16px 34px rgba(255,47,109,0.34);
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white);
+  box-shadow:0 16px 34px color-mix(in srgb, var(--button-bg-color) 34%, transparent);
 }
 
 @keyframes reminderFade{
@@ -4226,8 +4231,8 @@ body.top-actions-left .reminder-popover{
 }
 
 .memory-select-check.selected{
-  background:#ff4b7d;
-  border-color:#ff9fbb;
+  background:var(--button-bg-color);
+  border-color:color-mix(in srgb, var(--button-bg-color) 62%, white);
 }
 
 body.memory-hover-off .timeline-card:hover{
@@ -4671,8 +4676,8 @@ body.light .empty-state{
 }
 
 .calendar-memory.selected{
-  background:#ff4b7d;
-  box-shadow:0 0 0 3px rgba(255,75,125,0.2);
+  background:var(--button-bg-color);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--button-bg-color) 24%, transparent);
 }
 
 .calendar-memory i{
@@ -4919,7 +4924,7 @@ body.light .profile-info-list strong{
 
 .segmented-setting button.active,
 .segmented-setting button:hover{
-  background:#ff4b7d;
+  background:var(--button-bg-color);
 }
 
 .settings-section-title{
@@ -8625,7 +8630,7 @@ body.light .upload-helper{
   padding:7px 12px;
   flex:0 0 auto;
   border-radius:999px;
-  background:rgba(255,75,125,0.18);
+  background:color-mix(in srgb, var(--button-bg-color) 28%, transparent);
   border:1px solid rgba(255,255,255,0.18);
   color:white;
   font-size:12px;
@@ -8635,7 +8640,7 @@ body.light .upload-helper{
 body.light .add-memory-page .upload-helper button{
   border-color:rgba(44,44,44,0.12);
   color:#2c2c2c;
-  background:rgba(255,75,125,0.12);
+  background:color-mix(in srgb, var(--button-bg-color) 18%, rgba(255,255,255,0.45));
 }
 
 .selected-files-panel{
@@ -9731,7 +9736,7 @@ body.light .calendar-memory{
 
   .details-back-btn:hover{
     transform:none;
-    background:rgba(255,75,125,0.82);
+    background:color-mix(in srgb, var(--button-bg-color) 82%, transparent);
   }
 
   .preview-back-btn{
@@ -9759,7 +9764,7 @@ body.light .calendar-memory{
 
   .preview-back-btn:hover{
     transform:none;
-    background:rgba(255,75,125,0.82);
+    background:color-mix(in srgb, var(--button-bg-color) 82%, transparent);
   }
 
   .upload-helper,
@@ -10649,7 +10654,7 @@ body.toolbar-icons-separate:not(.button-glass-on) .timeline-controls .timeline-a
 body.toolbar-icons-separate:not(.button-glass-on) .timeline-toolbar button:hover{
   background:transparent !important;
   border-color:transparent !important;
-  color:#ff4b7d;
+  color:color-mix(in srgb, var(--button-bg-color) 86%, #ffffff);
 }
 
 body.toolbar-icons-soft:not(.button-glass-on) .timeline-controls .filter-toggle,
@@ -10760,7 +10765,7 @@ body.top-icons-circle .reminder-menu .reminder-icon-btn:hover{
 .timeline-controls.toolbar-icons-separate .timeline-action-btn.active{
   background:transparent !important;
   border-color:transparent !important;
-  color:#ff4b7d !important;
+  color:color-mix(in srgb, var(--button-bg-color) 86%, #ffffff) !important;
   transform:translateY(-2px) scale(1.06);
 }
 
@@ -10768,7 +10773,7 @@ body.top-icons-circle .reminder-menu .reminder-icon-btn:hover{
 .timeline-controls.toolbar-icons-separate .filter-icon-control:hover .filter-funnel-icon::after,
 .timeline-controls.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::before,
 .timeline-controls.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::after{
-  background:#ff4b7d;
+  background:color-mix(in srgb, var(--button-bg-color) 86%, #ffffff);
 }
 
 body:not(.button-glass-on) .preview-actions button:last-child:hover {
@@ -10960,11 +10965,11 @@ body:not(.button-glass-on) .preview-actions button:last-child:hover {
   }
 
   body.light .timeline-filter-section button.selected{
-    background:linear-gradient(135deg,#ff4b7d,#e11d63) !important;
+    background:linear-gradient(135deg,var(--button-bg-color),color-mix(in srgb, var(--button-bg-color) 82%, #1a1a2e)) !important;
     border-color:rgba(255,255,255,0.72) !important;
     color:white !important;
     box-shadow:
-      0 10px 24px rgba(225,29,99,0.28),
+      0 10px 24px color-mix(in srgb, var(--button-bg-color) 28%, transparent),
       inset 0 1px 0 rgba(255,255,255,0.34) !important;
   }
 
@@ -11137,7 +11142,7 @@ body.light .settings-tip-bubble{
 .trash-page .trash-menu-toggle:focus-visible{
   background:transparent !important;
   box-shadow:none !important;
-  color:#ff4b7d;
+  color:color-mix(in srgb, var(--button-bg-color) 86%, #ffffff);
   transform:translateY(-1px);
 }
 

@@ -2490,7 +2490,7 @@ width:var(--top-action-size);
 height:var(--top-action-size);
 padding:0;
 border-radius:50%;
-border:none;
+border:1px solid rgba(255,255,255,0.28);
 cursor:pointer;
 position:relative;
 overflow:hidden;
@@ -2501,8 +2501,10 @@ justify-content:center;
 
 font-size:clamp(18px, calc(var(--top-action-size) - 28px), 34px);
 
-background:rgba(255, 255, 255, 0.515);
-box-shadow:0 4px 15px rgba(0,0,0,0.2);
+background:rgba(255,255,255,0.24);
+box-shadow:0 12px 30px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.32);
+backdrop-filter:blur(16px) saturate(1.1);
+color:var(--adaptive-icon-color);
 }
 .toggle-btn:hover,
 .logout-btn:hover{
@@ -2518,6 +2520,8 @@ transform:scale(1.1);
   display:block;
   font-size:clamp(18px, calc(var(--top-action-size) - 28px), 34px);
   line-height:1;
+  color:var(--adaptive-icon-color);
+  text-shadow:0 1px 0 rgba(255,255,255,0.28), 0 8px 18px rgba(0,0,0,0.22);
 }
 
 .logout-btn{
@@ -2823,10 +2827,13 @@ body.top-actions-left .top-buttons{
 
 body.dark .toggle-btn::before{
   content:"\2600";
+  color:#ffffff;
 }
 
 body.light .toggle-btn::before{
   content:"\263E";
+  color:#1f1f33;
+  text-shadow:0 1px 0 rgba(255,255,255,0.6), 0 8px 18px rgba(31,31,51,0.22);
 }
 /* ================= TIMELINE ================= */
 
@@ -2847,7 +2854,7 @@ body.light .toggle-btn::before{
   width:auto;
   max-width:calc(100vw - 220px);
   margin:0;
-  color:white;
+  color:var(--adaptive-icon-color);
   font-family:Poppins, "Segoe UI", Arial, sans-serif;
   font-size:clamp(18px,1.65vw,23px);
   font-weight:500;
@@ -2855,7 +2862,9 @@ body.light .toggle-btn::before{
   text-align:left;
   letter-spacing:0.01em;
   pointer-events:none;
-  text-shadow:0 8px 24px rgba(0,0,0,0.28);
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.22),
+    0 8px 24px rgba(0,0,0,0.24);
 }
 
 .timeline-title-button{
@@ -2866,7 +2875,7 @@ body.light .toggle-btn::before{
   border:1px solid transparent;
   border-radius:10px;
   background:transparent !important;
-  color:#ffffff !important;
+  color:var(--adaptive-icon-color) !important;
   cursor:pointer;
   pointer-events:auto;
   box-shadow:none !important;
@@ -2881,9 +2890,9 @@ body.light .toggle-btn::before{
 
 .timeline-title-button:hover,
 .timeline-title-button:focus-visible{
-  background:rgba(255,255,255,0.12) !important;
-  border-color:rgba(255,255,255,0.24);
-  box-shadow:0 12px 30px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+  background:rgba(255,255,255,0.2) !important;
+  border-color:rgba(255,255,255,0.36);
+  box-shadow:0 12px 30px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.28) !important;
   backdrop-filter:blur(12px);
   transform:translateY(-1px) scale(1);
   text-shadow:0 12px 28px rgba(0,0,0,0.34);
@@ -2900,8 +2909,8 @@ body.button-glass-on .timeline-title-button:hover,
 body.button-glass-on .timeline-title-button:focus-visible,
 body:not(.button-glass-on) .timeline-title-button:hover,
 body:not(.button-glass-on) .timeline-title-button:focus-visible{
-  background:rgba(255,255,255,0.12) !important;
-  border-color:rgba(255,255,255,0.24) !important;
+  background:rgba(255,255,255,0.2) !important;
+  border-color:rgba(255,255,255,0.36) !important;
 }
 
 body.top-actions-left .timeline-title{
@@ -3552,17 +3561,24 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
   position:absolute;
   top:68px;
   right:0;
-  width:min(320px,86vw);
-  padding:16px;
+  width:min(286px,86vw);
+  padding:14px;
   display:grid;
-  gap:14px;
-  border-radius:20px;
-  background:rgba(31,32,56,calc(0.5 + var(--container-glass-alpha)));
-  border:1px solid rgba(255,255,255,0.22);
-  box-shadow:0 18px 48px rgba(0,0,0,0.32);
+  gap:11px;
+  border-radius:18px;
+  background:rgba(22,23,42,0.66);
+  border:1px solid rgba(255,255,255,0.24);
+  box-shadow:0 20px 54px rgba(3,4,18,0.34), inset 0 1px 0 rgba(255,255,255,0.16);
   color:white;
-  backdrop-filter:blur(16px);
+  backdrop-filter:blur(22px) saturate(1.12);
   animation:filterPop 0.22s ease both;
+}
+
+body.light .timeline-filter-popover{
+  background:rgba(255,255,255,0.54);
+  color:#25213d;
+  border-color:rgba(31,31,51,0.14);
+  box-shadow:0 22px 58px rgba(31,31,51,0.18), inset 0 1px 0 rgba(255,255,255,0.72);
 }
 
 @keyframes filterPop{
@@ -3579,34 +3595,47 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
 .timeline-filter-section{
   display:flex;
   flex-wrap:wrap;
-  gap:8px;
+  gap:7px;
 }
 
 .timeline-filter-section span{
   width:100%;
   color:rgba(255,255,255,0.72);
-  font-size:12px;
+  font-size:11px;
   font-weight:800;
   letter-spacing:0.08em;
   text-transform:uppercase;
 }
 
+body.light .timeline-filter-section span{
+  color:rgba(37,33,61,0.64);
+}
+
 .timeline-filter-section button{
   width:auto;
-  min-width:72px;
-  padding:9px 12px;
+  min-width:0;
+  min-height:36px;
+  padding:8px 12px;
   border-radius:999px;
-  background:rgba(255,255,255,0.12);
-  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.14);
+  border:1px solid rgba(255,255,255,0.18);
   box-shadow:none;
   color:white;
-  font-size:14px;
+  font-size:13px;
+  line-height:1;
+}
+
+body.light .timeline-filter-section button{
+  background:rgba(31,31,51,0.08);
+  border-color:rgba(31,31,51,0.12);
+  color:#25213d;
 }
 
 .timeline-filter-section button:hover,
 .timeline-filter-section button.selected{
   transform:translateY(-2px);
   background:var(--button-bg-color);
+  color:white;
 }
 
 .timeline-toolbar{
@@ -3628,13 +3657,19 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
   padding:6px;
   display:grid;
   gap:4px;
-  border:1px solid rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.24);
   border-radius:16px;
-  background:rgba(25,25,55,0.94);
-  box-shadow:0 22px 56px rgba(3,4,18,0.46);
-  backdrop-filter:blur(18px);
+  background:rgba(22,23,42,0.68);
+  box-shadow:0 22px 56px rgba(3,4,18,0.34), inset 0 1px 0 rgba(255,255,255,0.16);
+  backdrop-filter:blur(22px) saturate(1.12);
   transform:translateX(-50%);
   animation:exportMenuPop 0.18s ease-out both;
+}
+
+body.light .timeline-export-popover{
+  background:rgba(255,255,255,0.56);
+  border-color:rgba(31,31,51,0.14);
+  box-shadow:0 22px 58px rgba(31,31,51,0.18), inset 0 1px 0 rgba(255,255,255,0.72);
 }
 
 @keyframes exportMenuPop{
@@ -3659,15 +3694,21 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
   justify-content:center;
   gap:2px;
   border-radius:11px;
-  background:rgba(255,255,255,0.08);
-  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.13);
+  border:1px solid rgba(255,255,255,0.16);
   box-shadow:none;
   text-align:left;
 }
 
+body.light .timeline-export-popover button{
+  background:rgba(31,31,51,0.08);
+  border-color:rgba(31,31,51,0.1);
+  color:#25213d;
+}
+
 .timeline-export-popover button:hover{
   transform:translateY(-2px);
-  background:rgba(255,75,125,0.24);
+  background:color-mix(in srgb, var(--button-bg-color) 30%, rgba(255,255,255,0.2));
 }
 
 .timeline-export-popover strong{
@@ -3678,6 +3719,14 @@ body.toolbar-icons-separate .filter-icon-control.active .filter-funnel-icon::aft
 .timeline-export-popover small{
   color:rgba(255,255,255,0.66);
   font-size:9.5px;
+}
+
+body.light .timeline-export-popover strong{
+  color:#25213d;
+}
+
+body.light .timeline-export-popover small{
+  color:rgba(37,33,61,0.66);
 }
 
 .export-selection-bar{
@@ -10717,6 +10766,22 @@ body.top-icons-minimal .reminder-menu .reminder-icon-btn{
   color:var(--adaptive-icon-color);
 }
 
+body.light.top-icons-soft .top-buttons .toggle-btn,
+body.light.top-icons-soft .top-buttons .logout-btn,
+body.light.top-icons-soft .reminder-menu .reminder-icon-btn{
+  background:rgba(31,31,51,0.1) !important;
+  border-color:rgba(31,31,51,0.13) !important;
+  box-shadow:0 14px 30px rgba(31,31,51,0.12), inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+body.light.top-icons-minimal .top-buttons .toggle-btn,
+body.light.top-icons-minimal .top-buttons .logout-btn,
+body.light.top-icons-minimal .reminder-menu .reminder-icon-btn{
+  background:rgba(31,31,51,0.08) !important;
+  border-color:rgba(31,31,51,0.13) !important;
+  box-shadow:0 10px 24px rgba(31,31,51,0.1) !important;
+}
+
 body.top-icons-box .top-buttons .toggle-btn:hover,
 body.top-icons-box .top-buttons .logout-btn:hover,
 body.top-icons-box .reminder-menu .reminder-icon-btn:hover,
@@ -10905,11 +10970,11 @@ body:not(.button-glass-on) .preview-actions button:last-child:hover {
 
   body.light .timeline-filter-popover,
   body.light .reminder-popover{
-    background:rgba(255,255,255,0.78) !important;
+    background:rgba(255,255,255,0.58) !important;
     color:#25213d;
-    border-color:rgba(80,72,132,0.18) !important;
+    border-color:rgba(31,31,51,0.14) !important;
     box-shadow:
-      0 24px 70px rgba(72,54,128,0.26),
+      0 24px 70px rgba(31,31,51,0.18),
       inset 0 1px 0 rgba(255,255,255,0.72) !important;
   }
 
@@ -10920,9 +10985,9 @@ body:not(.button-glass-on) .preview-actions button:last-child:hover {
 
   body.light .timeline-filter-section button,
   body.light .reminder-popover-item{
-    background:rgba(88,75,170,0.84);
-    border-color:rgba(255,255,255,0.28);
-    color:white;
+    background:rgba(31,31,51,0.08);
+    border-color:rgba(31,31,51,0.12);
+    color:#25213d;
   }
 
   .preview-image-info-popover{

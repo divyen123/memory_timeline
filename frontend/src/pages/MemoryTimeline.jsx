@@ -1046,6 +1046,7 @@ function MemoryTimeline() {
     memoryToDelete && previewMemory && memoryToDelete._id === previewMemory._id
   );
   const previewImages = previewMemory ? getMemoryImages(previewMemory) : [];
+  const hasMultiplePreviewImages = previewImages.length > 1;
   const currentPreviewImage = previewImages[previewImageIndex] || previewImages[0];
   const previewImageDetailsKey = previewMemory ? `${previewMemory._id}-${previewImageIndex}` : "";
   const currentPreviewImageDetails = previewImageDetails[previewImageDetailsKey] || {};
@@ -1811,12 +1812,12 @@ function MemoryTimeline() {
           </button>
 
           <motion.div
-            className="preview-media"
+            className={`preview-media ${hasMultiplePreviewImages ? "multiple-images" : "single-image"}`}
             layoutId={prefersReducedMotion || disablePreviewSharedLayout ? undefined : `memory-image-${previewMemory._id}`}
             transition={memorySharedLayoutTransition}
-            onPointerDown={handlePreviewDragStart}
-            onPointerUp={handlePreviewDragEnd}
-            onPointerCancel={()=>{ previewDragRef.current = null; }}
+            onPointerDown={hasMultiplePreviewImages ? handlePreviewDragStart : undefined}
+            onPointerUp={hasMultiplePreviewImages ? handlePreviewDragEnd : undefined}
+            onPointerCancel={hasMultiplePreviewImages ? ()=>{ previewDragRef.current = null; } : undefined}
           >
             {currentPreviewImage && (
               <SmartImage
@@ -1851,7 +1852,7 @@ function MemoryTimeline() {
               />
             )}
 
-            {previewImages.length > 1 && (
+            {hasMultiplePreviewImages && (
               <>
                 <button
                   type="button"

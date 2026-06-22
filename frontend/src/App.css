@@ -5664,11 +5664,15 @@ body.light .rich-editor:empty:before{
   background:rgba(0,0,0,0.24);
   overflow:hidden;
   touch-action:pan-y;
-  cursor:grab;
+  cursor:default;
   user-select:none;
 }
 
-.preview-media:active{
+.preview-media.multiple-images{
+  cursor:grab;
+}
+
+.preview-media.multiple-images:active{
   cursor:grabbing;
 }
 

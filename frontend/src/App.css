@@ -5688,6 +5688,38 @@ body.light .rich-editor:empty:before{
   animation:previewImageIn 0.32s ease both;
 }
 
+.preview-image-expand-btn{
+  position:absolute;
+  top:14px;
+  right:14px;
+  z-index:4;
+  width:44px;
+  height:44px;
+  min-height:44px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:rgba(255,255,255,0.72);
+  border:1px solid rgba(255,255,255,0.78);
+  color:#0070d9;
+  box-shadow:0 12px 28px rgba(6,8,30,0.22), inset 0 1px 0 rgba(255,255,255,0.78);
+  backdrop-filter:blur(14px);
+  font-size:19px;
+}
+
+.preview-image-expand-btn:hover{
+  background:white;
+  color:#005bb5;
+  box-shadow:0 14px 32px rgba(6,8,30,0.28), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.preview-image-expand-btn span{
+  line-height:1;
+  transform:translateY(-1px);
+}
+
 .preview-image-nav{
   position:absolute;
   top:50%;
@@ -5770,6 +5802,31 @@ body.button-glass-on .carousel-nav,
   font-weight:800;
   transform:translateX(-50%);
   backdrop-filter:blur(12px);
+}
+
+.preview-image-viewer.single-image{
+  cursor:default;
+}
+
+.preview-image-viewer.single-image:active{
+  cursor:default;
+}
+
+.preview-image-viewer.multiple-images{
+  cursor:grab;
+}
+
+.preview-image-viewer.multiple-images:active{
+  cursor:grabbing;
+}
+
+.preview-image-viewer .smart-image{
+  max-width:92vw;
+  max-height:86vh;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  object-position:center !important;
 }
 
 .preview-image-info-wrap{

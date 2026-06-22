@@ -133,6 +133,7 @@ function MemoryTimeline() {
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
   const [previewImageDetails, setPreviewImageDetails] = useState({});
   const [showPreviewImageDetails, setShowPreviewImageDetails] = useState(false);
+  const [showPreviewImageViewer, setShowPreviewImageViewer] = useState(false);
   const [disablePreviewSharedLayout, setDisablePreviewSharedLayout] = useState(false);
   const [exportPanel, setExportPanel] = useState(null);
   const [selectedMemoryIds, setSelectedMemoryIds] = useState([]);
@@ -927,6 +928,23 @@ function MemoryTimeline() {
     }, prefersReducedMotion ? 180 : 720);
   };
 
+  const previewDeleteActive = Boolean(
+    memoryToDelete && previewMemory && memoryToDelete._id === previewMemory._id
+  );
+  const previewImages = previewMemory ? getMemoryImages(previewMemory) : [];
+  const hasMultiplePreviewImages = previewImages.length > 1;
+  const currentPreviewImage = previewImages[previewImageIndex] || previewImages[0];
+  const previewImageDetailsKey = previewMemory ? `${previewMemory._id}-${previewImageIndex}` : "";
+  const currentPreviewImageDetails = previewImageDetails[previewImageDetailsKey] || {};
+  const previewImageResolution = currentPreviewImageDetails.width && currentPreviewImageDetails.height
+    ? `${currentPreviewImageDetails.width} x ${currentPreviewImageDetails.height}`
+    : "Loading";
+  const previewImageType = getImageTypeLabel(currentPreviewImageDetails.type, currentPreviewImage);
+  const previewImageSize = currentPreviewImageDetails.loading
+    ? "Loading"
+    : formatImageBytes(currentPreviewImageDetails.size);
+  const previewImageAddedDate = formatImageAddedDate(previewMemory?.createdAt || previewMemory?.updatedAt || previewMemory?.date);
+
   useAutoDismissMessage(message, setMessage);
 
   useEffect(() => {
@@ -978,6 +996,35 @@ function MemoryTimeline() {
   useEffect(() => {
     setShowPreviewImageDetails(false);
   }, [previewMemory?._id, previewImageIndex]);
+
+  useEffect(() => {
+    if(!previewMemory){
+      setShowPreviewImageViewer(false);
+    }
+  }, [previewMemory]);
+
+  useEffect(() => {
+    if(!showPreviewImageViewer){
+      return;
+    }
+
+    const handleViewerKeyDown = (event) => {
+      if(event.key === "Escape"){
+        setShowPreviewImageViewer(false);
+      }
+
+      if(event.key === "ArrowLeft" && hasMultiplePreviewImages){
+        showPreviousPreviewImage();
+      }
+
+      if(event.key === "ArrowRight" && hasMultiplePreviewImages){
+        showNextPreviewImage();
+      }
+    };
+
+    window.addEventListener("keydown", handleViewerKeyDown);
+    return () => window.removeEventListener("keydown", handleViewerKeyDown);
+  }, [hasMultiplePreviewImages, showPreviewImageViewer]);
 
   useEffect(() => {
     if(!previewMemory){
@@ -1042,22 +1089,6 @@ function MemoryTimeline() {
     memoriesRef.current = memories;
   }, [memories]);
 
-  const previewDeleteActive = Boolean(
-    memoryToDelete && previewMemory && memoryToDelete._id === previewMemory._id
-  );
-  const previewImages = previewMemory ? getMemoryImages(previewMemory) : [];
-  const hasMultiplePreviewImages = previewImages.length > 1;
-  const currentPreviewImage = previewImages[previewImageIndex] || previewImages[0];
-  const previewImageDetailsKey = previewMemory ? `${previewMemory._id}-${previewImageIndex}` : "";
-  const currentPreviewImageDetails = previewImageDetails[previewImageDetailsKey] || {};
-  const previewImageResolution = currentPreviewImageDetails.width && currentPreviewImageDetails.height
-    ? `${currentPreviewImageDetails.width} x ${currentPreviewImageDetails.height}`
-    : "Loading";
-  const previewImageType = getImageTypeLabel(currentPreviewImageDetails.type, currentPreviewImage);
-  const previewImageSize = currentPreviewImageDetails.loading
-    ? "Loading"
-    : formatImageBytes(currentPreviewImageDetails.size);
-  const previewImageAddedDate = formatImageAddedDate(previewMemory?.createdAt || previewMemory?.updatedAt || previewMemory?.date);
   const activePreviewOverlayVariants = prefersReducedMotion
     ? {
       hidden:{opacity:0},
@@ -1852,6 +1883,21 @@ function MemoryTimeline() {
               />
             )}
 
+            {currentPreviewImage && (
+              <button
+                type="button"
+                className="preview-image-expand-btn"
+                title="Open image"
+                aria-label="Open image"
+                onClick={(event)=>{
+                  event.stopPropagation();
+                  setShowPreviewImageViewer(true);
+                }}
+              >
+                <span aria-hidden="true">&#9974;</span>
+              </button>
+            )}
+
             {hasMultiplePreviewImages && (
               <>
                 <button
@@ -2014,6 +2060,67 @@ function MemoryTimeline() {
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {showPreviewImageViewer && currentPreviewImage && (
+            <div
+              className={`carousel-overlay preview-image-viewer ${hasMultiplePreviewImages ? "multiple-images" : "single-image"}`}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${previewMemory.title} image viewer`}
+              onClick={()=>setShowPreviewImageViewer(false)}
+              onPointerDown={hasMultiplePreviewImages ? handlePreviewDragStart : undefined}
+              onPointerUp={hasMultiplePreviewImages ? handlePreviewDragEnd : undefined}
+              onPointerCancel={hasMultiplePreviewImages ? ()=>{ previewDragRef.current = null; } : undefined}
+            >
+              <button
+                type="button"
+                className="carousel-close"
+                aria-label="Close image viewer"
+                onClick={(event)=>{
+                  event.stopPropagation();
+                  setShowPreviewImageViewer(false);
+                }}
+              >
+                &#215;
+              </button>
+
+              {hasMultiplePreviewImages && (
+                <>
+                  <button
+                    type="button"
+                    className="carousel-nav left"
+                    aria-label="Previous image"
+                    onClick={(event)=>{
+                      event.stopPropagation();
+                      showPreviousPreviewImage();
+                    }}
+                  >
+                    &#8249;
+                  </button>
+                  <button
+                    type="button"
+                    className="carousel-nav right"
+                    aria-label="Next image"
+                    onClick={(event)=>{
+                      event.stopPropagation();
+                      showNextPreviewImage();
+                    }}
+                  >
+                    &#8250;
+                  </button>
+                </>
+              )}
+
+              <SmartImage
+                key={`${currentPreviewImage}-viewer-${previewImageIndex}`}
+                src={getMemoryImageUrl(previewMemory, "images", previewImageIndex)}
+                alt={previewMemory.title}
+                draggable={false}
+                detectFaces={false}
+                onClick={(event)=>event.stopPropagation()}
+              />
             </div>
           )}
         </motion.div>

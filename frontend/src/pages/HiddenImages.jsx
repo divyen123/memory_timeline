@@ -195,7 +195,7 @@ function HiddenImages() {
   return (
     <PageTransition>
       <main className="hidden-images-page">
-        {message && <p className="message">{message}</p>}
+        {message && <div className="toast">{message}</div>}
         <h1 className="hidden-images-title">Hided images</h1>
         <div className="hidden-images-heading">
           {unlocked && (
@@ -215,12 +215,16 @@ function HiddenImages() {
           <form className="hidden-unlock-panel" onSubmit={handleUnlock}>
             <h2>Unlock hidden images</h2>
             <input
-              type={settings.hidePasswordType === "pin" ? "password" : "text"}
-              placeholder="Enter hiding password"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              autoComplete="one-time-code"
+              placeholder="4-digit PIN"
               value={passwordInput}
-              onChange={(event)=>setPasswordInput(event.target.value)}
+              maxLength={4}
+              onChange={(event)=>setPasswordInput(event.target.value.replace(/\D/g, "").slice(0, 4))}
             />
-            <button type="submit">Open hidden images</button>
+            <button type="submit">Open</button>
           </form>
         ) : loading ? (
           <div className="empty-state"><h3>Loading hidden images</h3></div>

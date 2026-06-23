@@ -11543,6 +11543,24 @@ body.card-size-large .hidden-images-timeline{
   border-radius:10px;
 }
 
+.password-card .hide-password-remove-btn{
+  width:min(180px,100%) !important;
+  min-height:36px !important;
+  height:36px;
+  margin:0 auto !important;
+  padding:7px 14px !important;
+  border-radius:10px;
+  background:linear-gradient(135deg,#f43f5e,#be123c);
+  border:1px solid rgba(255,255,255,0.2);
+  color:white;
+  box-shadow:0 12px 26px rgba(190,18,60,0.22);
+}
+
+.password-card .hide-password-remove-btn:hover{
+  background:linear-gradient(135deg,#fb7185,#e11d48);
+  transform:translateY(-1px);
+}
+
 .password-card .hide-password-toggle{
   color:inherit;
   font:inherit;
@@ -11587,7 +11605,7 @@ body.card-size-large .hidden-images-timeline{
   display:grid;
   grid-template-columns:150px 150px;
   justify-content:center;
-  align-items:end;
+  align-items:start;
   gap:12px;
 }
 
@@ -11595,7 +11613,7 @@ body.card-size-large .hidden-images-timeline{
   grid-template-columns:minmax(0,150px);
   justify-content:start;
   gap:6px;
-  align-items:end;
+  align-items:start;
 }
 
 .password-card .hide-password-fields label{
@@ -11623,7 +11641,7 @@ body.card-size-large .hidden-images-timeline{
   margin:0 !important;
   padding:7px 12px;
   font-size:13px;
-  transform:translateY(-18px);
+  transform:none;
 }
 
 .hidden-unlock-panel{

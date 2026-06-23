@@ -131,6 +131,7 @@ function Profile() {
   const [confirmAction,setConfirmAction] = useState(null);
   const [isDangerBusy,setIsDangerBusy] = useState(false);
   const [showAccountInfo,setShowAccountInfo] = useState(false);
+  const [hidePinDraft,setHidePinDraft] = useState("");
   const deviceProfile = getDeviceProfile();
   const isMobileProfile = deviceProfile === "mobile";
   const [appSettings,setAppSettings] = useState(
@@ -200,17 +201,14 @@ function Profile() {
     }
   };
 
-  const handleHidePasswordSave = async (e) => {
-    e.preventDefault();
+  const hasSavedHidePin = Boolean(
+    appSettings.hidePasswordEnabled && /^\d{4}$/.test(appSettings.hidePasswordValue || "")
+  );
 
-    if(appSettings.hidePasswordEnabled && !/^\d{4}$/.test(appSettings.hidePasswordValue || "")){
-      setMessage("Use a 4-digit hiding PIN");
-      return;
-    }
-
+  const persistHideSettings = async (nextSettings, successMessage, failureMessage) => {
     const savedSettings = saveSettings(
       collapseDesktopBackgroundColors({
-        ...appSettings,
+        ...nextSettings,
         hidePasswordType:"pin"
       }, deviceProfile),
       deviceProfile
@@ -222,11 +220,52 @@ function Profile() {
         ...savedSettings,
         ...(data.settings || {})
       }, deviceProfile));
-      setMessage("Hiding password saved");
+      setMessage(successMessage);
     }catch{
       setAppSettings(savedSettings);
-      setMessage("Hiding password saved on this device, but cloud sync failed");
+      setMessage(failureMessage);
     }
+  };
+
+  const handleHidePasswordSave = async (e) => {
+    e.preventDefault();
+
+    const nextPin = hasSavedHidePin ? hidePinDraft : appSettings.hidePasswordValue;
+
+    if(!/^\d{4}$/.test(nextPin || "")){
+      setMessage("Use a 4-digit hiding PIN");
+      return;
+    }
+
+    await persistHideSettings(
+      {
+        ...appSettings,
+        hidePasswordEnabled:true,
+        hidePasswordValue:nextPin,
+        hidePasswordType:"pin"
+      },
+      hasSavedHidePin ? "Hiding PIN updated" : "Hiding PIN saved",
+      hasSavedHidePin
+        ? "Hiding PIN updated on this device, but cloud sync failed"
+        : "Hiding PIN saved on this device, but cloud sync failed"
+    );
+
+    setHidePinDraft("");
+  };
+
+  const handleHidePasswordRemove = async () => {
+    await persistHideSettings(
+      {
+        ...appSettings,
+        hidePasswordEnabled:false,
+        hidePasswordValue:"",
+        hidePasswordType:"pin"
+      },
+      "Hiding PIN removed",
+      "Hiding PIN removed on this device, but cloud sync failed"
+    );
+
+    setHidePinDraft("");
   };
 
   const closeDangerConfirm = () => {
@@ -1017,41 +1056,60 @@ function Profile() {
             </form>
 
             <form className="hide-password-settings" onSubmit={handleHidePasswordSave}>
-              <button
-                type="button"
-                className="settings-check-row hide-password-toggle"
-                role="checkbox"
-                aria-checked={Boolean(appSettings.hidePasswordEnabled)}
-                onClick={()=>updateSettings({
-                  hidePasswordEnabled:!appSettings.hidePasswordEnabled,
-                  hidePasswordType:"pin"
-                })}
-              >
-                <span
-                  className={`hide-password-checkmark ${appSettings.hidePasswordEnabled ? "checked" : ""}`}
-                  aria-hidden="true"
-                />
-                <span>Set password for hiding</span>
-              </button>
+              {hasSavedHidePin ? (
+                <button
+                  type="button"
+                  className="hide-password-remove-btn"
+                  onClick={handleHidePasswordRemove}
+                >
+                  Remove PIN
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="settings-check-row hide-password-toggle"
+                  role="checkbox"
+                  aria-checked={Boolean(appSettings.hidePasswordEnabled)}
+                  onClick={()=>updateSettings({
+                    hidePasswordEnabled:!appSettings.hidePasswordEnabled,
+                    hidePasswordValue:"",
+                    hidePasswordType:"pin"
+                  })}
+                >
+                  <span
+                    className={`hide-password-checkmark ${appSettings.hidePasswordEnabled ? "checked" : ""}`}
+                    aria-hidden="true"
+                  />
+                  <span>Set password for hiding</span>
+                </button>
+              )}
 
-              {appSettings.hidePasswordEnabled && (
+              {(hasSavedHidePin || appSettings.hidePasswordEnabled) && (
                 <div className="hide-pin-controls">
                   <div className="hide-password-fields">
                     <label>
-                      <span>4-digit PIN</span>
+                      <span>{hasSavedHidePin ? "Update PIN" : "4-digit PIN"}</span>
                       <input
                         type="password"
                         inputMode="numeric"
                         pattern="[0-9]*"
-                        placeholder="Enter PIN"
-                        value={appSettings.hidePasswordValue || ""}
+                        placeholder={hasSavedHidePin ? "New PIN" : "Enter PIN"}
+                        value={hasSavedHidePin ? hidePinDraft : appSettings.hidePasswordValue || ""}
                         maxLength={4}
-                        onChange={(e)=>updateSetting("hidePasswordValue", e.target.value.replace(/\D/g, "").slice(0, 4))}
+                        onChange={(e)=>{
+                          const nextValue = e.target.value.replace(/\D/g, "").slice(0, 4);
+
+                          if(hasSavedHidePin){
+                            setHidePinDraft(nextValue);
+                          }else{
+                            updateSetting("hidePasswordValue", nextValue);
+                          }
+                        }}
                       />
                     </label>
                   </div>
 
-                  <button type="submit">Save hiding PIN</button>
+                  <button type="submit">{hasSavedHidePin ? "Update PIN" : "Save hiding PIN"}</button>
                 </div>
               )}
             </form>

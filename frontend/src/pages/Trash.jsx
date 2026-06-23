@@ -140,6 +140,14 @@ function Trash() {
 
         <section className="trash-hero" aria-label="Trash overview">
           <div className="trash-title-wrap">
+            <button
+              type="button"
+              className="bare-page-back-btn trash-title-back-btn"
+              aria-label="Back to timeline"
+              onClick={()=>navigate("/timeline")}
+            >
+              &larr;
+            </button>
             <h1>Trash</h1>
           </div>
           {hasTrashMemories && (

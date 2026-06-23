@@ -7263,6 +7263,29 @@ body.light .preview-actions .preview-delete-btn:hover{
   z-index:9999;
 }
 
+.bare-page-back-btn{
+  width:auto;
+  min-width:0;
+  min-height:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent !important;
+  box-shadow:none !important;
+  color:var(--adaptive-icon-color);
+  font-size:30px;
+  font-weight:900;
+  line-height:1;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.34),
+    0 3px 12px rgba(0,0,0,0.58);
+  cursor:pointer;
+}
+
+.bare-page-back-btn:hover{
+  transform:translateX(-2px);
+}
+
 /* ================= TRASH PAGE ================= */
 
 .trash-page{
@@ -7300,6 +7323,10 @@ body.light .preview-actions .preview-delete-btn:hover{
   justify-content:center;
   gap:12px;
   margin:0 auto;
+}
+
+.trash-title-back-btn{
+  margin-right:2px;
 }
 
 .trash-hero h1{
@@ -11182,6 +11209,13 @@ body.light .hide-confirm-dialog{
     0 8px 24px rgba(0,0,0,0.24);
 }
 
+.hidden-page-back-btn{
+  position:fixed;
+  top:43px;
+  left:24px;
+  z-index:25;
+}
+
 .hidden-images-heading{
   position:fixed;
   top:34px;
@@ -11560,7 +11594,7 @@ body.card-size-large .hidden-images-timeline{
 }
 
 .hidden-unlock-panel input{
-  width:128px;
+  width:172px;
   min-height:44px;
   margin:0 auto;
   padding:10px 12px;

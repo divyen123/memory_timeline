@@ -196,6 +196,14 @@ function HiddenImages() {
     <PageTransition>
       <main className="hidden-images-page">
         {message && <div className="toast">{message}</div>}
+        <button
+          type="button"
+          className="bare-page-back-btn hidden-page-back-btn"
+          aria-label="Back to timeline"
+          onClick={()=>navigate("/timeline")}
+        >
+          &larr;
+        </button>
         <h1 className="hidden-images-title">Hided images</h1>
         <div className="hidden-images-heading">
           {unlocked && (

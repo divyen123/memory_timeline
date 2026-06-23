@@ -5861,6 +5861,12 @@ body.button-glass-on .carousel-nav,
   cursor:default;
 }
 
+.preview-image-viewer.carousel-overlay{
+  background:rgba(5,5,18,0.76);
+  backdrop-filter:blur(16px) brightness(0.62) saturate(0.82);
+  -webkit-backdrop-filter:blur(16px) brightness(0.62) saturate(0.82);
+}
+
 .preview-image-viewer.single-image:active{
   cursor:default;
 }

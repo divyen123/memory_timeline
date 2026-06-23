@@ -7281,14 +7281,17 @@ body.light .preview-actions .preview-delete-btn:hover{
 }
 
 .bare-page-back-btn{
-  width:auto;
-  min-width:0;
-  min-height:0;
-  padding:0;
-  border:0;
-  border-radius:0;
+  width:auto !important;
+  min-width:0 !important;
+  height:auto !important;
+  min-height:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
   background:transparent !important;
   box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
   color:var(--adaptive-icon-color);
   font-size:30px;
   font-weight:900;
@@ -7300,6 +7303,9 @@ body.light .preview-actions .preview-delete-btn:hover{
 }
 
 .bare-page-back-btn:hover{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
   transform:translateX(-2px);
 }
 
@@ -11637,8 +11643,8 @@ body.card-size-large .hidden-images-timeline{
   width:150px;
   min-height:36px;
   height:36px;
-  align-self:end;
-  margin:0 !important;
+  align-self:start;
+  margin:20px 0 0 !important;
   padding:7px 12px;
   font-size:13px;
   transform:none;

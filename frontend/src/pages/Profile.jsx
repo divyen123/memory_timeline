@@ -118,6 +118,25 @@ const collapseDesktopBackgroundColors = (settings, profile) => {
   };
 };
 
+const isValidHidePin = (value) => /^\d{4}$/.test(value || "");
+
+const mergeFetchedHideSettings = (remoteSettings, localSettings) => {
+  const remotePin = isValidHidePin(remoteSettings.hidePasswordValue)
+    ? remoteSettings.hidePasswordValue
+    : "";
+  const localPin = isValidHidePin(localSettings.hidePasswordValue)
+    ? localSettings.hidePasswordValue
+    : "";
+  const hidePasswordValue = remotePin || localPin;
+
+  return {
+    ...remoteSettings,
+    hidePasswordEnabled:Boolean(remoteSettings.hidePasswordEnabled || hidePasswordValue),
+    hidePasswordValue,
+    hidePasswordType:"pin"
+  };
+};
+
 function Profile() {
   const navigate = useNavigate();
   const [name,setName] = useState("");
@@ -158,7 +177,11 @@ function Profile() {
         const remoteSettings = data.settings || {};
 
         if(Object.keys(remoteSettings).length){
-          const profileSettings = collapseDesktopBackgroundColors(remoteSettings, deviceProfile);
+          const localSettings = collapseDesktopBackgroundColors(loadSettings(deviceProfile), deviceProfile);
+          const profileSettings = mergeFetchedHideSettings(
+            collapseDesktopBackgroundColors(remoteSettings, deviceProfile),
+            localSettings
+          );
           setAppSettings(saveSettings(profileSettings, deviceProfile));
         }
       })
@@ -202,7 +225,7 @@ function Profile() {
   };
 
   const hasSavedHidePin = Boolean(
-    appSettings.hidePasswordEnabled && /^\d{4}$/.test(appSettings.hidePasswordValue || "")
+    appSettings.hidePasswordEnabled && isValidHidePin(appSettings.hidePasswordValue)
   );
 
   const persistHideSettings = async (nextSettings, successMessage, failureMessage) => {
@@ -216,10 +239,20 @@ function Profile() {
 
     try{
       const {data} = await updateAppearanceSettings(deviceProfile, savedSettings);
-      setAppSettings(saveSettings({
+      const returnedSettings = data.settings || {};
+      const mergedSettings = {
         ...savedSettings,
-        ...(data.settings || {})
-      }, deviceProfile));
+        ...returnedSettings,
+        hidePasswordEnabled:savedSettings.hidePasswordEnabled,
+        hidePasswordValue:savedSettings.hidePasswordEnabled
+          ? (isValidHidePin(returnedSettings.hidePasswordValue)
+            ? returnedSettings.hidePasswordValue
+            : savedSettings.hidePasswordValue)
+          : "",
+        hidePasswordType:"pin"
+      };
+
+      setAppSettings(saveSettings(mergedSettings, deviceProfile));
       setMessage(successMessage);
     }catch{
       setAppSettings(savedSettings);

@@ -11182,9 +11182,13 @@ body.light .hide-confirm-dialog{
 }
 
 .hidden-images-timeline{
-  width:calc(100vw - 108px) !important;
-  max-width:none !important;
-  margin:0 0 0 26px !important;
+  position:fixed !important;
+  top:178px;
+  left:54px;
+  z-index:8;
+  width:300px !important;
+  max-width:calc(100vw - 108px) !important;
+  margin:0 !important;
   grid-template-columns:minmax(0,1fr) !important;
   justify-items:start;
   align-items:start;
@@ -11193,9 +11197,9 @@ body.light .hide-confirm-dialog{
 body.card-size-small .hidden-images-timeline,
 body.card-size-medium .hidden-images-timeline,
 body.card-size-large .hidden-images-timeline{
-  width:calc(100vw - 108px) !important;
-  max-width:none !important;
-  margin-left:26px !important;
+  width:300px !important;
+  max-width:calc(100vw - 108px) !important;
+  margin-left:0 !important;
   grid-template-columns:minmax(0,1fr) !important;
 }
 
@@ -11203,13 +11207,14 @@ body.card-size-large .hidden-images-timeline{
   cursor:pointer;
   grid-column:1;
   justify-self:start;
-  width:min(320px,calc(100vw - 108px));
-  max-width:320px;
+  width:min(300px,calc(100vw - 108px));
+  max-width:300px;
 }
 
 .hidden-memory-item .timeline-card{
   cursor:pointer;
   width:100%;
+  min-height:170px;
 }
 
 .hidden-preview-actions{
@@ -11330,8 +11335,10 @@ body.card-size-large .hidden-images-timeline{
   }
 
   .hidden-images-timeline{
-    width:100%;
-    margin:0;
+    position:static !important;
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
   }
 
   .password-card .hide-password-fields{

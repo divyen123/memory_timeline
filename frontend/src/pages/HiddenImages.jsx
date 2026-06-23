@@ -113,10 +113,10 @@ function HiddenImages() {
 
     try{
       await unhideMemory(memoryToUnhide._id);
+      setMemories(current => current.filter((item)=>item._id !== memoryToUnhide._id));
       setMessage("Image unhidden");
       setPreviewMemory(null);
       setMemoryToUnhide(null);
-      navigate("/timeline");
     }catch(error){
       setMemoryToUnhide(null);
       setMessage(error.response?.data?.message || "Unable to unhide image");

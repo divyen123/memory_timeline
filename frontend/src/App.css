@@ -11593,6 +11593,7 @@ body.card-size-large .hidden-images-timeline{
   margin:0 !important;
   padding:7px 12px;
   font-size:13px;
+  transform:translateY(-18px);
 }
 
 .hidden-unlock-panel{

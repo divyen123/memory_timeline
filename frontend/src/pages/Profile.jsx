@@ -203,18 +203,16 @@ function Profile() {
   const handleHidePasswordSave = async (e) => {
     e.preventDefault();
 
-    if(appSettings.hidePasswordEnabled && !String(appSettings.hidePasswordValue || "").trim()){
-      setMessage("Enter a hiding password");
-      return;
-    }
-
-    if(appSettings.hidePasswordEnabled && appSettings.hidePasswordType === "six" && !/^[a-z0-9]{6}$/i.test(appSettings.hidePasswordValue || "")){
-      setMessage("Use exactly 6 letters or numbers");
+    if(appSettings.hidePasswordEnabled && !/^\d{4}$/.test(appSettings.hidePasswordValue || "")){
+      setMessage("Use a 4-digit hiding PIN");
       return;
     }
 
     const savedSettings = saveSettings(
-      collapseDesktopBackgroundColors(appSettings, deviceProfile),
+      collapseDesktopBackgroundColors({
+        ...appSettings,
+        hidePasswordType:"pin"
+      }, deviceProfile),
       deviceProfile
     );
 
@@ -929,7 +927,7 @@ function Profile() {
             </form>
           </div>
 
-          <div className="profile-card password-card">
+          <div className="profile-card">
             <h2>Profile</h2>
 
             {isMobileProfile && (
@@ -998,7 +996,7 @@ function Profile() {
             </div>
           </div>
 
-          <div className="profile-card">
+          <div className="profile-card password-card">
             <h2>Password</h2>
             <form onSubmit={handlePasswordUpdate}>
               <input
@@ -1024,7 +1022,10 @@ function Profile() {
                 className="settings-check-row hide-password-toggle"
                 role="checkbox"
                 aria-checked={Boolean(appSettings.hidePasswordEnabled)}
-                onClick={()=>updateSetting("hidePasswordEnabled", !appSettings.hidePasswordEnabled)}
+                onClick={()=>updateSettings({
+                  hidePasswordEnabled:!appSettings.hidePasswordEnabled,
+                  hidePasswordType:"pin"
+                })}
               >
                 <span
                   className={`hide-password-checkmark ${appSettings.hidePasswordEnabled ? "checked" : ""}`}
@@ -1034,32 +1035,25 @@ function Profile() {
               </button>
 
               {appSettings.hidePasswordEnabled && (
-                <div className="hide-password-fields">
-                  <label>
-                    <span>Password type</span>
-                    <select
-                      value={appSettings.hidePasswordType || "pin"}
-                      onChange={(e)=>updateSetting("hidePasswordType", e.target.value)}
-                    >
-                      <option value="pin">PIN</option>
-                      <option value="pattern">Pattern</option>
-                      <option value="six">6-digit password</option>
-                    </select>
-                  </label>
-                  <label>
-                    <span>Hiding password</span>
-                    <input
-                      type={appSettings.hidePasswordType === "pattern" ? "text" : "password"}
-                      placeholder={appSettings.hidePasswordType === "six" ? "Letters and numbers" : "Type password"}
-                      value={appSettings.hidePasswordValue || ""}
-                      maxLength={appSettings.hidePasswordType === "six" ? 6 : undefined}
-                      onChange={(e)=>updateSetting("hidePasswordValue", e.target.value)}
-                    />
-                  </label>
-                </div>
-              )}
+                <>
+                  <div className="hide-password-fields">
+                    <label>
+                      <span>4-digit PIN</span>
+                      <input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        placeholder="Enter PIN"
+                        value={appSettings.hidePasswordValue || ""}
+                        maxLength={4}
+                        onChange={(e)=>updateSetting("hidePasswordValue", e.target.value.replace(/\D/g, "").slice(0, 4))}
+                      />
+                    </label>
+                  </div>
 
-              <button type="submit">Save hiding password</button>
+                  <button type="submit">Save hiding PIN</button>
+                </>
+              )}
             </form>
           </div>
         </div>

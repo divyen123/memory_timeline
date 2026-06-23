@@ -11461,17 +11461,13 @@ body.card-size-large .hidden-images-timeline{
   border-radius:12px;
 }
 
-.password-card .settings-check-row .hide-password-checkbox{
-  position:absolute !important;
-  opacity:0 !important;
-  pointer-events:none;
-  width:1px !important;
-  height:1px !important;
-  min-width:1px !important;
-  min-height:1px !important;
-  max-width:1px !important;
-  max-height:1px !important;
-  margin:0 !important;
+.password-card .hide-password-toggle{
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
 }
 
 .password-card .settings-check-row .hide-password-checkmark{
@@ -11485,12 +11481,12 @@ body.card-size-large .hidden-images-timeline{
   box-shadow:none;
 }
 
-.password-card .settings-check-row .hide-password-checkbox:checked + .hide-password-checkmark{
+.password-card .settings-check-row .hide-password-checkmark.checked{
   background:#ff4b7d;
   border-color:#ff4b7d;
 }
 
-.password-card .settings-check-row .hide-password-checkbox:checked + .hide-password-checkmark::after{
+.password-card .settings-check-row .hide-password-checkmark.checked::after{
   content:"";
   width:7px;
   height:4px;

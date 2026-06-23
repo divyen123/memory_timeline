@@ -1019,16 +1019,19 @@ function Profile() {
             </form>
 
             <form className="hide-password-settings" onSubmit={handleHidePasswordSave}>
-              <label className="settings-check-row">
-                <input
-                  className="hide-password-checkbox"
-                  type="checkbox"
-                  checked={Boolean(appSettings.hidePasswordEnabled)}
-                  onChange={(e)=>updateSetting("hidePasswordEnabled", e.target.checked)}
+              <button
+                type="button"
+                className="settings-check-row hide-password-toggle"
+                role="checkbox"
+                aria-checked={Boolean(appSettings.hidePasswordEnabled)}
+                onClick={()=>updateSetting("hidePasswordEnabled", !appSettings.hidePasswordEnabled)}
+              >
+                <span
+                  className={`hide-password-checkmark ${appSettings.hidePasswordEnabled ? "checked" : ""}`}
+                  aria-hidden="true"
                 />
-                <span className="hide-password-checkmark" aria-hidden="true" />
                 <span>Set password for hiding</span>
-              </label>
+              </button>
 
               {appSettings.hidePasswordEnabled && (
                 <div className="hide-password-fields">

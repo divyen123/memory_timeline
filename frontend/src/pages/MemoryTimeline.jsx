@@ -2081,7 +2081,7 @@ function MemoryTimeline() {
                 aria-label="Hide image"
                 onClick={()=>setMemoryToHide(previewMemory)}
               >
-                <span aria-hidden="true">◌</span>
+                <span className="hide-eye-emoji" aria-hidden="true">&#128065;</span>
               </button>
               <button
                 type="button"

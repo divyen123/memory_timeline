@@ -183,7 +183,7 @@ function MemoryCard({
                   aria-label="Unhide"
                   onClick={(e)=>handleActionClick(e, handleUnhide)}
                 >
-                  <span aria-hidden="true">↩</span>
+                  <span className="hide-eye-emoji" aria-hidden="true">&#128065;</span>
                 </button>
 
                 <button

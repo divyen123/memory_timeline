@@ -359,7 +359,7 @@ function HiddenImages() {
                       aria-label="Unhide"
                       onClick={()=>handleUnhide(previewMemory)}
                     >
-                      <span className="hidden-preview-emoji" aria-hidden="true">&#8617;&#65039;</span>
+                      <span className="hidden-preview-emoji hide-eye-emoji" aria-hidden="true">&#128065;</span>
                     </button>
                     <button
                       type="button"

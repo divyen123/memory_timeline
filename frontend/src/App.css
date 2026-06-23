@@ -11237,7 +11237,7 @@ body.light .hide-confirm-dialog{
 .hidden-images-title{
   position:fixed;
   top:48px;
-  left:54px;
+  left:78px;
   z-index:24;
   margin:0;
   color:var(--adaptive-icon-color);
@@ -11254,8 +11254,17 @@ body.light .hide-confirm-dialog{
 .hidden-page-back-btn{
   position:fixed;
   top:43px;
-  left:24px;
+  left:28px;
   z-index:25;
+}
+
+.hidden-images-page > .empty-state{
+  position:fixed;
+  top:50%;
+  left:50%;
+  z-index:8;
+  margin:0;
+  transform:translate(-50%,-50%);
 }
 
 .hidden-images-heading{
@@ -11466,11 +11475,16 @@ body.card-size-large .hidden-images-timeline{
 
   .hidden-images-title{
     top:16px;
-    left:16px;
+    left:58px;
     z-index:1050;
     max-width:calc(100vw - 120px);
     font-size:20px;
     font-weight:700;
+  }
+
+  .hidden-page-back-btn{
+    top:14px;
+    left:16px;
   }
 
   .hidden-images-heading{

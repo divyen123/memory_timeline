@@ -44,6 +44,7 @@ function HiddenImages() {
   const [passwordInput, setPasswordInput] = useState("");
   const [previewMemory, setPreviewMemory] = useState(null);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
+  const [memoryToUnhide, setMemoryToUnhide] = useState(null);
   const [memoryToDelete, setMemoryToDelete] = useState(null);
   const previewReturnFocusRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
@@ -97,13 +98,27 @@ function HiddenImages() {
     setMessage("Password does not match");
   };
 
-  const handleUnhide = async (memory) => {
+  const requestUnhide = (memory) => {
+    setMemoryToUnhide(memory);
+  };
+
+  const cancelUnhide = () => {
+    setMemoryToUnhide(null);
+  };
+
+  const confirmUnhide = async () => {
+    if(!memoryToUnhide){
+      return;
+    }
+
     try{
-      await unhideMemory(memory._id);
+      await unhideMemory(memoryToUnhide._id);
       setMessage("Image unhidden");
       setPreviewMemory(null);
+      setMemoryToUnhide(null);
       navigate("/timeline");
     }catch(error){
+      setMemoryToUnhide(null);
       setMessage(error.response?.data?.message || "Unable to unhide image");
     }
   };
@@ -268,7 +283,7 @@ function HiddenImages() {
                 index={index}
                 hiddenMode
                 onDelete={requestPermanentDelete}
-                onUnhide={handleUnhide}
+                onUnhide={requestUnhide}
                 onPreview={openPreviewMemory}
                 isTransitionDimmed={Boolean(previewMemory) && previewMemory._id !== memory._id}
                 isTransitionSource={previewMemory?._id === memory._id}
@@ -369,7 +384,7 @@ function HiddenImages() {
                       className="preview-unhide-btn"
                       title="Unhide"
                       aria-label="Unhide"
-                      onClick={()=>handleUnhide(previewMemory)}
+                      onClick={()=>requestUnhide(previewMemory)}
                     >
                       <span className="hidden-preview-emoji hide-eye-emoji" aria-hidden="true">&#128065;</span>
                     </button>
@@ -388,6 +403,33 @@ function HiddenImages() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {memoryToUnhide && (
+          <div className="confirm-overlay hidden-unhide-confirm-overlay">
+            <div className="confirm-dialog hide-confirm-dialog">
+              <h3>Unhide image?</h3>
+              <p>
+                "{memoryToUnhide.title}" will return to your normal timeline.
+              </p>
+              <div className="confirm-actions">
+                <button
+                  type="button"
+                  className="cancel-delete-btn"
+                  onClick={cancelUnhide}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="confirm-hide-btn"
+                  onClick={confirmUnhide}
+                >
+                  Unhide
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {memoryToDelete && (
           <div className="confirm-overlay hidden-delete-confirm-overlay">

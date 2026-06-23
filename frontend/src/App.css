@@ -11225,14 +11225,15 @@ body.light .hide-confirm-dialog{
 .hidden-images-heading{
   position:fixed;
   top:34px;
-  left:50%;
+  right:54px;
+  left:auto;
   z-index:24;
   width:auto;
   margin:0;
   display:flex;
   align-items:center;
   justify-content:center;
-  transform:translateX(-50%);
+  transform:none;
 }
 
 .hidden-images-heading .timeline-action-btn{
@@ -11438,8 +11439,10 @@ body.card-size-large .hidden-images-timeline{
 
   .hidden-images-heading{
     top:12px;
-    left:50%;
+    right:16px;
+    left:auto;
     z-index:1050;
+    transform:none;
   }
 
   .hidden-images-timeline{

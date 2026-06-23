@@ -1021,10 +1021,12 @@ function Profile() {
             <form className="hide-password-settings" onSubmit={handleHidePasswordSave}>
               <label className="settings-check-row">
                 <input
+                  className="hide-password-checkbox"
                   type="checkbox"
                   checked={Boolean(appSettings.hidePasswordEnabled)}
                   onChange={(e)=>updateSetting("hidePasswordEnabled", e.target.checked)}
                 />
+                <span className="hide-password-checkmark" aria-hidden="true" />
                 <span>Set password for hiding</span>
               </label>
 

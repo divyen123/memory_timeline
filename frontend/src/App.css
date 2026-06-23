@@ -10284,6 +10284,23 @@ body.light .calendar-memory{
   width:100%;
 }
 
+.profile-delete-confirm-input{
+  width:100%;
+  min-height:46px;
+  margin:0 0 18px;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,0.24);
+  border-radius:12px;
+  background:rgba(255,255,255,0.12);
+  color:inherit;
+  font:inherit;
+}
+
+.profile-delete-confirm-input::placeholder{
+  color:currentColor;
+  opacity:0.58;
+}
+
 /* Desktop profile alignment: keep summary and lower cards on one centered frame. */
 @media (min-width:1200px){
   .profile-page{

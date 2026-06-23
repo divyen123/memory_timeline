@@ -13,6 +13,7 @@ const TRASH_RETENTION_DAYS = 30;
 const TRASH_RETENTION_MS = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 const UPLOADS_ROOT = path.resolve("uploads");
 const PUBLIC_SHARE_EXPIRY_DAYS = Number(process.env.PUBLIC_SHARE_EXPIRY_DAYS || 7);
+const ACCOUNT_DELETE_CONFIRMATION = "delete account permenantly";
 
 const uploadToCloudinary = async (file) => {
   if(process.env.CLOUD_STORAGE_PROVIDER !== "cloudinary"){
@@ -740,6 +741,10 @@ exports.clearAllMemories = async (req,res)=>{
 
 exports.deleteAccount = async (req,res)=>{
   try{
+    if(req.body?.confirmation !== ACCOUNT_DELETE_CONFIRMATION){
+      return res.status(400).json({message:"Type the confirmation phrase exactly"});
+    }
+
     const userId = req.user.userId;
     const memories = await Memory.find({userId});
 

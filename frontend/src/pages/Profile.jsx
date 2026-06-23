@@ -119,6 +119,7 @@ const collapseDesktopBackgroundColors = (settings, profile) => {
 };
 
 const isValidHidePin = (value) => /^\d{4}$/.test(value || "");
+const ACCOUNT_DELETE_CONFIRMATION = "delete account permenantly";
 
 const mergeFetchedHideSettings = (remoteSettings, localSettings) => {
   const remotePin = isValidHidePin(remoteSettings.hidePasswordValue)
@@ -148,6 +149,7 @@ function Profile() {
   const [newPassword,setNewPassword] = useState("");
   const [message,setMessage] = useState("");
   const [confirmAction,setConfirmAction] = useState(null);
+  const [accountDeleteConfirmation,setAccountDeleteConfirmation] = useState("");
   const [isDangerBusy,setIsDangerBusy] = useState(false);
   const [showAccountInfo,setShowAccountInfo] = useState(false);
   const [isHidePinSetupOpen,setIsHidePinSetupOpen] = useState(false);
@@ -307,11 +309,18 @@ function Profile() {
   const closeDangerConfirm = () => {
     if(!isDangerBusy){
       setConfirmAction(null);
+      setAccountDeleteConfirmation("");
     }
   };
 
   const handleDangerConfirm = async () => {
     if(!confirmAction){
+      return;
+    }
+
+    if(confirmAction === "delete-account"){
+      setConfirmAction("delete-account-typed");
+      setAccountDeleteConfirmation("");
       return;
     }
 
@@ -330,8 +339,8 @@ function Profile() {
         );
       }
 
-      if(confirmAction === "delete-account"){
-        await deleteAccount();
+      if(confirmAction === "delete-account-typed"){
+        await deleteAccount(accountDeleteConfirmation);
         clearAuthenticatedUser();
         navigate("/", {replace:true});
         return;
@@ -341,6 +350,7 @@ function Profile() {
     }finally{
       setIsDangerBusy(false);
       setConfirmAction(null);
+      setAccountDeleteConfirmation("");
     }
   };
 
@@ -1156,23 +1166,50 @@ function Profile() {
               <h3>
                 {confirmAction === "clear-memories"
                   ? "Move all memories to trash?"
-                  : "Delete account permanently?"}
+                  : confirmAction === "delete-account"
+                    ? "Delete account permanently?"
+                    : "Type to confirm deletion"}
               </h3>
               <p>
                 {confirmAction === "clear-memories"
                   ? "All memories will move to trash. You can restore them before they are permanently deleted."
-                  : "This permanently deletes your account, memories, images, and profile information from the database."}
+                  : confirmAction === "delete-account"
+                    ? "This permanently deletes your account, memories, images, and profile information from the database."
+                    : <>Type <strong>{ACCOUNT_DELETE_CONFIRMATION}</strong> to permanently delete your account and all information.</>}
               </p>
+              {confirmAction === "delete-account-typed" && (
+                <input
+                  type="text"
+                  className="profile-delete-confirm-input"
+                  aria-label="Delete account confirmation phrase"
+                  autoComplete="off"
+                  autoFocus
+                  placeholder={ACCOUNT_DELETE_CONFIRMATION}
+                  value={accountDeleteConfirmation}
+                  onChange={(event)=>setAccountDeleteConfirmation(event.target.value)}
+                />
+              )}
               <div className="confirm-actions profile-danger-confirm-actions">
                 <button type="button" className="cancel-delete-btn" onClick={closeDangerConfirm} disabled={isDangerBusy}>
                   Cancel
                 </button>
-                <button type="button" className="confirm-delete-btn" onClick={handleDangerConfirm} disabled={isDangerBusy}>
+                <button
+                  type="button"
+                  className="confirm-delete-btn"
+                  onClick={handleDangerConfirm}
+                  disabled={
+                    isDangerBusy ||
+                    (confirmAction === "delete-account-typed" &&
+                      accountDeleteConfirmation !== ACCOUNT_DELETE_CONFIRMATION)
+                  }
+                >
                   {isDangerBusy
                     ? "Working..."
                     : confirmAction === "clear-memories"
                       ? "Move to trash"
-                      : "Delete account"}
+                      : confirmAction === "delete-account"
+                        ? "Delete account"
+                        : "Confirm"}
                 </button>
               </div>
             </div>

@@ -4752,6 +4752,16 @@ body.light .memory-actions .memory-delete-btn{
   margin-bottom:18px;
 }
 
+.empty-state > button{
+  width:min(260px,100%);
+  min-height:46px;
+  margin:0 auto;
+  padding:12px 20px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
 body.light .empty-state{
   background:rgba(255,255,255,0.2);
   color:#2c2c2c;

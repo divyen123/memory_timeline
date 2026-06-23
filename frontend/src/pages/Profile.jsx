@@ -929,7 +929,7 @@ function Profile() {
             </form>
           </div>
 
-          <div className="profile-card">
+          <div className="profile-card password-card">
             <h2>Profile</h2>
 
             {isMobileProfile && (

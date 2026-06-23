@@ -223,7 +223,7 @@ function HiddenImages() {
           <form className="hidden-unlock-panel" onSubmit={handleUnlock}>
             <h2>Unlock hidden images</h2>
             <input
-              type="text"
+              type="password"
               inputMode="numeric"
               pattern="[0-9]*"
               autoComplete="one-time-code"

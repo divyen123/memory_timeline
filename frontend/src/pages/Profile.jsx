@@ -1035,7 +1035,7 @@ function Profile() {
               </button>
 
               {appSettings.hidePasswordEnabled && (
-                <>
+                <div className="hide-pin-controls">
                   <div className="hide-password-fields">
                     <label>
                       <span>4-digit PIN</span>
@@ -1052,7 +1052,7 @@ function Profile() {
                   </div>
 
                   <button type="submit">Save hiding PIN</button>
-                </>
+                </div>
               )}
             </form>
           </div>

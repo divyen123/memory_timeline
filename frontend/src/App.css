@@ -23,6 +23,9 @@
   --dark-gradient-start:#0f172a;
   --dark-gradient-middle:#1e1b4b;
   --dark-gradient-end:#020617;
+  --container-solid-bg:rgba(255,255,255,0.74);
+  --container-solid-border:rgba(255,255,255,0.28);
+  --container-text-color:#1f1f33;
   --timeline-line-color:rgba(255,255,255,0.58);
   --timeline-dot-color:#ff5f8f;
   --timeline-dot-center:#fff7fb;
@@ -89,6 +92,9 @@ body.light{
   --timeline-dot-color:#f43f7d;
   --timeline-dot-center:#fff6fb;
   --adaptive-icon-color:#1f1f33;
+  --container-solid-bg:color-mix(in srgb, var(--light-gradient-middle) 18%, rgba(255,255,255,0.82));
+  --container-solid-border:color-mix(in srgb, var(--light-gradient-middle) 28%, rgba(255,255,255,0.52));
+  --container-text-color:#1f1f33;
   scrollbar-color:color-mix(in srgb, var(--button-bg-color) 70%, #1a1a2e) rgba(26,26,46,0.1);
 }
 
@@ -113,6 +119,9 @@ body.dark{
   --timeline-dot-color:#ff5f8f;
   --timeline-dot-center:#fff8fc;
   --adaptive-icon-color:white;
+  --container-solid-bg:color-mix(in srgb, var(--dark-gradient-middle) 42%, rgba(8,10,22,0.92));
+  --container-solid-border:color-mix(in srgb, var(--dark-gradient-middle) 36%, rgba(255,255,255,0.2));
+  --container-text-color:white;
 }
 
 @keyframes gradientMove{
@@ -165,7 +174,9 @@ body.glass-containers-off .preview-dialog,
 body.glass-containers-off .confirm-dialog,
 body.glass-containers-off .reminder-alert-card,
 body.glass-containers-off .reminder-popover{
-  background:rgba(31,32,56,0.96);
+  background:var(--container-solid-bg);
+  border-color:var(--container-solid-border);
+  color:var(--container-text-color);
   backdrop-filter:none;
 }
 
@@ -8798,6 +8809,25 @@ body.light .days-counter{
   padding:24px 28px;
   margin:18px auto 10px;
   border-radius:24px;
+  background:rgba(255,255,255,var(--container-glass-alpha));
+  border-color:rgba(255,255,255,0.22);
+  color:var(--container-text-color);
+  backdrop-filter:blur(18px);
+}
+
+body.light .add-memory-page .glass-card{
+  color:#1f1f33;
+}
+
+body.dark .add-memory-page .glass-card{
+  color:white;
+}
+
+body.glass-containers-off .add-memory-page .glass-card{
+  background:var(--container-solid-bg);
+  border-color:var(--container-solid-border);
+  color:var(--container-text-color);
+  backdrop-filter:none;
 }
 
 .add-memory-page .glass-card h2{
@@ -12077,4 +12107,13 @@ body.light .trash-page .trash-copy h2{
   .trash-page .trash-menu-toggle::before{
     font-size:20px;
   }
+}
+
+/* Keep the typography controls authoritative across component-specific styles. */
+body :where(h1,h2,h3,h4,h5,h6,p,span,label,button,input,textarea,select,option,a,strong,small,time,li,dt,dd){
+  font-weight:var(--app-font-weight) !important;
+}
+
+body :where(.hide-eye-emoji,.toggle-btn,.logout-btn,.memory-action-icon,.preview-actions button span,.top-buttons button,.reminder-icon-btn,.timeline-filter-toggle){
+  font-weight:400 !important;
 }

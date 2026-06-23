@@ -46,6 +46,7 @@ function HiddenImages() {
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
   const [memoryToUnhide, setMemoryToUnhide] = useState(null);
   const [memoryToDelete, setMemoryToDelete] = useState(null);
+  const [showDeleteInfo, setShowDeleteInfo] = useState(false);
   const previewReturnFocusRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
   const settings = loadSettings();
@@ -222,15 +223,26 @@ function HiddenImages() {
         <h1 className="hidden-images-title">Hided images</h1>
         <div className="hidden-images-heading">
           {unlocked && (
-            <button
-              type="button"
-              className="timeline-action-btn"
-              title={`Switch to ${VIEW_MODE_LABELS[nextViewMode]}`}
-              aria-label={`Switch to ${VIEW_MODE_LABELS[nextViewMode]}`}
-              onClick={()=>setViewMode(nextViewMode)}
-            >
-              {VIEW_MODE_ICONS[nextViewMode]}
-            </button>
+            <>
+              <button
+                type="button"
+                className="hidden-delete-info-btn"
+                aria-label="About permanent deletion"
+                title="About permanent deletion"
+                onClick={()=>setShowDeleteInfo(true)}
+              >
+                i
+              </button>
+              <button
+                type="button"
+                className="timeline-action-btn"
+                title={`Switch to ${VIEW_MODE_LABELS[nextViewMode]}`}
+                aria-label={`Switch to ${VIEW_MODE_LABELS[nextViewMode]}`}
+                onClick={()=>setViewMode(nextViewMode)}
+              >
+                {VIEW_MODE_ICONS[nextViewMode]}
+              </button>
+            </>
           )}
         </div>
 
@@ -403,6 +415,24 @@ function HiddenImages() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {showDeleteInfo && (
+          <div className="confirm-overlay hidden-delete-info-overlay">
+            <div className="confirm-dialog hide-confirm-dialog hidden-delete-info-dialog">
+              <h3>Permanent deletion</h3>
+              <p>
+                Images deleted from Hidden Images are permanently removed and cannot be recovered from Trash.
+              </p>
+              <button
+                type="button"
+                className="cancel-delete-btn hidden-delete-info-close"
+                onClick={()=>setShowDeleteInfo(false)}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        )}
 
         {memoryToUnhide && (
           <div className="confirm-overlay hidden-unhide-confirm-overlay">

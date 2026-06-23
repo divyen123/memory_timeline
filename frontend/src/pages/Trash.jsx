@@ -261,9 +261,6 @@ function Trash() {
                       <strong>{memory.title?.slice(0,1) || "M"}</strong>
                     )}
                   </div>
-                  <div className="trash-copy">
-                    <h2>{memory.title}</h2>
-                  </div>
                   <div className="trash-card-actions">
                     <button type="button" aria-label={`Recover ${memory.title}`} title="Recover" onClick={()=>askRecover([memory._id])}>
                       &#9851;

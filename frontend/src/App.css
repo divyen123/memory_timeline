@@ -12176,7 +12176,7 @@ body.light .settings-tip-bubble{
 }
 
 .trash-page .trash-header-actions{
-  left:calc(50% + 58px);
+  left:calc(50% + 82px);
   top:calc(50% + 3px);
   gap:0;
 }
@@ -12229,7 +12229,7 @@ body.light .trash-page .trash-copy h2{
 
 @media (max-width:760px){
   .trash-page .trash-header-actions{
-    left:calc(50% + 52px);
+    left:calc(50% + 74px);
     top:calc(50% + 2px);
   }
 

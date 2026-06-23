@@ -22,14 +22,6 @@ const FULL_IMAGE_QUALITY = 0.82;
 const THUMBNAIL_MAX_EDGE = 220;
 const THUMBNAIL_QUALITY = 0.58;
 
-const formatFileSize = (bytes) => {
-  if(bytes < 1024 * 1024){
-    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  }
-
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-};
-
 const isAcceptedImage = (file) => {
   const fileName = file.name.toLowerCase();
   const hasAllowedExtension = ACCEPTED_IMAGE_EXTENSIONS.some((extension)=>fileName.endsWith(extension));
@@ -165,18 +157,35 @@ function AddMemory() {
     return "";
   };
 
-  const handleImagesChange = (event) => {
-    const selectedImages = Array.from(event.target.files || []);
-    const validationMessage = validateImages(selectedImages);
-
-    if(validationMessage){
-      setImages([]);
-      setMessage(validationMessage);
-      event.target.value = "";
+  const syncFileInput = (files) => {
+    if(!fileInputRef.current){
       return;
     }
 
-    setImages(selectedImages);
+    const transfer = new DataTransfer();
+    files.forEach((file)=>transfer.items.add(file));
+    fileInputRef.current.files = transfer.files;
+  };
+
+  const handleImagesChange = (event) => {
+    const selectedImages = Array.from(event.target.files || []);
+    const nextImages = [...images, ...selectedImages];
+    const validationMessage = validateImages(nextImages);
+
+    if(validationMessage){
+      setMessage(validationMessage);
+      syncFileInput(images);
+      return;
+    }
+
+    setImages(nextImages);
+    syncFileInput(nextImages);
+  };
+
+  const removeImage = (indexToRemove) => {
+    const nextImages = images.filter((_, index)=>index !== indexToRemove);
+    setImages(nextImages);
+    syncFileInput(nextImages);
   };
 
   const clearImages = () => {
@@ -425,7 +434,7 @@ function AddMemory() {
             accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
             multiple
             onChange={handleImagesChange}
-            required={!isEditing}
+            required={!isEditing && images.length === 0}
           />
 
           <div className="upload-helper">
@@ -441,14 +450,35 @@ function AddMemory() {
             <div className="selected-files-panel">
               <div className="selected-files-header">
                 <strong>{images.length} {images.length === 1 ? "image" : "images"} selected</strong>
-                <small>Maximum {MAX_MEMORY_IMAGES}</small>
+                <div className="selected-files-limit">
+                  <small>Maximum {MAX_MEMORY_IMAGES}</small>
+                  {images.length < MAX_MEMORY_IMAGES && (
+                    <button
+                      type="button"
+                      className="selected-files-add-btn"
+                      aria-label="Add more images"
+                      title="Add more images"
+                      onClick={()=>fileInputRef.current?.click()}
+                    >
+                      +
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="selected-files-list">
-                {images.map((image)=>(
-                  <span key={`${image.name}-${image.size}`}>
-                    {image.name}
-                    <small>{formatFileSize(image.size)}</small>
-                  </span>
+                {images.map((image,index)=>(
+                  <div className="selected-file-row" key={`${image.name}-${image.size}-${index}`}>
+                    <span>{image.name}</span>
+                    <button
+                      type="button"
+                      className="selected-file-remove-btn"
+                      aria-label={`Remove ${image.name}`}
+                      title="Remove image"
+                      onClick={()=>removeImage(index)}
+                    >
+                      &times;
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

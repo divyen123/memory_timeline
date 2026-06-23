@@ -8996,6 +8996,48 @@ body.light .selected-files-header small{
   color:rgba(44,44,44,0.5);
 }
 
+.selected-files-limit{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex:0 0 auto;
+}
+
+.add-memory-page .selected-files-add-btn,
+.add-memory-page .selected-file-remove-btn{
+  display:inline-grid;
+  place-items:center;
+  width:22px;
+  min-width:22px;
+  height:22px;
+  min-height:22px;
+  margin:0;
+  padding:0;
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:50%;
+  background:rgba(14,14,44,0.24);
+  color:inherit;
+  box-shadow:none;
+  font-family:Arial,sans-serif;
+  font-size:17px;
+  font-weight:700;
+  line-height:1;
+}
+
+.add-memory-page .selected-file-remove-btn{
+  width:20px;
+  min-width:20px;
+  height:20px;
+  min-height:20px;
+  font-size:15px;
+}
+
+body.light .add-memory-page .selected-files-add-btn,
+body.light .add-memory-page .selected-file-remove-btn{
+  border-color:rgba(44,44,44,0.14);
+  background:rgba(255,255,255,0.44);
+}
+
 .selected-files-list{
   display:grid;
   grid-template-columns:1fr;
@@ -9005,7 +9047,7 @@ body.light .selected-files-header small{
   padding-right:3px;
 }
 
-.selected-files-list span{
+.selected-file-row{
   display:flex;
   justify-content:space-between;
   gap:10px;
@@ -9020,18 +9062,15 @@ body.light .selected-files-header small{
   white-space:nowrap;
 }
 
-body.light .selected-files-list span{
+body.light .selected-file-row{
   background:rgba(255,255,255,0.45);
   color:rgba(44,44,44,0.78);
 }
 
-.selected-files-list small{
-  flex:0 0 auto;
-  color:rgba(255,255,255,0.52);
-}
-
-body.light .selected-files-list small{
-  color:rgba(44,44,44,0.5);
+.selected-file-row > span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .add-memory-page button{

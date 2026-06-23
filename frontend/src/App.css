@@ -11207,7 +11207,7 @@ body.light .hide-confirm-dialog{
   top:178px;
   left:54px;
   z-index:8;
-  width:300px !important;
+  width:240px !important;
   max-width:calc(100vw - 108px) !important;
   margin:0 !important;
   grid-template-columns:minmax(0,1fr) !important;
@@ -11218,7 +11218,7 @@ body.light .hide-confirm-dialog{
 body.card-size-small .hidden-images-timeline,
 body.card-size-medium .hidden-images-timeline,
 body.card-size-large .hidden-images-timeline{
-  width:300px !important;
+  width:240px !important;
   max-width:calc(100vw - 108px) !important;
   margin-left:0 !important;
   grid-template-columns:minmax(0,1fr) !important;
@@ -11228,14 +11228,54 @@ body.card-size-large .hidden-images-timeline{
   cursor:pointer;
   grid-column:1;
   justify-self:start;
-  width:min(300px,calc(100vw - 108px));
-  max-width:300px;
+  width:min(240px,calc(100vw - 108px));
+  max-width:240px;
 }
 
 .hidden-memory-item .timeline-card{
   cursor:pointer;
   width:100%;
-  min-height:170px;
+  min-height:138px;
+}
+
+.hidden-images-page .calendar-view,
+.hidden-images-page .small-cards-view{
+  position:fixed;
+  top:178px;
+  left:54px;
+  z-index:8;
+  width:min(640px,calc(100vw - 108px));
+  max-width:calc(100vw - 108px);
+  margin:0;
+  justify-content:start;
+}
+
+.hidden-images-page .calendar-month{
+  width:100%;
+  padding:20px;
+}
+
+.hidden-images-page .calendar-view .calendar-grid{
+  grid-template-columns:repeat(auto-fill,minmax(92px,92px));
+  justify-content:start;
+  gap:12px;
+}
+
+.hidden-images-page .calendar-image-memory,
+.hidden-images-page .small-container-memory{
+  width:110px;
+  min-height:110px;
+  padding:0;
+}
+
+.hidden-images-page .small-cards-view{
+  grid-template-columns:repeat(auto-fill,minmax(110px,110px));
+  gap:14px;
+}
+
+.hidden-images-page .small-container-memory .calendar-memory-thumbnail{
+  width:100%;
+  height:100%;
 }
 
 .hidden-preview-actions{
@@ -11366,8 +11406,25 @@ body.card-size-large .hidden-images-timeline{
     margin:0 !important;
   }
 
+  .hidden-images-page .calendar-view,
+  .hidden-images-page .small-cards-view{
+    position:static;
+    width:100%;
+    max-width:none;
+    margin:0;
+  }
+
+  .hidden-images-page .calendar-view .calendar-grid,
+  .hidden-images-page .small-cards-view{
+    grid-template-columns:repeat(auto-fill,minmax(96px,96px));
+  }
+
   .password-card .hide-password-fields{
     grid-template-columns:1fr;
+  }
+
+  .password-card .hide-password-settings{
+    max-height:none;
   }
 }
 
@@ -11380,6 +11437,7 @@ body.card-size-large .hidden-images-timeline{
 .password-card .hide-password-settings{
   flex:0 0 auto;
   width:100%;
+  max-height:238px;
   margin-top:16px;
   padding:16px;
   gap:12px;
@@ -11390,10 +11448,10 @@ body.card-size-large .hidden-images-timeline{
 }
 
 .password-card .settings-check-row{
-  min-height:44px;
-  padding:8px 10px;
+  min-height:42px !important;
+  padding:8px 10px !important;
   display:grid;
-  grid-template-columns:20px minmax(0,1fr);
+  grid-template-columns:18px minmax(0,1fr) !important;
   gap:10px;
   align-items:center;
   background:rgba(255,255,255,0.1);
@@ -11403,14 +11461,17 @@ body.card-size-large .hidden-images-timeline{
 .password-card .settings-check-row input[type="checkbox"]{
   appearance:none;
   -webkit-appearance:none;
-  width:16px;
-  height:16px;
-  min-width:16px;
-  min-height:16px;
-  margin:0;
+  width:14px !important;
+  height:14px !important;
+  min-width:14px !important;
+  min-height:14px !important;
+  max-width:14px !important;
+  max-height:14px !important;
+  margin:0 !important;
+  padding:0 !important;
   display:grid;
   place-items:center;
-  border-radius:4px;
+  border-radius:3px;
   border:1px solid rgba(255,255,255,0.68);
   background:rgba(255,255,255,0.18);
   box-shadow:none;
@@ -11423,8 +11484,8 @@ body.card-size-large .hidden-images-timeline{
 
 .password-card .settings-check-row input[type="checkbox"]:checked::after{
   content:"";
-  width:8px;
-  height:5px;
+  width:7px;
+  height:4px;
   border-left:2px solid #fff;
   border-bottom:2px solid #fff;
   transform:rotate(-45deg) translate(1px,-1px);
@@ -11455,12 +11516,14 @@ body.card-size-large .hidden-images-timeline{
 .password-card .hide-password-fields select,
 .password-card .hide-password-fields input{
   width:100%;
-  min-height:44px;
+  min-height:40px;
   margin:0;
+  padding:9px 12px;
 }
 
 .password-card .hide-password-settings button[type="submit"]{
   width:min(240px,100%);
+  min-height:40px;
   margin:0 auto;
 }
 

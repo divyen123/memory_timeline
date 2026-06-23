@@ -11588,7 +11588,9 @@ body.card-size-large .hidden-images-timeline{
 .password-card .hide-password-settings button[type="submit"]{
   width:150px;
   min-height:36px;
-  margin:0;
+  height:36px;
+  align-self:end;
+  margin:0 !important;
   padding:7px 12px;
   font-size:13px;
 }

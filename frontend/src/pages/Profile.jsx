@@ -150,6 +150,7 @@ function Profile() {
   const [confirmAction,setConfirmAction] = useState(null);
   const [isDangerBusy,setIsDangerBusy] = useState(false);
   const [showAccountInfo,setShowAccountInfo] = useState(false);
+  const [isHidePinSetupOpen,setIsHidePinSetupOpen] = useState(false);
   const [hidePinDraft,setHidePinDraft] = useState("");
   const deviceProfile = getDeviceProfile();
   const isMobileProfile = deviceProfile === "mobile";
@@ -263,7 +264,7 @@ function Profile() {
   const handleHidePasswordSave = async (e) => {
     e.preventDefault();
 
-    const nextPin = hasSavedHidePin ? hidePinDraft : appSettings.hidePasswordValue;
+    const nextPin = hidePinDraft;
 
     if(!/^\d{4}$/.test(nextPin || "")){
       setMessage("Use a 4-digit hiding PIN");
@@ -284,6 +285,7 @@ function Profile() {
     );
 
     setHidePinDraft("");
+    setIsHidePinSetupOpen(false);
   };
 
   const handleHidePasswordRemove = async () => {
@@ -299,6 +301,7 @@ function Profile() {
     );
 
     setHidePinDraft("");
+    setIsHidePinSetupOpen(false);
   };
 
   const closeDangerConfirm = () => {
@@ -1102,22 +1105,21 @@ function Profile() {
                   type="button"
                   className="settings-check-row hide-password-toggle"
                   role="checkbox"
-                  aria-checked={Boolean(appSettings.hidePasswordEnabled)}
-                  onClick={()=>updateSettings({
-                    hidePasswordEnabled:!appSettings.hidePasswordEnabled,
-                    hidePasswordValue:"",
-                    hidePasswordType:"pin"
-                  })}
+                  aria-checked={isHidePinSetupOpen}
+                  onClick={()=>{
+                    setIsHidePinSetupOpen((current)=>!current);
+                    setHidePinDraft("");
+                  }}
                 >
                   <span
-                    className={`hide-password-checkmark ${appSettings.hidePasswordEnabled ? "checked" : ""}`}
+                    className={`hide-password-checkmark ${isHidePinSetupOpen ? "checked" : ""}`}
                     aria-hidden="true"
                   />
                   <span>Set password for hiding</span>
                 </button>
               )}
 
-              {(hasSavedHidePin || appSettings.hidePasswordEnabled) && (
+              {(hasSavedHidePin || isHidePinSetupOpen) && (
                 <div className="hide-pin-controls">
                   <div className="hide-password-fields">
                     <label>
@@ -1127,16 +1129,11 @@ function Profile() {
                         inputMode="numeric"
                         pattern="[0-9]*"
                         placeholder={hasSavedHidePin ? "New PIN" : "Enter PIN"}
-                        value={hasSavedHidePin ? hidePinDraft : appSettings.hidePasswordValue || ""}
+                        value={hidePinDraft}
                         maxLength={4}
                         onChange={(e)=>{
                           const nextValue = e.target.value.replace(/\D/g, "").slice(0, 4);
-
-                          if(hasSavedHidePin){
-                            setHidePinDraft(nextValue);
-                          }else{
-                            updateSetting("hidePasswordValue", nextValue);
-                          }
+                          setHidePinDraft(nextValue);
                         }}
                       />
                     </label>

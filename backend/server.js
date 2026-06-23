@@ -73,7 +73,10 @@ const SETTINGS_KEYS = new Set([
   "soundEnabled",
   "createSound",
   "updateSound",
-  "reminderSound"
+  "reminderSound",
+  "hidePasswordEnabled",
+  "hidePasswordType",
+  "hidePasswordValue"
 ]);
 
 const sanitizeSettings = (settings = {}) => (

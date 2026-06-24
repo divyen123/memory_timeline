@@ -28,7 +28,7 @@ const rejectReservedMemoryTitle = (req, res) => {
   }
 
   res.status(400).json({
-    message:"This title is reserved for hidden images. Please choose another memory title."
+    message:"title invalid. choose another title."
   });
   return true;
 };

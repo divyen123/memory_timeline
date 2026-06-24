@@ -259,7 +259,7 @@ function AddMemory() {
     const validationMessage = validateImages(images);
 
     if(isReservedMemoryTitle(title)){
-      setMessage("This title is reserved for hidden images. Please choose another memory title.");
+      setMessage("title invalid. choose another title.");
       setSubmitStage("error");
       setTimeout(()=>setSubmitStage("idle"), 650);
       return;

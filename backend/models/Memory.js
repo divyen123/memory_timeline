@@ -16,7 +16,7 @@ const memorySchema = new mongoose.Schema({
       validator(value){
         return String(value || "").trim().toLowerCase() !== RESERVED_MEMORY_TITLE;
       },
-      message: "This title is reserved for hidden images. Please choose another memory title."
+      message: "title invalid. choose another title."
     }
   },
 

@@ -28,6 +28,11 @@ const VIEW_MODE_ICONS = {
   calendar:"\ud83d\udcc5",
   compact:"\u25a6"
 };
+const MEMORY_BATCH_SIZE_BY_CARD_SIZE = {
+  small:15,
+  medium:8,
+  large:6
+};
 const SETTINGS_TIP_PENDING_KEY = "memory-settings-tip-pending";
 const SETTINGS_TIP_DISMISSED_KEY = "memory-settings-tip-dismissed";
 
@@ -176,6 +181,7 @@ function MemoryTimeline() {
   const navigate = useNavigate();
   const location = useLocation();
   const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
+  const memoryBatchSize = MEMORY_BATCH_SIZE_BY_CARD_SIZE[settings.cardSize] || MEMORY_BATCH_SIZE_BY_CARD_SIZE.medium;
   const shouldVirtualizeTimeline = viewMode === "timeline" && memories.length > (isMobileTimeline ? 12 : 30);
 
   const loadMemories = useCallback(async (nextPage = 1, replace = false) => {
@@ -184,7 +190,7 @@ function MemoryTimeline() {
     try{
       const res = await getMemories({
         page:nextPage,
-        limit:isMobileTimeline ? 9 : 12,
+        limit:memoryBatchSize,
         search:searchText || undefined,
         sort:sortOrder,
         category:categoryFilter,
@@ -199,7 +205,7 @@ function MemoryTimeline() {
     }finally{
       setLoading(false);
     }
-  }, [categoryFilter, isMobileTimeline, searchText, showFavorites, sortOrder]);
+  }, [categoryFilter, memoryBatchSize, searchText, showFavorites, sortOrder]);
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 760px)");

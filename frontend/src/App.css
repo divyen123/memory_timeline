@@ -9826,6 +9826,7 @@ body.light .calendar-memory{
   flex-wrap:wrap;
   gap:14px;
   align-items:flex-start;
+  justify-content:center;
 }
 
 .small-container-memory{
@@ -11509,6 +11510,10 @@ body.card-size-large .hidden-images-timeline{
   max-width:calc(100vw - 108px);
   margin:0;
   justify-content:start;
+}
+
+.hidden-images-page .small-cards-view{
+  justify-content:center;
 }
 
 .hidden-images-page .calendar-month{

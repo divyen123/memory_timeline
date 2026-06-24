@@ -3291,8 +3291,8 @@ body.light .about-modal-details{
 .timeline-search-shell.open{
   width:min(320px,42vw);
   grid-template-columns:var(--toolbar-button-width) 1fr 30px;
-  background:linear-gradient(135deg,rgba(31,32,66,0.78),rgba(16,18,43,0.64));
-  border-color:rgba(255,255,255,0.34);
+  background:linear-gradient(135deg,rgba(255,255,255,0.16),rgba(255,255,255,0.07));
+  border-color:rgba(255,255,255,0.3);
   box-shadow:0 16px 38px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.18);
   backdrop-filter:blur(18px) saturate(1.25);
 }
@@ -3387,7 +3387,7 @@ body.light .timeline-search::-webkit-search-cancel-button{
 }
 
 body.light .timeline-search-shell.open{
-  background:linear-gradient(135deg,rgba(255,255,255,0.74),rgba(241,239,255,0.6));
+  background:linear-gradient(135deg,rgba(255,255,255,0.52),rgba(255,255,255,0.24));
   border-color:rgba(68,54,104,0.22);
   box-shadow:0 16px 36px rgba(52,40,92,0.18), inset 0 1px 0 rgba(255,255,255,0.72);
 }
@@ -3499,14 +3499,14 @@ body.toolbar-icons-separate .timeline-search-shell{
 }
 
 body.toolbar-icons-separate .timeline-search-shell.open{
-  background:linear-gradient(135deg,rgba(31,32,66,0.78),rgba(16,18,43,0.64));
-  border-color:rgba(255,255,255,0.34);
+  background:linear-gradient(135deg,rgba(255,255,255,0.16),rgba(255,255,255,0.07));
+  border-color:rgba(255,255,255,0.3);
   box-shadow:0 16px 38px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.18);
   backdrop-filter:blur(18px) saturate(1.25);
 }
 
 body.light.toolbar-icons-separate .timeline-search-shell.open{
-  background:linear-gradient(135deg,rgba(255,255,255,0.74),rgba(241,239,255,0.6));
+  background:linear-gradient(135deg,rgba(255,255,255,0.52),rgba(255,255,255,0.24));
   border-color:rgba(68,54,104,0.22);
   box-shadow:0 16px 36px rgba(52,40,92,0.18), inset 0 1px 0 rgba(255,255,255,0.72);
 }

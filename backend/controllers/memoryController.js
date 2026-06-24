@@ -772,19 +772,27 @@ exports.updateMemory = async (req,res)=>{
     const images = await getUploadedImages(req);
     const thumbnails = await getUploadedThumbnails(req);
     const updateData = buildMemoryPayload(req, images, thumbnails);
+    const memory = await Memory.findOne({
+      _id:req.params.id,
+      userId:req.user.userId,
+      deletedAt:null
+    });
 
-    const updated = await Memory.findOneAndUpdate(
-      {
-        _id:req.params.id,
-        userId:req.user.userId,
-        deletedAt:null
-      },
-      updateData,
-      {new:true}
-    );
-
-    if(!updated){
+    if(!memory){
       return res.status(404).json({message:"Memory not found"});
+    }
+
+    const previousStoredImages = images.length ? {
+      image:memory.image,
+      images:memory.images || [],
+      thumbnails:memory.thumbnails || []
+    } : null;
+
+    Object.assign(memory, updateData);
+    const updated = await memory.save();
+
+    if(previousStoredImages){
+      await deleteStoredImages(previousStoredImages);
     }
 
     res.json(await withSignedImages(updated));

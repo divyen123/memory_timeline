@@ -138,6 +138,11 @@ function AddMemory() {
   const [successPreview, setSuccessPreview] = useState({title:"", imageUrl:""});
   const [successAnnouncement, setSuccessAnnouncement] = useState("");
   const categories = ["Personal","Family","Friends","Travel","School","Work","Other"];
+  const existingImages = isEditing
+    ? (editingMemory?.images?.length ? editingMemory.images : (editingMemory?.image ? [editingMemory.image] : []))
+    : [];
+  const hasReplacementImages = images.length > 0;
+  const showImagePanel = hasReplacementImages || existingImages.length > 0;
 
   const validateImages = (files) => {
     if(files.length > MAX_MEMORY_IMAGES){
@@ -446,18 +451,22 @@ function AddMemory() {
             )}
           </div>
 
-          {images.length > 0 && (
+          {showImagePanel && (
             <div className="selected-files-panel">
               <div className="selected-files-header">
-                <strong>{images.length} {images.length === 1 ? "image" : "images"} selected</strong>
+                <strong>
+                  {hasReplacementImages
+                    ? `${images.length} ${images.length === 1 ? "image" : "images"} selected`
+                    : `${existingImages.length} current ${existingImages.length === 1 ? "image" : "images"}`}
+                </strong>
                 <div className="selected-files-limit">
                   <small>Maximum {MAX_MEMORY_IMAGES}</small>
-                  {images.length < MAX_MEMORY_IMAGES && (
+                  {(hasReplacementImages ? images.length : existingImages.length) < MAX_MEMORY_IMAGES && (
                     <button
                       type="button"
                       className="selected-files-add-btn"
-                      aria-label="Add more images"
-                      title="Add more images"
+                      aria-label={hasReplacementImages ? "Add more images" : "Choose replacement images"}
+                      title={hasReplacementImages ? "Add more images" : "Choose replacement images"}
                       onClick={()=>fileInputRef.current?.click()}
                     >
                       +
@@ -466,20 +475,32 @@ function AddMemory() {
                 </div>
               </div>
               <div className="selected-files-list">
-                {images.map((image,index)=>(
-                  <div className="selected-file-row" key={`${image.name}-${image.size}-${index}`}>
-                    <span>{image.name}</span>
-                    <button
-                      type="button"
-                      className="selected-file-remove-btn"
-                      aria-label={`Remove ${image.name}`}
-                      title="Remove image"
-                      onClick={()=>removeImage(index)}
-                    >
-                      &times;
-                    </button>
-                  </div>
-                ))}
+                {hasReplacementImages ? (
+                  images.map((image,index)=>(
+                    <div className="selected-file-row" key={`${image.name}-${image.size}-${index}`}>
+                      <span>{image.name}</span>
+                      <button
+                        type="button"
+                        className="selected-file-remove-btn"
+                        aria-label={`Remove ${image.name}`}
+                        title="Remove image"
+                        onClick={()=>removeImage(index)}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  existingImages.map((_,index)=>(
+                    <div className="selected-file-row existing-file-row" key={`existing-${index}`}>
+                      <img
+                        src={getMemoryImageUrl(editingMemory, editingMemory?.thumbnails?.[index] ? "thumbnails" : "images", index)}
+                        alt={`Current memory image ${index + 1}`}
+                      />
+                      <span>Current image {index + 1}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}

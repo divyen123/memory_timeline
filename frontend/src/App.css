@@ -9073,6 +9073,25 @@ body.light .selected-file-row{
   text-overflow:ellipsis;
 }
 
+.selected-file-row.existing-file-row{
+  justify-content:flex-start;
+}
+
+.selected-file-row.existing-file-row img{
+  flex:0 0 32px;
+  width:32px;
+  height:32px;
+  border-radius:8px;
+  object-fit:cover;
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(14,14,44,0.22);
+}
+
+body.light .selected-file-row.existing-file-row img{
+  border-color:rgba(44,44,44,0.12);
+  background:rgba(255,255,255,0.42);
+}
+
 .add-memory-page button{
   padding:11px;
 }

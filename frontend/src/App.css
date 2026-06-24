@@ -3320,8 +3320,8 @@ body.light .about-modal-details{
 }
 
 .timeline-search::-webkit-search-cancel-button{
-  width:14px;
-  height:14px;
+  width:12px;
+  height:12px;
   appearance:none;
   cursor:pointer;
   background:

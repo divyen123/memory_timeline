@@ -7331,6 +7331,7 @@ body.light .preview-actions .preview-delete-btn:hover{
 
 .trash-hero{
   position:relative;
+  z-index:100;
   min-height:54px;
   padding:0;
   display:flex;
@@ -7451,6 +7452,7 @@ body.light .preview-actions .preview-delete-btn:hover{
 
 .trash-menu-wrap{
   position:relative;
+  z-index:101;
   margin-left:0;
 }
 
@@ -7486,7 +7488,7 @@ body.light .preview-actions .preview-delete-btn:hover{
 
 .trash-actions-menu{
   position:absolute;
-  z-index:30;
+  z-index:102;
   top:calc(100% + 10px);
   right:0;
   min-width:180px;
@@ -7604,7 +7606,7 @@ body.light .preview-actions .preview-delete-btn:hover{
 .trash-grid{
   width:var(--trash-content-width);
   display:grid;
-  grid-template-columns:repeat(6,minmax(0,138px));
+  grid-template-columns:repeat(8,minmax(0,1fr));
   justify-content:start;
   justify-items:start;
   gap:12px;
@@ -7612,7 +7614,7 @@ body.light .preview-actions .preview-delete-btn:hover{
 
 .trash-card{
   position:relative;
-  width:138px;
+  width:100%;
   min-width:0;
   aspect-ratio:1;
   padding:7px;

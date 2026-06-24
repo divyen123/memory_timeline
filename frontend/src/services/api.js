@@ -36,7 +36,14 @@ export const getMemoryImageUrl = (memory, kind = "images", index = 0) => {
     return image;
   }
 
-  return `${API_BASE_URL}/memories/${memory._id}/images/${kind}/${index}/view`;
+  const version = encodeURIComponent([
+    image,
+    memory?.image,
+    memory?.updatedAt,
+    memory?.createdAt
+  ].filter(Boolean).join("|"));
+
+  return `${API_BASE_URL}/memories/${memory._id}/images/${kind}/${index}/view${version ? `?v=${version}` : ""}`;
 };
 
 export const getPublicMemoryImageUrl = (token, memory, index = 0) => {

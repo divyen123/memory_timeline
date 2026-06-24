@@ -986,7 +986,12 @@ function MemoryTimeline() {
     const shouldShowSettingsTip = location.state?.showSettingsTip;
 
     if(returnedPreview){
-      const returnedPreviewKey = `${returnedPreview._id || "memory"}-${returnedPreview.updatedAt || ""}`;
+      const returnedPreviewMediaKey = [
+        returnedPreview.image,
+        ...(returnedPreview.images || []),
+        ...(returnedPreview.thumbnails || [])
+      ].join("|");
+      const returnedPreviewKey = `${returnedPreview._id || "memory"}-${returnedPreview.updatedAt || returnedPreviewMediaKey}`;
 
       if(handledReturnedPreviewRef.current === returnedPreviewKey){
         navigate(location.pathname, {replace:true, state:null});

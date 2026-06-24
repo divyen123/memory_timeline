@@ -14,6 +14,98 @@ const TRASH_RETENTION_MS = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 const UPLOADS_ROOT = path.resolve("uploads");
 const PUBLIC_SHARE_EXPIRY_DAYS = Number(process.env.PUBLIC_SHARE_EXPIRY_DAYS || 7);
 const ACCOUNT_DELETE_CONFIRMATION = "delete account permenantly";
+const ENCRYPTED_MEDIA_PREFIX = "enc:v1:";
+const ENCRYPTED_MEDIA_MAGIC = Buffer.from("MTENC1");
+
+const getMediaEncryptionKey = () => crypto
+  .createHash("sha256")
+  .update(
+    process.env.MEDIA_ENCRYPTION_KEY ||
+    process.env.JWT_SECRET ||
+    process.env.CLOUDINARY_API_SECRET ||
+    "memory-timeline-development-media-key"
+  )
+  .digest();
+
+const encodeContentType = (contentType = "application/octet-stream") => (
+  Buffer.from(contentType).toString("base64url")
+);
+
+const decodeContentType = (encoded = "") => {
+  try{
+    return Buffer.from(encoded, "base64url").toString("utf8") || "application/octet-stream";
+  }catch{
+    return "application/octet-stream";
+  }
+};
+
+const getExtensionForContentType = (contentType = "") => {
+  const normalizedType = contentType.toLowerCase();
+
+  if(normalizedType.includes("webp")){
+    return "webp";
+  }
+
+  if(normalizedType.includes("png")){
+    return "png";
+  }
+
+  if(normalizedType.includes("jpeg") || normalizedType.includes("jpg")){
+    return "jpg";
+  }
+
+  return "jpg";
+};
+
+const encryptMediaBytes = (bytes) => {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", getMediaEncryptionKey(), iv);
+  const encrypted = Buffer.concat([cipher.update(bytes), cipher.final()]);
+  const tag = cipher.getAuthTag();
+
+  return Buffer.concat([ENCRYPTED_MEDIA_MAGIC, iv, tag, encrypted]);
+};
+
+const decryptMediaBytes = (bytes) => {
+  if(!Buffer.isBuffer(bytes) || bytes.length < ENCRYPTED_MEDIA_MAGIC.length + 28){
+    throw new Error("Encrypted media is invalid");
+  }
+
+  const magic = bytes.subarray(0, ENCRYPTED_MEDIA_MAGIC.length);
+
+  if(!magic.equals(ENCRYPTED_MEDIA_MAGIC)){
+    throw new Error("Encrypted media is invalid");
+  }
+
+  const ivStart = ENCRYPTED_MEDIA_MAGIC.length;
+  const iv = bytes.subarray(ivStart, ivStart + 12);
+  const tag = bytes.subarray(ivStart + 12, ivStart + 28);
+  const encrypted = bytes.subarray(ivStart + 28);
+  const decipher = crypto.createDecipheriv("aes-256-gcm", getMediaEncryptionKey(), iv);
+
+  decipher.setAuthTag(tag);
+  return Buffer.concat([decipher.update(encrypted), decipher.final()]);
+};
+
+const isEncryptedMedia = (image = "") => String(image).startsWith(ENCRYPTED_MEDIA_PREFIX);
+
+const parseEncryptedMedia = (image = "") => {
+  if(!isEncryptedMedia(image)){
+    return null;
+  }
+
+  const [, , encodedContentType, ...urlParts] = String(image).split(":");
+  const url = urlParts.join(":");
+
+  if(!url){
+    return null;
+  }
+
+  return {
+    contentType:decodeContentType(encodedContentType),
+    url
+  };
+};
 
 const uploadToCloudinary = async (file) => {
   if(process.env.CLOUD_STORAGE_PROVIDER !== "cloudinary"){
@@ -35,18 +127,24 @@ const uploadToCloudinary = async (file) => {
       .createHash("sha1")
       .update(`timestamp=${timestamp}&type=authenticated${process.env.CLOUDINARY_API_SECRET}`)
       .digest("hex");
-    const bytes = await fs.readFile(file.path);
+    const originalBytes = await fs.readFile(file.path);
+    const shouldEncryptCloudinaryMedia = process.env.CLOUDINARY_ENCRYPT_MEDIA !== "false";
+    const bytes = shouldEncryptCloudinaryMedia
+      ? encryptMediaBytes(originalBytes)
+      : originalBytes;
     const formData = new FormData();
-    const blob = new Blob([bytes], {type:file.mimetype});
+    const blob = new Blob([bytes], {type:shouldEncryptCloudinaryMedia ? "application/octet-stream" : file.mimetype});
+    const resourceType = shouldEncryptCloudinaryMedia ? "raw" : "image";
+    const uploadName = shouldEncryptCloudinaryMedia ? `${file.originalname}.enc` : file.originalname;
 
-    formData.append("file", blob, file.originalname);
+    formData.append("file", blob, uploadName);
     formData.append("api_key", process.env.CLOUDINARY_API_KEY);
     formData.append("timestamp", timestamp);
     formData.append("type", "authenticated");
     formData.append("signature", signature);
 
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
       {
         method:"POST",
         body:formData
@@ -65,7 +163,9 @@ const uploadToCloudinary = async (file) => {
 
     const data = await response.json();
     await fs.unlink(file.path).catch(()=>{});
-    return data.secure_url;
+    return shouldEncryptCloudinaryMedia
+      ? `${ENCRYPTED_MEDIA_PREFIX}${encodeContentType(file.mimetype)}:${data.secure_url}`
+      : data.secure_url;
   }catch(error){
     await fs.unlink(file.path).catch(()=>{});
     throw error;
@@ -119,38 +219,75 @@ const createDeliverySignature = (resourcePath) => {
     .slice(0, 8);
 };
 
-const signCloudinaryImageUrl = (image, transformation = "") => {
-  if(!image || !isCloudinaryConfigured()){
-    return image;
+const getCloudinaryUrl = (image) => (
+  parseEncryptedMedia(image)?.url || image
+);
+
+const getCloudinaryResource = (image) => {
+  const cloudinaryUrl = getCloudinaryUrl(image);
+
+  if(!cloudinaryUrl || !isCloudinaryConfigured()){
+    return null;
   }
 
   try{
-    const url = new URL(image);
-    const marker = `/${process.env.CLOUDINARY_CLOUD_NAME}/image/authenticated/`;
-    const markerIndex = url.pathname.indexOf(marker);
+    const url = new URL(cloudinaryUrl);
+    const baseMarker = `/${process.env.CLOUDINARY_CLOUD_NAME}/`;
+    const baseIndex = url.pathname.indexOf(baseMarker);
 
-    if(markerIndex === -1){
-      return image;
+    if(baseIndex === -1){
+      return null;
     }
 
-    const resourcePath = url.pathname.slice(markerIndex + marker.length);
+    const resourcePathWithType = url.pathname.slice(baseIndex + baseMarker.length);
+    const [resourceType, deliveryType, ...resourceParts] = resourcePathWithType.split("/");
 
-    if(resourcePath.startsWith("s--")){
-      return image;
+    if(!["image", "raw"].includes(resourceType) || deliveryType !== "authenticated" || !resourceParts.length){
+      return null;
     }
 
-    const transformedResourcePath = transformation
-      ? `${transformation}/${resourcePath}`
-      : resourcePath;
-    const signature = createDeliverySignature(transformedResourcePath);
-    return `${url.origin}${marker}s--${signature}--/${transformedResourcePath}`;
+    const resourcePath = resourceParts.join("/");
+    const withoutSignature = resourcePath.replace(/^s--[^/]+--\//, "");
+    const withoutVersion = withoutSignature.replace(/^v\d+\//, "");
+    const publicId = resourceType === "image"
+      ? withoutVersion.replace(/\.[^.]+$/, "")
+      : withoutVersion;
+
+    return {
+      origin:url.origin,
+      marker:`/${process.env.CLOUDINARY_CLOUD_NAME}/${resourceType}/authenticated/`,
+      publicId,
+      resourcePath,
+      resourceType
+    };
   }catch{
-    return image;
+    return null;
   }
+};
+
+const signCloudinaryImageUrl = (image, transformation = "") => {
+  const resource = getCloudinaryResource(image);
+
+  if(!resource){
+    return getCloudinaryUrl(image);
+  }
+
+  const {origin, marker, resourcePath, resourceType} = resource;
+
+  if(resourcePath.startsWith("s--")){
+    return getCloudinaryUrl(image);
+  }
+
+  const transformedResourcePath = transformation && resourceType === "image"
+    ? `${transformation}/${resourcePath}`
+    : resourcePath;
+  const signature = createDeliverySignature(transformedResourcePath);
+  return `${origin}${marker}s--${signature}--/${transformedResourcePath}`;
 };
 
 const isLocalImage = (image = "") => (
   image &&
+  !isEncryptedMedia(image) &&
   !image.startsWith("http://") &&
   !image.startsWith("https://")
 );
@@ -179,32 +316,9 @@ const deleteLocalImage = async (image) => {
   await fs.unlink(localPath).catch(()=>{});
 };
 
-const getCloudinaryPublicId = (image) => {
-  if(!image || !isCloudinaryConfigured()){
-    return null;
-  }
-
-  try{
-    const url = new URL(image);
-    const marker = `/${process.env.CLOUDINARY_CLOUD_NAME}/image/authenticated/`;
-    const markerIndex = url.pathname.indexOf(marker);
-
-    if(markerIndex === -1){
-      return null;
-    }
-
-    const resourcePath = url.pathname.slice(markerIndex + marker.length);
-    const withoutSignature = resourcePath.replace(/^s--[^/]+--\//, "");
-    const withoutVersion = withoutSignature.replace(/^v\d+\//, "");
-
-    return withoutVersion.replace(/\.[^.]+$/, "");
-  }catch{
-    return null;
-  }
-};
-
 const deleteCloudinaryImage = async (image) => {
-  const publicId = getCloudinaryPublicId(image);
+  const resource = getCloudinaryResource(image);
+  const publicId = resource?.publicId;
 
   if(!publicId){
     return;
@@ -223,7 +337,7 @@ const deleteCloudinaryImage = async (image) => {
   formData.append("timestamp", timestamp);
   formData.append("signature", signature);
 
-  await fetch(`https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/destroy`, {
+  await fetch(`https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/${resource.resourceType}/destroy`, {
     method:"POST",
     body:formData
   });
@@ -270,7 +384,10 @@ const streamStoredImage = async (image, res, options = {}) => {
     return res.status(404).json({message:"Image not found"});
   }
 
-  if(image.startsWith("http://") || image.startsWith("https://")){
+  const encryptedMedia = parseEncryptedMedia(image);
+  const cloudinaryUrl = getCloudinaryUrl(image);
+
+  if(cloudinaryUrl.startsWith("http://") || cloudinaryUrl.startsWith("https://")){
     const imageUrl = signCloudinaryImageUrl(image);
     const response = await fetch(imageUrl);
 
@@ -282,9 +399,10 @@ const streamStoredImage = async (image, res, options = {}) => {
     const cacheControl = options.public
       ? "public, max-age=300"
       : "private, max-age=300";
-    const bytes = Buffer.from(await response.arrayBuffer());
+    const storedBytes = Buffer.from(await response.arrayBuffer());
+    const bytes = encryptedMedia ? decryptMediaBytes(storedBytes) : storedBytes;
 
-    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Type", encryptedMedia?.contentType || contentType);
     res.setHeader("Cache-Control", cacheControl);
     return res.send(bytes);
   }
@@ -494,10 +612,13 @@ exports.downloadMemoryImage = async (req,res)=>{
       .replace(/[^a-z0-9]+/gi, "-")
       .replace(/^-|-$/g, "")
       .toLowerCase() || "memory";
-    const extension = path.extname(image).replace(".", "") || "jpg";
+    const encryptedMedia = parseEncryptedMedia(image);
+    const extension = encryptedMedia
+      ? getExtensionForContentType(encryptedMedia.contentType)
+      : (path.extname(image).replace(".", "") || "jpg");
     const fileName = `${safeTitle}-${imageIndex + 1}.${extension}`;
 
-    if(!image.startsWith("http")){
+    if(!image.startsWith("http") && !isEncryptedMedia(image)){
       const localPath = getLocalUploadPath(image);
 
       if(!localPath){
@@ -514,8 +635,9 @@ exports.downloadMemoryImage = async (req,res)=>{
       return res.status(502).json({message:"Image download failed"});
     }
 
-    const contentType = response.headers.get("content-type") || "application/octet-stream";
-    const bytes = Buffer.from(await response.arrayBuffer());
+    const contentType = encryptedMedia?.contentType || response.headers.get("content-type") || "application/octet-stream";
+    const storedBytes = Buffer.from(await response.arrayBuffer());
+    const bytes = encryptedMedia ? decryptMediaBytes(storedBytes) : storedBytes;
 
     res.setHeader("Content-Type", contentType);
     res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);

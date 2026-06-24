@@ -3291,8 +3291,10 @@ body.light .about-modal-details{
 .timeline-search-shell.open{
   width:min(320px,42vw);
   grid-template-columns:var(--toolbar-button-width) 1fr 30px;
-  background:rgba(255,255,255,0.9);
-  box-shadow:0 16px 36px rgba(0,0,0,0.22);
+  background:linear-gradient(135deg,rgba(31,32,66,0.78),rgba(16,18,43,0.64));
+  border-color:rgba(255,255,255,0.34);
+  box-shadow:0 16px 38px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.18);
+  backdrop-filter:blur(18px) saturate(1.25);
 }
 
 .timeline-search-shell.open .timeline-icon-control{
@@ -3325,10 +3327,10 @@ body.light .about-modal-details{
   appearance:none;
   cursor:pointer;
   background:
-    linear-gradient(45deg, transparent 43%, #ffffff 43%, #ffffff 57%, transparent 57%),
-    linear-gradient(-45deg, transparent 43%, #ffffff 43%, #ffffff 57%, transparent 57%);
-  filter:drop-shadow(0 1px 2px rgba(0,0,0,0.72));
-  opacity:0.96;
+    linear-gradient(45deg, transparent 39%, #ffffff 39%, #ffffff 61%, transparent 61%),
+    linear-gradient(-45deg, transparent 39%, #ffffff 39%, #ffffff 61%, transparent 61%);
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,0.9));
+  opacity:1;
 }
 
 body:not(.light) .timeline-search{
@@ -3379,9 +3381,15 @@ body:not(.light) .timeline-search::placeholder{
 
 body.light .timeline-search::-webkit-search-cancel-button{
   background:
-    linear-gradient(45deg, transparent 43%, #242244 43%, #242244 57%, transparent 57%),
-    linear-gradient(-45deg, transparent 43%, #242244 43%, #242244 57%, transparent 57%);
+    linear-gradient(45deg, transparent 39%, #242244 39%, #242244 61%, transparent 61%),
+    linear-gradient(-45deg, transparent 39%, #242244 39%, #242244 61%, transparent 61%);
   filter:none;
+}
+
+body.light .timeline-search-shell.open{
+  background:linear-gradient(135deg,rgba(255,255,255,0.74),rgba(241,239,255,0.6));
+  border-color:rgba(68,54,104,0.22);
+  box-shadow:0 16px 36px rgba(52,40,92,0.18), inset 0 1px 0 rgba(255,255,255,0.72);
 }
 
 body.light .timeline-search-go,
@@ -3491,9 +3499,16 @@ body.toolbar-icons-separate .timeline-search-shell{
 }
 
 body.toolbar-icons-separate .timeline-search-shell.open{
-  background:rgba(255,255,255,0.9);
-  border-color:rgba(255,255,255,0.22);
-  box-shadow:0 16px 36px rgba(0,0,0,0.22);
+  background:linear-gradient(135deg,rgba(31,32,66,0.78),rgba(16,18,43,0.64));
+  border-color:rgba(255,255,255,0.34);
+  box-shadow:0 16px 38px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.18);
+  backdrop-filter:blur(18px) saturate(1.25);
+}
+
+body.light.toolbar-icons-separate .timeline-search-shell.open{
+  background:linear-gradient(135deg,rgba(255,255,255,0.74),rgba(241,239,255,0.6));
+  border-color:rgba(68,54,104,0.22);
+  box-shadow:0 16px 36px rgba(52,40,92,0.18), inset 0 1px 0 rgba(255,255,255,0.72);
 }
 
 body.toolbar-icons-separate .timeline-icon-control,

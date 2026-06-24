@@ -152,6 +152,7 @@ function Profile() {
   const [accountDeleteConfirmation,setAccountDeleteConfirmation] = useState("");
   const [isDangerBusy,setIsDangerBusy] = useState(false);
   const [showAccountInfo,setShowAccountInfo] = useState(false);
+  const [showHidePinInfo,setShowHidePinInfo] = useState(false);
   const [isHidePinSetupOpen,setIsHidePinSetupOpen] = useState(false);
   const [hidePinDraft,setHidePinDraft] = useState("");
   const deviceProfile = getDeviceProfile();
@@ -1103,13 +1104,29 @@ function Profile() {
 
             <form className="hide-password-settings" onSubmit={handleHidePasswordSave}>
               {hasSavedHidePin ? (
-                <button
-                  type="button"
-                  className="hide-password-remove-btn"
-                  onClick={handleHidePasswordRemove}
-                >
-                  Remove PIN
-                </button>
+                <div className="hide-pin-remove-row">
+                  <button
+                    type="button"
+                    className="hide-password-remove-btn"
+                    onClick={handleHidePasswordRemove}
+                  >
+                    Remove PIN
+                  </button>
+                  <span className="hide-pin-info-wrap">
+                    <button
+                      type="button"
+                      className="hide-pin-info-btn"
+                      aria-label="Hiding PIN details"
+                      aria-expanded={showHidePinInfo}
+                      onClick={()=>setShowHidePinInfo((current)=>!current)}
+                    >
+                      i
+                    </button>
+                    <span className={`hide-pin-info-bubble ${showHidePinInfo ? "show" : ""}`}>
+                      This 4-digit PIN protects Hidden Images. Removing it turns off the PIN requirement. Updating it changes the PIN used to open Hidden Images.
+                    </span>
+                  </span>
+                </div>
               ) : (
                 <button
                   type="button"

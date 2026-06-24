@@ -11644,7 +11644,22 @@ body.card-size-large .hidden-images-timeline{
   border-radius:0;
   background:transparent;
   border:0;
-  overflow:hidden;
+  overflow:visible;
+}
+
+.password-card .hide-pin-remove-row{
+  position:relative;
+  width:min(218px,100%);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:minmax(0,180px) 24px;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.password-card .hide-pin-remove-row .hide-password-remove-btn{
+  margin:0 !important;
 }
 
 .password-card .settings-check-row{
@@ -11676,6 +11691,72 @@ body.card-size-large .hidden-images-timeline{
 .password-card .hide-password-remove-btn:hover{
   background:linear-gradient(135deg,#fb7185,#e11d48);
   transform:translateY(-1px);
+}
+
+.password-card .hide-pin-info-wrap{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.password-card .hide-pin-info-btn{
+  width:auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  padding:2px 5px !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:var(--adaptive-icon-color) !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  font-family:Poppins, "Segoe UI", sans-serif;
+  font-size:20px;
+  font-weight:900;
+  line-height:1;
+}
+
+.password-card .hide-pin-info-btn:hover,
+.password-card .hide-pin-info-btn:focus-visible{
+  background:transparent !important;
+  color:#ff4b7d !important;
+  box-shadow:none !important;
+  transform:scale(1.08);
+}
+
+.password-card .hide-pin-info-bubble{
+  position:absolute;
+  right:0;
+  bottom:calc(100% + 9px);
+  width:min(280px,78vw);
+  padding:12px;
+  border-radius:14px;
+  background:rgba(12,13,30,0.94);
+  border:1px solid rgba(255,255,255,0.18);
+  color:white;
+  box-shadow:0 16px 34px rgba(0,0,0,0.28);
+  font-size:12px;
+  line-height:1.45;
+  opacity:0;
+  transform:translateY(6px);
+  pointer-events:none;
+  transition:opacity 0.2s ease, transform 0.2s ease;
+  z-index:8;
+}
+
+.password-card .hide-pin-info-wrap:hover .hide-pin-info-bubble,
+.password-card .hide-pin-info-bubble.show{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+body.light .password-card .hide-pin-info-bubble{
+  background:rgba(255,255,255,0.9);
+  border-color:rgba(68,46,103,0.16);
+  color:#2a2140;
+  box-shadow:0 18px 42px rgba(78,48,116,0.18);
 }
 
 .password-card .hide-password-toggle{

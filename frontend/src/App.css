@@ -3336,19 +3336,22 @@ body.light .about-modal-details{
   flex:0 0 28px;
   padding:0;
   margin:0 8px 0 0;
-  border:0;
-  border-radius:50%;
-  background:transparent !important;
-  color:#242244;
+  border:0 !important;
+  border-radius:0 !important;
+  outline:0;
+  appearance:none;
+  background:none !important;
+  color:#242244 !important;
   box-shadow:none !important;
   backdrop-filter:none !important;
   font-size:20px;
   line-height:1;
+  text-shadow:0 1px 0 rgba(255,255,255,0.72);
 }
 
 .timeline-search-go:hover{
-  background:transparent !important;
-  color:color-mix(in srgb, var(--button-bg-color) 82%, #1a1a2e);
+  background:none !important;
+  color:color-mix(in srgb, var(--button-bg-color) 70%, #151526) !important;
   box-shadow:none !important;
 }
 

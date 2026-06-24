@@ -11,6 +11,7 @@ import "../components/successAnimation/success-animations.css";
 
 const MAX_MEMORY_IMAGES = 10;
 const MAX_IMAGE_MB = 8;
+const RESERVED_MEMORY_TITLE = "app/hide-image/";
 const ACCEPTED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -29,6 +30,10 @@ const isAcceptedImage = (file) => {
 
   return hasAllowedExtension && hasAllowedMime;
 };
+
+const isReservedMemoryTitle = (value = "") => (
+  value.trim().toLowerCase() === RESERVED_MEMORY_TITLE
+);
 
 const getUploadErrorMessage = (err) => {
   if(err.response?.data?.message){
@@ -252,6 +257,13 @@ function AddMemory() {
     }
 
     const validationMessage = validateImages(images);
+
+    if(isReservedMemoryTitle(title)){
+      setMessage("This title is reserved for hidden images. Please choose another memory title.");
+      setSubmitStage("error");
+      setTimeout(()=>setSubmitStage("idle"), 650);
+      return;
+    }
 
     if(validationMessage){
       setMessage(validationMessage);

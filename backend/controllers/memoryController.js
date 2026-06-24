@@ -16,6 +16,22 @@ const PUBLIC_SHARE_EXPIRY_DAYS = Number(process.env.PUBLIC_SHARE_EXPIRY_DAYS || 
 const ACCOUNT_DELETE_CONFIRMATION = "delete account permenantly";
 const ENCRYPTED_MEDIA_PREFIX = "enc:v1:";
 const ENCRYPTED_MEDIA_MAGIC = Buffer.from("MTENC1");
+const RESERVED_MEMORY_TITLE = "app/hide-image/";
+
+const isReservedMemoryTitle = (title = "") => (
+  String(title).trim().toLowerCase() === RESERVED_MEMORY_TITLE
+);
+
+const rejectReservedMemoryTitle = (req, res) => {
+  if(!isReservedMemoryTitle(req.body?.title)){
+    return false;
+  }
+
+  res.status(400).json({
+    message:"This title is reserved for hidden images. Please choose another memory title."
+  });
+  return true;
+};
 
 const getMediaEncryptionKey = () => crypto
   .createHash("sha256")
@@ -499,6 +515,10 @@ startTrashPurgeInterval();
 // Add Memory
 exports.addMemory = async (req, res) => {
   try {
+    if(rejectReservedMemoryTitle(req, res)){
+      return;
+    }
+
     const images = await getUploadedImages(req);
     const thumbnails = await getUploadedThumbnails(req);
 
@@ -890,6 +910,9 @@ exports.deleteAccount = async (req,res)=>{
 exports.updateMemory = async (req,res)=>{
 
   try{
+    if(rejectReservedMemoryTitle(req, res)){
+      return;
+    }
 
     const images = await getUploadedImages(req);
     const thumbnails = await getUploadedThumbnails(req);

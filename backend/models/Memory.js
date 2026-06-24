@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const RESERVED_MEMORY_TITLE = "app/hide-image/";
+
 const memorySchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -9,7 +11,13 @@ const memorySchema = new mongoose.Schema({
 
   title: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator(value){
+        return String(value || "").trim().toLowerCase() !== RESERVED_MEMORY_TITLE;
+      },
+      message: "This title is reserved for hidden images. Please choose another memory title."
+    }
   },
 
   description: {

@@ -40,7 +40,7 @@ function HiddenImages() {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [viewMode, setViewMode] = useState("timeline");
+  const [viewMode, setViewMode] = useState(()=>loadSettings().defaultMemoryView);
   const [passwordInput, setPasswordInput] = useState("");
   const [previewMemory, setPreviewMemory] = useState(null);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);

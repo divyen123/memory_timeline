@@ -568,7 +568,7 @@ function Profile() {
                 </div>
               </label>
 
-              <div className="settings-row two-column">
+              <div className="settings-row">
                 <label className="settings-field">
                   <span>Memory card size</span>
                   <select
@@ -578,6 +578,18 @@ function Profile() {
                     <option value="small">Small</option>
                     <option value="medium">Medium</option>
                     <option value="large">Large</option>
+                  </select>
+                </label>
+
+                <label className="settings-field">
+                  <span>Default memory view</span>
+                  <select
+                    value={appSettings.defaultMemoryView}
+                    onChange={(e)=>updateSetting("defaultMemoryView", e.target.value)}
+                  >
+                    <option value="timeline">Timeline view</option>
+                    <option value="calendar">Calendar view</option>
+                    <option value="compact">Tile view</option>
                   </select>
                 </label>
 

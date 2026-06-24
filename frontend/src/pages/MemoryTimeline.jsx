@@ -125,7 +125,7 @@ function MemoryTimeline() {
   const [sortOrder, setSortOrder] = useState("newest");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [showFavorites, setShowFavorites] = useState(false);
-  const [viewMode, setViewMode] = useState("timeline");
+  const [viewMode, setViewMode] = useState(()=>loadSettings().defaultMemoryView);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);

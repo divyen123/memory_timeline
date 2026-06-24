@@ -15,6 +15,7 @@ export const defaultSettings = {
   reminderLeadDays:2,
   defaultTheme:"light",
   cardSize:"medium",
+  defaultMemoryView:"timeline",
   cardBorderRadius:16,
   topButtonsPosition:"right",
   topButtonsIconStyle:"circle",
@@ -120,6 +121,9 @@ export const normalizeSettings = (settings = {}) => ({
   ...defaultSettings,
   ...settings,
   reminderLeadDays:Number(settings.reminderLeadDays) || defaultSettings.reminderLeadDays,
+  defaultMemoryView:["timeline", "calendar", "compact"].includes(settings.defaultMemoryView)
+    ? settings.defaultMemoryView
+    : defaultSettings.defaultMemoryView,
   cardBorderRadius:Math.min(
     36,
     Math.max(0, numberOrDefault(settings.cardBorderRadius, defaultSettings.cardBorderRadius))

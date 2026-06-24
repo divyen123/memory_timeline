@@ -173,7 +173,8 @@ body.glass-containers-off .empty-state,
 body.glass-containers-off .preview-dialog,
 body.glass-containers-off .confirm-dialog,
 body.glass-containers-off .reminder-alert-card,
-body.glass-containers-off .reminder-popover{
+body.glass-containers-off .reminder-popover,
+body.glass-containers-off .trash-actions-menu{
   background:var(--container-solid-bg);
   border-color:var(--container-solid-border);
   color:var(--container-text-color);
@@ -4063,11 +4064,18 @@ body.top-actions-left .reminder-menu{
   margin-left:calc((280px - var(--top-action-size)) * -1);
   padding:16px;
   border-radius:18px;
-  background:rgba(31,32,56,calc(0.5 + var(--container-glass-alpha)));
+  background:rgba(22,23,42,calc(0.48 + var(--container-glass-alpha)));
   border:1px solid rgba(255,255,255,0.22);
   color:white;
-  box-shadow:0 16px 46px rgba(0,0,0,0.32);
-  backdrop-filter:blur(12px);
+  box-shadow:0 22px 56px rgba(3,4,18,0.34), inset 0 1px 0 rgba(255,255,255,0.16);
+  backdrop-filter:blur(22px) saturate(1.12);
+}
+
+body.light .reminder-popover{
+  background:rgba(255,255,255,0.56);
+  border-color:rgba(31,31,51,0.14);
+  color:#25213d;
+  box-shadow:0 22px 58px rgba(31,31,51,0.18), inset 0 1px 0 rgba(255,255,255,0.72);
 }
 
 body.top-actions-left .reminder-popover{
@@ -4084,6 +4092,10 @@ body.top-actions-left .reminder-popover{
   color:rgba(255,255,255,0.78);
 }
 
+body.light .reminder-popover p{
+  color:rgba(37,33,61,0.68);
+}
+
 .reminder-popover-item{
   width:100%;
   padding:11px 12px;
@@ -4096,6 +4108,12 @@ body.top-actions-left .reminder-popover{
   color:white;
   box-shadow:none;
   text-align:left;
+}
+
+body.light .reminder-popover-item{
+  background:rgba(31,31,51,0.08);
+  border-color:rgba(31,31,51,0.12);
+  color:#25213d;
 }
 
 .reminder-popover-item + .reminder-popover-item{
@@ -4112,6 +4130,11 @@ body.top-actions-left .reminder-popover{
 .reminder-popover-item small{
   flex:0 0 auto;
   color:rgba(255,255,255,0.72);
+}
+
+body.light .reminder-popover-item small,
+body.light .reminder-pagination span{
+  color:rgba(37,33,61,0.66);
 }
 
 .reminder-pagination{
@@ -7550,10 +7573,10 @@ body.light .preview-actions .preview-delete-btn:hover{
   display:grid;
   gap:7px;
   border-radius:16px;
-  background:rgba(18,19,48,0.94);
-  border:1px solid rgba(255,255,255,0.18);
-  box-shadow:0 20px 50px rgba(0,0,0,0.32);
-  backdrop-filter:blur(16px);
+  background:rgba(22,23,42,calc(0.48 + var(--container-glass-alpha)));
+  border:1px solid rgba(255,255,255,0.24);
+  box-shadow:0 22px 56px rgba(3,4,18,0.34), inset 0 1px 0 rgba(255,255,255,0.16);
+  backdrop-filter:blur(22px) saturate(1.12);
 }
 
 .trash-actions-menu button{
@@ -7860,9 +7883,9 @@ body.light .trash-count strong{
 }
 
 body.light .trash-actions-menu{
-  background:rgba(255,255,255,0.9);
-  border-color:rgba(68,46,103,0.16);
-  box-shadow:0 18px 42px rgba(78,48,116,0.18);
+  background:rgba(255,255,255,0.56);
+  border-color:rgba(31,31,51,0.14);
+  box-shadow:0 22px 58px rgba(31,31,51,0.18), inset 0 1px 0 rgba(255,255,255,0.72);
 }
 
 body.light .trash-actions-menu button{

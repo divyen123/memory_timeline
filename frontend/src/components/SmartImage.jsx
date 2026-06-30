@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import { getAuthToken } from "../auth";
 import { requiresAuthenticatedImageFetch } from "../services/api";
-
 const facePositionCache = new Map();
 
 function getFallbackPosition(image) {
@@ -48,8 +48,11 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
       return () => {};
     }
 
+    const token = getAuthToken();
+
     fetch(src, {
-      credentials:"include"
+      credentials:"include",
+      headers:token ? {Authorization:`Bearer ${token}`} : undefined
     })
       .then((response)=>{
         if(!response.ok){

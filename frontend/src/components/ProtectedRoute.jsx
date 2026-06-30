@@ -5,10 +5,11 @@ import { getSession, refreshSession } from "../services/api";
 
 function ProtectedRoute({ children }) {
   const location = useLocation();
-  const [status,setStatus] = useState(()=>getAuthenticatedUserId() ? "checking" : "checking");
+  const [status,setStatus] = useState(()=>getAuthenticatedUserId() ? "authenticated" : "checking");
 
   useEffect(()=>{
     let active = true;
+    const hasLocalUser = Boolean(getAuthenticatedUserId());
 
     const verifySession = async() => {
       try{
@@ -25,7 +26,7 @@ function ProtectedRoute({ children }) {
             setStatus("authenticated");
           }
         }catch{
-          if(active){
+          if(active && !hasLocalUser){
             setStatus("guest");
           }
         }

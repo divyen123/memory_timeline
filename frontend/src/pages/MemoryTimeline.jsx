@@ -2083,7 +2083,7 @@ function MemoryTimeline() {
                 aria-label="Download image"
                 onClick={downloadPreviewImage}
               >
-                <span aria-hidden="true">🡻</span>
+                <span className="preview-download-icon" aria-hidden="true"></span>
               </button>
               <button
                 type="button"

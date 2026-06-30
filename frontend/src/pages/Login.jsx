@@ -143,7 +143,7 @@ useEffect(() => {
         return;
       }
 
-      setAuthenticatedUser(data.userId);
+      setAuthenticatedUser(data.userId, data.token);
       navigate("/timeline", {replace:true});
     })
     .catch(()=>{});
@@ -193,7 +193,7 @@ const handleLogin = async () => {
 
     const res = await loginUser({ email, password });
 
-    setAuthenticatedUser(res.data.userId);
+    setAuthenticatedUser(res.data.userId, res.data.token);
 
     onboardingRequiredRef.current = Boolean(res.data.onboardingRequired);
     introCompletedRef.current = false;

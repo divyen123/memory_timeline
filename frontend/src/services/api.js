@@ -1,5 +1,5 @@
 import axios from "axios";
-import { clearAuthenticatedUser, setAuthenticatedUser } from "../auth";
+import { clearAuthenticatedUser, getAuthToken, setAuthenticatedUser } from "../auth";
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/,"");
@@ -72,6 +72,16 @@ baseURL:API_BASE_URL,
 withCredentials:true
 });
 
+API.interceptors.request.use((config)=>{
+  const token = getAuthToken();
+
+  if(token){
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
 API.interceptors.response.use(
   (res)=>res,
   async(error)=>{
@@ -84,7 +94,7 @@ API.interceptors.response.use(
 
       try{
         const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {withCredentials:true});
-        setAuthenticatedUser(refreshResponse.data.userId);
+        setAuthenticatedUser(refreshResponse.data.userId, refreshResponse.data.token);
         return API(originalRequest);
       }catch{
         clearAuthenticatedUser();

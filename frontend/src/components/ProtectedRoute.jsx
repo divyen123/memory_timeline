@@ -15,14 +15,14 @@ function ProtectedRoute({ children }) {
       try{
         const res = await getSession();
         if(active){
-          setAuthenticatedUser(res.data.userId);
+          setAuthenticatedUser(res.data.userId, res.data.token);
           setStatus("authenticated");
         }
       }catch{
         try{
           const res = await refreshSession();
           if(active){
-            setAuthenticatedUser(res.data.userId);
+            setAuthenticatedUser(res.data.userId, res.data.token);
             setStatus("authenticated");
           }
         }catch{

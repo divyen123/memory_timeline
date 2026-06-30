@@ -27,6 +27,8 @@ const setAccessCookie = (res, userId) => {
     maxAge:ACCESS_MINUTES * 60 * 1000,
     path:"/"
   });
+
+  return token;
 };
 
 const setRefreshCookie = (res, token) => {
@@ -48,8 +50,9 @@ exports.createSession = async (req, res, userId) => {
     userAgent:String(req.get("user-agent") || "").slice(0, 300)
   });
 
-  setAccessCookie(res, userId);
+  const accessToken = setAccessCookie(res, userId);
   setRefreshCookie(res, refreshToken);
+  return accessToken;
 };
 
 exports.rotateSession = async (req, res) => {
@@ -75,9 +78,9 @@ exports.rotateSession = async (req, res) => {
   session.userAgent = String(req.get("user-agent") || "").slice(0, 300);
   await session.save();
 
-  setAccessCookie(res, session.userId);
+  const accessToken = setAccessCookie(res, session.userId);
   setRefreshCookie(res, nextToken);
-  return session;
+  return {session, accessToken};
 };
 
 exports.revokeCurrentSession = async (req) => {

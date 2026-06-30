@@ -350,12 +350,13 @@ app.post("/api/login", async(req,res)=>{
     }
 
     loginAttempts.delete(loginKey);
-    await createSession(req, res, user._id);
+    const token = await createSession(req, res, user._id);
     securityInfo("login_success", {userId:String(user._id), ip:req.ip});
 
     res.json({
       authenticated:true,
       userId:String(user._id),
+      token,
       onboardingRequired:user.onboardingCompleted === false
     });
   }catch(err){
@@ -365,14 +366,14 @@ app.post("/api/login", async(req,res)=>{
 
 app.post("/api/auth/refresh", async(req,res)=>{
   try{
-    const session = await rotateSession(req, res);
+    const rotatedSession = await rotateSession(req, res);
 
-    if(!session){
+    if(!rotatedSession){
       clearSessionCookies(res);
       return res.status(401).json({message:"Session expired"});
     }
 
-    res.json({authenticated:true, userId:String(session.userId)});
+    res.json({authenticated:true, userId:String(rotatedSession.session.userId), token:rotatedSession.accessToken});
   }catch(err){
     securityError("session_refresh_error", {ip:req.ip});
     res.status(500).json({message:"Unable to refresh session"});

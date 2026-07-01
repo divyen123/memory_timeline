@@ -459,6 +459,21 @@ const buildMemoryPayload = (req, images, thumbnails = []) => ({
   } : {})
 });
 
+const parseRetainedMediaList = (value) => {
+  if(value === undefined){
+    return null;
+  }
+
+  try{
+    const parsed = typeof value === "string" ? JSON.parse(value) : value;
+    return Array.isArray(parsed)
+      ? parsed.filter((item)=>typeof item === "string" && item)
+      : [];
+  }catch{
+    return [];
+  }
+};
+
 const createToken = () => crypto.randomBytes(32).toString("base64url");
 const createShareExpiry = () => new Date(Date.now() + PUBLIC_SHARE_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 const trusted = (filter) => mongoose.trusted(filter);
@@ -942,12 +957,34 @@ exports.updateMemory = async (req,res)=>{
       images:memory.images || [],
       thumbnails:memory.thumbnails || []
     } : null;
+    let removedStoredImages = null;
+
+    if(!images.length && Object.prototype.hasOwnProperty.call(req.body, "retainedImages")){
+      const retainedImages = parseRetainedMediaList(req.body.retainedImages) || [];
+      const retainedThumbnails = parseRetainedMediaList(req.body.retainedThumbnails) || [];
+      const currentImages = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
+      const currentThumbnails = memory.thumbnails || [];
+      const retainedImageSet = new Set(retainedImages);
+      const retainedThumbnailSet = new Set(retainedThumbnails);
+
+      updateData.image = retainedImages[0] || "";
+      updateData.images = retainedImages;
+      updateData.thumbnails = retainedThumbnails.slice(0, retainedImages.length);
+      removedStoredImages = {
+        images:currentImages.filter((image)=>!retainedImageSet.has(image)),
+        thumbnails:currentThumbnails.filter((image)=>!retainedThumbnailSet.has(image))
+      };
+    }
 
     Object.assign(memory, updateData);
     const updated = await memory.save();
 
     if(previousStoredImages){
       await deleteStoredImages(previousStoredImages);
+    }
+
+    if(removedStoredImages){
+      await deleteStoredImages(removedStoredImages);
     }
 
     res.json(await withSignedImages(updated));

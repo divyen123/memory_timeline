@@ -9182,7 +9182,16 @@ body.light .selected-file-row{
 }
 
 .selected-file-row.existing-file-row{
-  justify-content:flex-start;
+  justify-content:space-between;
+}
+
+.selected-file-row.existing-file-row > span{
+  flex:1 1 auto;
+}
+
+.add-memory-page .existing-image-remove-btn{
+  flex:0 0 20px;
+  color:rgba(255,255,255,0.9);
 }
 
 .selected-file-row.existing-file-row img{
@@ -13039,5 +13048,81 @@ body.light .hide-pin-password-dialog{
     width:100% !important;
     max-width:240px !important;
     justify-self:center !important;
+  }
+}
+
+/* mobile-card-title-date-trash-hidden-polish */
+@media (max-width:760px){
+  .timeline-card .memory-card-overlay{
+    align-items:center !important;
+    justify-content:flex-end !important;
+    padding:48px 10px 12px !important;
+    text-align:center !important;
+  }
+
+  .timeline-card .memory-card-overlay h3{
+    width:100% !important;
+    max-width:100% !important;
+    text-align:center !important;
+    font-size:clamp(13px,3.8vw,17px) !important;
+    line-height:1.12 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .timeline-card .memory-date-badge,
+  .hidden-memory-item .memory-date-badge{
+    left:50% !important;
+    right:auto !important;
+    max-width:calc(100% - 28px) !important;
+    min-height:24px !important;
+    padding:4px 8px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    transform:translateX(-50%) !important;
+    font-size:clamp(9px,2.35vw,11px) !important;
+    line-height:1 !important;
+    letter-spacing:0 !important;
+    text-align:center !important;
+    white-space:nowrap !important;
+  }
+
+  .timeline-card:hover .memory-date-badge,
+  .timeline-card:focus-within .memory-date-badge{
+    transform:translate(-50%, 8px) !important;
+  }
+
+  .trash-title-wrap{
+    transform:translateX(-18px) !important;
+  }
+
+  .trash-header-actions{
+    left:calc(50% + 42px) !important;
+  }
+
+  .hidden-page-back-btn{
+    top:10px !important;
+  }
+
+  .preview-image-expand-btn{
+    top:12px !important;
+    right:12px !important;
+    width:36px !important;
+    height:36px !important;
+    min-width:36px !important;
+    min-height:36px !important;
+    padding:0 !important;
+    font-size:15px !important;
+    line-height:1 !important;
+    display:inline-grid !important;
+    place-items:center !important;
+  }
+
+  .preview-image-expand-btn span{
+    display:block !important;
+    line-height:1 !important;
+    transform:none !important;
   }
 }

@@ -143,9 +143,16 @@ function AddMemory() {
   const [successPreview, setSuccessPreview] = useState({title:"", imageUrl:""});
   const [successAnnouncement, setSuccessAnnouncement] = useState("");
   const categories = ["Personal","Family","Friends","Travel","School","Work","Other"];
-  const existingImages = isEditing
+  const initialExistingImages = isEditing
     ? (editingMemory?.images?.length ? editingMemory.images : (editingMemory?.image ? [editingMemory.image] : []))
     : [];
+  const initialExistingThumbnails = isEditing
+    ? (editingMemory?.thumbnails?.length ? editingMemory.thumbnails : [])
+    : [];
+  const [currentImages, setCurrentImages] = useState(initialExistingImages);
+  const [currentThumbnails, setCurrentThumbnails] = useState(initialExistingThumbnails);
+  const existingImages = currentImages;
+  const existingThumbnails = currentThumbnails;
   const hasReplacementImages = images.length > 0;
   const showImagePanel = hasReplacementImages || existingImages.length > 0;
 
@@ -196,6 +203,11 @@ function AddMemory() {
     const nextImages = images.filter((_, index)=>index !== indexToRemove);
     setImages(nextImages);
     syncFileInput(nextImages);
+  };
+
+  const removeExistingImage = (indexToRemove) => {
+    setCurrentImages((current)=>current.filter((_, index)=>index !== indexToRemove));
+    setCurrentThumbnails((current)=>current.filter((_, index)=>index !== indexToRemove));
   };
 
   const clearImages = () => {
@@ -289,6 +301,11 @@ function AddMemory() {
       formData.append("category",category);
       formData.append("reminderDate",reminderDate);
 
+      if(isEditing && images.length === 0){
+        formData.append("retainedImages", JSON.stringify(existingImages));
+        formData.append("retainedThumbnails", JSON.stringify(existingThumbnails));
+      }
+
       const optimizedImages = await optimizeImages(images);
       const fullImages = optimizedImages.map(({full})=>full);
       const thumbnailImages = optimizedImages.map(({thumbnail})=>thumbnail);
@@ -317,9 +334,9 @@ function AddMemory() {
         const updatedMemory = {
           ...editingMemory,
           ...res.data,
-          image:res.data.image || editingMemory.image || "",
-          images:res.data.images?.length ? res.data.images : (editingMemory.images || []),
-          thumbnails:res.data.thumbnails?.length ? res.data.thumbnails : (editingMemory.thumbnails || [])
+          image:res.data.image || "",
+          images:Array.isArray(res.data.images) ? res.data.images : (editingMemory.images || []),
+          thumbnails:Array.isArray(res.data.thumbnails) ? res.data.thumbnails : (editingMemory.thumbnails || [])
         };
 
         playAppSound("update");
@@ -503,13 +520,24 @@ function AddMemory() {
                     </div>
                   ))
                 ) : (
-                  existingImages.map((_,index)=>(
+                  existingImages.map((image,index)=>(
                     <div className="selected-file-row existing-file-row" key={`existing-${index}`}>
                       <img
-                        src={getMemoryImageUrl(editingMemory, editingMemory?.thumbnails?.[index] ? "thumbnails" : "images", index)}
+                        src={existingThumbnails[index]
+                          ? getMemoryImageUrl({...editingMemory, images:existingImages, thumbnails:existingThumbnails}, "thumbnails", index)
+                          : getMemoryImageUrl({...editingMemory, images:existingImages, image}, "images", index)}
                         alt={`Current memory image ${index + 1}`}
                       />
                       <span>Current image {index + 1}</span>
+                      <button
+                        type="button"
+                        className="selected-file-remove-btn existing-image-remove-btn"
+                        aria-label={`Remove current image ${index + 1}`}
+                        title="Remove image"
+                        onClick={()=>removeExistingImage(index)}
+                      >
+                        &times;
+                      </button>
                     </div>
                   ))
                 )}

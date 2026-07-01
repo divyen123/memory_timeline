@@ -5528,6 +5528,33 @@ body.button-glass-on .about-modal-close{
   background:color-mix(in srgb, var(--button-bg-color) 86%, white);
 }
 
+
+.password-update-form .password-confirm-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(190px,0.62fr);
+  gap:16px;
+  align-items:center;
+  width:100%;
+}
+
+.password-update-form .password-confirm-row input{
+  margin:0;
+  width:100%;
+}
+
+.password-update-form .password-confirm-row button[type="submit"]{
+  width:100%;
+  min-width:0;
+  margin:0;
+  padding-inline:18px;
+}
+
+@media (max-width: 720px){
+  .password-update-form .password-confirm-row{
+    grid-template-columns:1fr;
+  }
+}
+
 .settings-backup-input{
   display:none;
 }

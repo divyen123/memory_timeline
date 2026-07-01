@@ -150,6 +150,7 @@ function Profile() {
   const [favoriteCount,setFavoriteCount] = useState(0);
   const [currentPassword,setCurrentPassword] = useState("");
   const [newPassword,setNewPassword] = useState("");
+  const [confirmPassword,setConfirmPassword] = useState("");
   const [message,setMessage] = useState("");
   const [confirmAction,setConfirmAction] = useState(null);
   const [accountDeletePassword,setAccountDeletePassword] = useState("");
@@ -223,10 +224,17 @@ function Profile() {
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
+
+    if(newPassword !== confirmPassword){
+      setMessage("New password and confirm password do not match");
+      return;
+    }
+
     try{
       await updatePassword({currentPassword,newPassword});
       setCurrentPassword("");
       setNewPassword("");
+      setConfirmPassword("");
       setMessage("Password updated");
     }catch(err){
       setMessage(err.response?.data?.message || "Password update failed");
@@ -1143,7 +1151,7 @@ function Profile() {
 
           <div className="profile-card password-card">
             <h2>Password</h2>
-            <form onSubmit={handlePasswordUpdate}>
+            <form className="password-update-form" onSubmit={handlePasswordUpdate}>
               <input
                 type="password"
                 placeholder="Current Password"
@@ -1158,7 +1166,16 @@ function Profile() {
                 onChange={(e)=>setNewPassword(e.target.value)}
                 required
               />
-              <button type="submit">Change Password</button>
+              <div className="password-confirm-row">
+                <input
+                  type="password"
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e)=>setConfirmPassword(e.target.value)}
+                  required
+                />
+                <button type="submit">Change Password</button>
+              </div>
             </form>
 
             <form className="hide-password-settings" onSubmit={handleHidePasswordSave}>

@@ -5540,6 +5540,7 @@ body.button-glass-on .about-modal-close{
 .password-update-form .password-confirm-row input{
   margin:0;
   width:100%;
+  transform:translateY(8px);
 }
 
 .password-update-form .password-confirm-row button[type="submit"]{
@@ -5547,6 +5548,7 @@ body.button-glass-on .about-modal-close{
   min-width:0;
   margin:0;
   padding-inline:18px;
+  transform:translateY(-10px);
 }
 
 @media (max-width: 720px){

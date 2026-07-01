@@ -157,6 +157,7 @@ function Profile() {
   const [isDangerBusy,setIsDangerBusy] = useState(false);
   const [showAccountInfo,setShowAccountInfo] = useState(false);
   const [hidePinDraft,setHidePinDraft] = useState("");
+  const [confirmHidePinDraft,setConfirmHidePinDraft] = useState("");
   const [pendingHidePin,setPendingHidePin] = useState(null);
   const [hidePinAppPassword,setHidePinAppPassword] = useState("");
   const [isHidePinConfirming,setIsHidePinConfirming] = useState(false);
@@ -287,6 +288,7 @@ function Profile() {
     e.preventDefault();
 
     const nextPin = hidePinDraft;
+    const confirmedPin = confirmHidePinDraft;
 
     if(Date.now() < hidePinPasswordAttempts.lockedUntil){
       setMessage(`Too many password attempts. Try again in ${getLockMinutes(hidePinPasswordAttempts.lockedUntil)} minutes.`);
@@ -295,6 +297,11 @@ function Profile() {
 
     if(!/^\d{4}$/.test(nextPin || "")){
       setMessage("Use a 4-digit hiding PIN");
+      return;
+    }
+
+    if(nextPin !== confirmedPin){
+      setMessage("Hiding PIN and confirm PIN do not match");
       return;
     }
 
@@ -346,6 +353,7 @@ function Profile() {
       );
 
       setHidePinDraft("");
+      setConfirmHidePinDraft("");
       setPendingHidePin(null);
       setHidePinAppPassword("");
       setHidePinPasswordAttempts({count:0, lockedUntil:0});
@@ -1196,6 +1204,22 @@ function Profile() {
                       onChange={(e)=>{
                         const nextValue = e.target.value.replace(/\D/g, "").slice(0, 4);
                         setHidePinDraft(nextValue);
+                      }}
+                    />
+                  </label>
+                  <label>
+                    <span>Confirm PIN</span>
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      placeholder="Confirm PIN"
+                      value={confirmHidePinDraft}
+                      maxLength={4}
+                      disabled={Date.now() < hidePinPasswordAttempts.lockedUntil}
+                      onChange={(e)=>{
+                        const nextValue = e.target.value.replace(/\D/g, "").slice(0, 4);
+                        setConfirmHidePinDraft(nextValue);
                       }}
                     />
                   </label>

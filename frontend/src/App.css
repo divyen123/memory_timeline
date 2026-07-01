@@ -11933,14 +11933,15 @@ body.light .password-card .hide-pin-info-bubble{
 
 .password-card .hide-pin-controls{
   display:grid;
-  grid-template-columns:150px 150px;
+  grid-template-columns:150px 150px 150px;
   justify-content:center;
   align-items:start;
   gap:12px;
 }
 
 .password-card .hide-password-fields{
-  grid-template-columns:minmax(0,150px);
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,150px));
   justify-content:start;
   gap:6px;
   align-items:start;
@@ -11961,6 +11962,22 @@ body.light .password-card .hide-pin-info-bubble{
   min-height:36px;
   margin:0;
   padding:7px 10px;
+}
+
+
+.password-card .hide-pin-controls > .hide-password-fields{
+  grid-column:1 / span 2;
+}
+
+.password-card .hide-pin-controls > button[type="submit"]{
+  grid-column:3;
+}
+
+@media (max-width: 720px){
+  .password-card .hide-pin-controls > .hide-password-fields,
+  .password-card .hide-pin-controls > button[type="submit"]{
+    grid-column:auto;
+  }
 }
 
 .password-card .hide-password-settings button[type="submit"]{

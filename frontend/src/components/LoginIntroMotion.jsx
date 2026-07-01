@@ -47,16 +47,19 @@ function LoginIntroMotion({onComplete}){
   const durationInFrames = reducedMotion
     ? memoryTheme.remotion.reducedMotionFrames
     : memoryTheme.remotion.durationInFrames;
+  const isMobileIntro = viewportSize.width <= 760;
+  const compositionWidth = Math.max(isMobileIntro ? 360 : 960, Math.round(viewportSize.width));
+  const compositionHeight = Math.max(isMobileIntro ? 640 : 540, Math.round(viewportSize.height));
 
   return (
-    <div className="login-intro-overlay cinematic" role="status" aria-live="polite">
+    <div className={`login-intro-overlay cinematic ${isMobileIntro ? "mobile" : "desktop"}`} role="status" aria-live="polite">
       <Player
         component={MemoryTimelineIntro}
         inputProps={{reducedMotion}}
         durationInFrames={durationInFrames}
         fps={memoryTheme.remotion.fps}
-        compositionWidth={Math.max(960, Math.round(viewportSize.width))}
-        compositionHeight={Math.max(540, Math.round(viewportSize.height))}
+        compositionWidth={compositionWidth}
+        compositionHeight={compositionHeight}
         autoPlay
         controls={false}
         onEnded={onComplete}

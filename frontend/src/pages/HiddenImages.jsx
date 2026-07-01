@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import MemoryCard from "../components/MemoryCard";
 import PageTransition from "../components/PageTransition";
-import { getHiddenMemories, getMemoryImageUrl, permanentlyDeleteHiddenMemory, unhideMemory, updateAppearanceSettings } from "../services/api";
+import { getAppearanceSettings, getHiddenMemories, getMemoryImageUrl, permanentlyDeleteHiddenMemory, unhideMemory, updateAppearanceSettings } from "../services/api";
 import { getDeviceProfile, loadSettings, saveSettings } from "../settings";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import SmartImage from "../components/SmartImage";
@@ -67,6 +67,36 @@ function HiddenImages() {
   const nextViewMode = VIEW_MODES[(VIEW_MODES.indexOf(viewMode) + 1) % VIEW_MODES.length];
 
   useAutoDismissMessage(message, setMessage);
+
+  useEffect(() => {
+    let active = true;
+
+    getAppearanceSettings(deviceProfile)
+      .then(({data})=>{
+        if(!active){
+          return;
+        }
+
+        const remoteSettings = data.settings || {};
+
+        if(Object.keys(remoteSettings).length === 0){
+          return;
+        }
+
+        const mergedSettings = saveSettings({
+          ...loadSettings(deviceProfile),
+          ...remoteSettings
+        }, deviceProfile);
+
+        setSettings(mergedSettings);
+        setViewMode(mergedSettings.defaultMemoryView || "timeline");
+      })
+      .catch(()=>{});
+
+    return () => {
+      active = false;
+    };
+  }, [deviceProfile]);
 
   useEffect(() => {
     if(!unlocked){

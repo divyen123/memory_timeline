@@ -43,6 +43,7 @@ const getAllowedOrigins = () => (
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
 const SETTINGS_PROFILE_KEYS = new Set(["mobile", "desktop"]);
+const HIDE_PIN_SETTINGS_KEYS = ["hidePasswordEnabled", "hidePasswordType", "hidePasswordValue"];
 const SETTINGS_KEYS = new Set([
   "reminderLeadDays",
   "defaultTheme",
@@ -573,9 +574,28 @@ app.get("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
       return res.status(404).json({message:"User not found"});
     }
 
+    const profileSettings = user.settingsProfiles?.[profile] || {};
+    const alternateProfile = profile === "mobile" ? "desktop" : "mobile";
+    const alternateSettings = user.settingsProfiles?.[alternateProfile] || {};
+    const sharedHidePin = profileSettings.hidePasswordValue || alternateSettings.hidePasswordValue || "";
+    const sharedHideSettings = sharedHidePin
+      ? {
+        hidePasswordEnabled:true,
+        hidePasswordType:"pin",
+        hidePasswordValue:sharedHidePin
+      }
+      : Object.fromEntries(
+        HIDE_PIN_SETTINGS_KEYS
+          .map((key)=>[key, profileSettings[key] ?? alternateSettings[key]])
+          .filter(([, value])=>value !== undefined)
+      );
+
     res.json({
       profile,
-      settings:user.settingsProfiles?.[profile] || {}
+      settings:{
+        ...profileSettings,
+        ...sharedHideSettings
+      }
     });
 
   }catch(err){
@@ -603,12 +623,24 @@ app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
       return res.status(404).json({message:"User not found"});
     }
 
-    const existingSettings = user.settingsProfiles?.[profile] || {};
+    const existingProfiles = user.settingsProfiles || {};
+    const existingSettings = existingProfiles[profile] || {};
+    const sharedExistingHidePin = existingProfiles[profile]?.hidePasswordValue ||
+      existingProfiles[profile === "mobile" ? "desktop" : "mobile"]?.hidePasswordValue ||
+      "";
+    if(Object.prototype.hasOwnProperty.call(settings, "hidePasswordValue") && !settings.hidePasswordValue && sharedExistingHidePin){
+      settings.hidePasswordEnabled = true;
+      settings.hidePasswordType = "pin";
+      settings.hidePasswordValue = sharedExistingHidePin;
+    }
+
     const incomingHidePin = settings.hidePasswordValue || "";
-    const existingHidePin = existingSettings.hidePasswordValue || "";
     const hiddenPinChanged = Object.prototype.hasOwnProperty.call(settings, "hidePasswordValue") &&
-      incomingHidePin !== existingHidePin &&
-      Boolean(incomingHidePin || existingHidePin);
+      incomingHidePin !== sharedExistingHidePin &&
+      Boolean(incomingHidePin || sharedExistingHidePin);
+    const hasHideSettingsUpdate = HIDE_PIN_SETTINGS_KEYS.some((key)=>
+      Object.prototype.hasOwnProperty.call(settings, key)
+    );
 
     if(hiddenPinChanged){
       const currentPassword = req.body?.currentPassword;
@@ -630,10 +662,29 @@ app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
       }
     }
 
-    user.settingsProfiles = {
-      ...(user.settingsProfiles || {}),
-      [profile]:settings
+    const nextProfiles = {
+      ...existingProfiles,
+      [profile]:{
+        ...(existingProfiles[profile] || {}),
+        ...settings
+      }
     };
+
+    if(hasHideSettingsUpdate){
+      SETTINGS_PROFILE_KEYS.forEach((profileKey)=>{
+        nextProfiles[profileKey] = {
+          ...(nextProfiles[profileKey] || {})
+        };
+
+        HIDE_PIN_SETTINGS_KEYS.forEach((key)=>{
+          if(Object.prototype.hasOwnProperty.call(settings, key)){
+            nextProfiles[profileKey][key] = settings[key];
+          }
+        });
+      });
+    }
+
+    user.settingsProfiles = nextProfiles;
     user.markModified("settingsProfiles");
     await user.save();
 

@@ -3,8 +3,8 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import MemoryCard from "../components/MemoryCard";
 import PageTransition from "../components/PageTransition";
-import { getHiddenMemories, getMemoryImageUrl, permanentlyDeleteHiddenMemory, unhideMemory } from "../services/api";
-import { loadSettings } from "../settings";
+import { getHiddenMemories, getMemoryImageUrl, permanentlyDeleteHiddenMemory, unhideMemory, updateAppearanceSettings } from "../services/api";
+import { getDeviceProfile, loadSettings, saveSettings } from "../settings";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import SmartImage from "../components/SmartImage";
 import {
@@ -40,7 +40,9 @@ function HiddenImages() {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [viewMode, setViewMode] = useState(()=>loadSettings().defaultMemoryView);
+  const deviceProfile = getDeviceProfile();
+  const [settings, setSettings] = useState(()=>loadSettings(deviceProfile));
+  const [viewMode, setViewMode] = useState(()=>loadSettings(deviceProfile).defaultMemoryView);
   const [passwordInput, setPasswordInput] = useState("");
   const [previewMemory, setPreviewMemory] = useState(null);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
@@ -49,9 +51,8 @@ function HiddenImages() {
   const [showDeleteInfo, setShowDeleteInfo] = useState(false);
   const previewReturnFocusRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
-  const settings = loadSettings();
-  const passwordRequired = Boolean(settings.hidePasswordEnabled && settings.hidePasswordValue);
-  const [unlocked, setUnlocked] = useState(!passwordRequired);
+  const hasSavedHidePin = /^\d{4}$/.test(settings.hidePasswordValue || "");
+  const [unlocked, setUnlocked] = useState(false);
   const nextViewMode = VIEW_MODES[(VIEW_MODES.indexOf(viewMode) + 1) % VIEW_MODES.length];
 
   useAutoDismissMessage(message, setMessage);
@@ -87,11 +88,44 @@ function HiddenImages() {
     };
   }, {}), [memories]);
 
-  const handleUnlock = (event) => {
+  const persistHiddenPin = async (nextPin) => {
+    const nextSettings = {
+      ...settings,
+      hidePasswordEnabled:true,
+      hidePasswordType:"pin",
+      hidePasswordValue:nextPin
+    };
+    const savedSettings = saveSettings(nextSettings, deviceProfile);
+    setSettings(savedSettings);
+
+    try{
+      await updateAppearanceSettings(deviceProfile, savedSettings);
+    }catch{
+      setMessage("PIN saved on this device, but cloud sync failed");
+    }
+
+    return savedSettings;
+  };
+
+  const handleUnlock = async (event) => {
     event.preventDefault();
+
+    if(!/^\d{4}$/.test(passwordInput || "")){
+      setMessage("Use a 4-digit hiding PIN");
+      return;
+    }
+
+    if(!hasSavedHidePin){
+      await persistHiddenPin(passwordInput);
+      setUnlocked(true);
+      setPasswordInput("");
+      setMessage("Hiding PIN saved");
+      return;
+    }
 
     if(passwordInput === settings.hidePasswordValue){
       setUnlocked(true);
+      setPasswordInput("");
       setMessage("Hidden images unlocked");
       return;
     }
@@ -248,18 +282,18 @@ function HiddenImages() {
 
         {!unlocked ? (
           <form className="hidden-unlock-panel" onSubmit={handleUnlock}>
-            <h2>Unlock hidden images</h2>
+            <h2>{hasSavedHidePin ? "Unlock hidden images" : "Set hidden images PIN"}</h2>
             <input
               type="password"
               inputMode="numeric"
               pattern="[0-9]*"
               autoComplete="one-time-code"
-              placeholder="4-digit PIN"
+              placeholder={hasSavedHidePin ? "4-digit PIN" : "Set 4-digit PIN"}
               value={passwordInput}
               maxLength={4}
               onChange={(event)=>setPasswordInput(event.target.value.replace(/\D/g, "").slice(0, 4))}
             />
-            <button type="submit">Open</button>
+            <button type="submit">{hasSavedHidePin ? "Open" : "Save PIN"}</button>
           </form>
         ) : loading ? (
           <div className="empty-state"><h3>Loading hidden images</h3></div>

@@ -153,7 +153,6 @@ function Profile() {
   const [isDangerBusy,setIsDangerBusy] = useState(false);
   const [showAccountInfo,setShowAccountInfo] = useState(false);
   const [showHidePinInfo,setShowHidePinInfo] = useState(false);
-  const [isHidePinSetupOpen,setIsHidePinSetupOpen] = useState(false);
   const [hidePinDraft,setHidePinDraft] = useState("");
   const deviceProfile = getDeviceProfile();
   const isMobileProfile = deviceProfile === "mobile";
@@ -288,7 +287,6 @@ function Profile() {
     );
 
     setHidePinDraft("");
-    setIsHidePinSetupOpen(false);
   };
 
   const handleHidePasswordRemove = async () => {
@@ -304,7 +302,6 @@ function Profile() {
     );
 
     setHidePinDraft("");
-    setIsHidePinSetupOpen(false);
   };
 
   const closeDangerConfirm = () => {
@@ -1135,31 +1132,18 @@ function Profile() {
                       i
                     </button>
                     <span className={`hide-pin-info-bubble ${showHidePinInfo ? "show" : ""}`}>
-                      This 4-digit PIN protects Hidden Images. Removing it turns off the PIN requirement. Updating it changes the PIN used to open Hidden Images.
+                      This 4-digit PIN is required to open Hidden Images. Removing it means a new PIN must be set before Hidden Images can be opened again.
                     </span>
                   </span>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  className="settings-check-row hide-password-toggle"
-                  role="checkbox"
-                  aria-checked={isHidePinSetupOpen}
-                  onClick={()=>{
-                    setIsHidePinSetupOpen((current)=>!current);
-                    setHidePinDraft("");
-                  }}
-                >
-                  <span
-                    className={`hide-password-checkmark ${isHidePinSetupOpen ? "checked" : ""}`}
-                    aria-hidden="true"
-                  />
-                  <span>Set password for hiding</span>
-                </button>
+                <div className="settings-check-row hide-password-toggle">
+                  <span className="hide-password-checkmark checked" aria-hidden="true" />
+                  <span>Hidden Images PIN required</span>
+                </div>
               )}
 
-              {(hasSavedHidePin || isHidePinSetupOpen) && (
-                <div className="hide-pin-controls">
+              <div className="hide-pin-controls">
                   <div className="hide-password-fields">
                     <label>
                       <span>{hasSavedHidePin ? "Update PIN" : "4-digit PIN"}</span>
@@ -1180,7 +1164,6 @@ function Profile() {
 
                   <button type="submit">{hasSavedHidePin ? "Update PIN" : "Save hiding PIN"}</button>
                 </div>
-              )}
             </form>
           </div>
         </div>

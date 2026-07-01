@@ -32,6 +32,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const resetCodes = new Map();
 const loginAttempts = new Map();
 const resetAttempts = new Map();
+const hidePinPasswordAttempts = new Map();
 
 const getAllowedOrigins = () => (
   (process.env.ALLOWED_ORIGINS || "http://localhost:5173,http://127.0.0.1:5173")
@@ -596,15 +597,45 @@ app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
     }
 
     const settings = sanitizeSettings(req.body?.settings);
-    const user = await User.findByIdAndUpdate(
-      req.user.userId,
-      {$set:{[`settingsProfiles.${profile}`]:settings}},
-      {new:true, runValidators:true}
-    ).select("settingsProfiles");
+    const user = await User.findById(req.user.userId);
 
     if(!user){
       return res.status(404).json({message:"User not found"});
     }
+
+    const existingSettings = user.settingsProfiles?.[profile] || {};
+    const incomingHidePin = settings.hidePasswordValue || "";
+    const existingHidePin = existingSettings.hidePasswordValue || "";
+    const hiddenPinChanged = Object.prototype.hasOwnProperty.call(settings, "hidePasswordValue") &&
+      incomingHidePin !== existingHidePin &&
+      Boolean(incomingHidePin || existingHidePin);
+
+    if(hiddenPinChanged){
+      const currentPassword = req.body?.currentPassword;
+
+      if(!currentPassword){
+        return res.status(400).json({message:"Application password is required"});
+      }
+
+      const attemptKey = `${req.user.userId}:${req.ip}:hide-pin`;
+
+      if(!rateLimit(hidePinPasswordAttempts, attemptKey, 3, 10 * 60 * 1000)){
+        return res.status(429).json({message:"Too many password attempts. Try again in 10 minutes."});
+      }
+
+      const validPassword = await bcrypt.compare(currentPassword, user.password);
+
+      if(!validPassword){
+        return res.status(400).json({message:"Application password is incorrect"});
+      }
+    }
+
+    user.settingsProfiles = {
+      ...(user.settingsProfiles || {}),
+      [profile]:settings
+    };
+    user.markModified("settingsProfiles");
+    await user.save();
 
     res.json({
       profile,

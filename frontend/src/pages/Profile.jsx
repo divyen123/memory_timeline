@@ -120,6 +120,10 @@ const collapseDesktopBackgroundColors = (settings, profile) => {
 
 const isValidHidePin = (value) => /^\d{4}$/.test(value || "");
 const ACCOUNT_DELETE_CONFIRMATION = "delete account permenantly";
+const APP_PASSWORD_ATTEMPT_LIMIT = 3;
+const APP_PASSWORD_LOCK_MS = 10 * 60 * 1000;
+
+const getLockMinutes = (lockedUntil) => Math.max(1, Math.ceil((lockedUntil - Date.now()) / 60000));
 
 const mergeFetchedHideSettings = (remoteSettings, localSettings) => {
   const remotePin = isValidHidePin(remoteSettings.hidePasswordValue)
@@ -152,8 +156,11 @@ function Profile() {
   const [accountDeleteConfirmation,setAccountDeleteConfirmation] = useState("");
   const [isDangerBusy,setIsDangerBusy] = useState(false);
   const [showAccountInfo,setShowAccountInfo] = useState(false);
-  const [showHidePinInfo,setShowHidePinInfo] = useState(false);
   const [hidePinDraft,setHidePinDraft] = useState("");
+  const [pendingHidePin,setPendingHidePin] = useState(null);
+  const [hidePinAppPassword,setHidePinAppPassword] = useState("");
+  const [isHidePinConfirming,setIsHidePinConfirming] = useState(false);
+  const [hidePinPasswordAttempts,setHidePinPasswordAttempts] = useState({count:0, lockedUntil:0});
   const deviceProfile = getDeviceProfile();
   const isMobileProfile = deviceProfile === "mobile";
   const [appSettings,setAppSettings] = useState(
@@ -231,35 +238,41 @@ function Profile() {
     appSettings.hidePasswordEnabled && isValidHidePin(appSettings.hidePasswordValue)
   );
 
-  const persistHideSettings = async (nextSettings, successMessage, failureMessage) => {
-    const savedSettings = saveSettings(
-      collapseDesktopBackgroundColors({
-        ...nextSettings,
-        hidePasswordType:"pin"
-      }, deviceProfile),
-      deviceProfile
-    );
+  const persistHideSettings = async (nextSettings, successMessage, failureMessage, currentPassword = "") => {
+    const preparedSettings = collapseDesktopBackgroundColors({
+      ...nextSettings,
+      hidePasswordType:"pin"
+    }, deviceProfile);
+    const optimisticSettings = currentPassword
+      ? preparedSettings
+      : saveSettings(preparedSettings, deviceProfile);
 
     try{
-      const {data} = await updateAppearanceSettings(deviceProfile, savedSettings);
+      const {data} = await updateAppearanceSettings(deviceProfile, preparedSettings, currentPassword);
       const returnedSettings = data.settings || {};
       const mergedSettings = {
-        ...savedSettings,
+        ...preparedSettings,
         ...returnedSettings,
-        hidePasswordEnabled:savedSettings.hidePasswordEnabled,
-        hidePasswordValue:savedSettings.hidePasswordEnabled
+        hidePasswordEnabled:preparedSettings.hidePasswordEnabled,
+        hidePasswordValue:preparedSettings.hidePasswordEnabled
           ? (isValidHidePin(returnedSettings.hidePasswordValue)
             ? returnedSettings.hidePasswordValue
-            : savedSettings.hidePasswordValue)
+            : preparedSettings.hidePasswordValue)
           : "",
         hidePasswordType:"pin"
       };
 
       setAppSettings(saveSettings(mergedSettings, deviceProfile));
       setMessage(successMessage);
-    }catch{
-      setAppSettings(savedSettings);
+      return true;
+    }catch(error){
+      if(currentPassword){
+        throw error;
+      }
+
+      setAppSettings(optimisticSettings);
       setMessage(failureMessage);
+      return false;
     }
   };
 
@@ -268,40 +281,78 @@ function Profile() {
 
     const nextPin = hidePinDraft;
 
+    if(Date.now() < hidePinPasswordAttempts.lockedUntil){
+      setMessage(`Too many password attempts. Try again in ${getLockMinutes(hidePinPasswordAttempts.lockedUntil)} minutes.`);
+      return;
+    }
+
     if(!/^\d{4}$/.test(nextPin || "")){
       setMessage("Use a 4-digit hiding PIN");
       return;
     }
 
-    await persistHideSettings(
-      {
-        ...appSettings,
-        hidePasswordEnabled:true,
-        hidePasswordValue:nextPin,
-        hidePasswordType:"pin"
-      },
-      hasSavedHidePin ? "Hiding PIN updated" : "Hiding PIN saved",
-      hasSavedHidePin
-        ? "Hiding PIN updated on this device, but cloud sync failed"
-        : "Hiding PIN saved on this device, but cloud sync failed"
-    );
-
-    setHidePinDraft("");
+    setPendingHidePin(nextPin);
+    setHidePinAppPassword("");
   };
 
-  const handleHidePasswordRemove = async () => {
-    await persistHideSettings(
-      {
-        ...appSettings,
-        hidePasswordEnabled:false,
-        hidePasswordValue:"",
-        hidePasswordType:"pin"
-      },
-      "Hiding PIN removed",
-      "Hiding PIN removed on this device, but cloud sync failed"
-    );
+  const closeHidePinPasswordConfirm = () => {
+    if(isHidePinConfirming){
+      return;
+    }
 
-    setHidePinDraft("");
+    setPendingHidePin(null);
+    setHidePinAppPassword("");
+  };
+
+  const handleHidePinPasswordConfirm = async (event) => {
+    event.preventDefault();
+
+    if(!pendingHidePin){
+      return;
+    }
+
+    if(Date.now() < hidePinPasswordAttempts.lockedUntil){
+      setMessage(`Too many password attempts. Try again in ${getLockMinutes(hidePinPasswordAttempts.lockedUntil)} minutes.`);
+      return;
+    }
+
+    if(!hidePinAppPassword){
+      setMessage("Enter your application password");
+      return;
+    }
+
+    setIsHidePinConfirming(true);
+
+    try{
+      await persistHideSettings(
+        {
+          ...appSettings,
+          hidePasswordEnabled:true,
+          hidePasswordValue:pendingHidePin,
+          hidePasswordType:"pin"
+        },
+        hasSavedHidePin ? "Hiding PIN updated" : "Hiding PIN saved",
+        hasSavedHidePin
+          ? "Hiding PIN updated on this device, but cloud sync failed"
+          : "Hiding PIN saved on this device, but cloud sync failed",
+        hidePinAppPassword
+      );
+
+      setHidePinDraft("");
+      setPendingHidePin(null);
+      setHidePinAppPassword("");
+      setHidePinPasswordAttempts({count:0, lockedUntil:0});
+    }catch(error){
+      const nextCount = hidePinPasswordAttempts.count + 1;
+      const shouldLock = error.response?.status === 429 || nextCount >= APP_PASSWORD_ATTEMPT_LIMIT;
+      const lockedUntil = shouldLock ? Date.now() + APP_PASSWORD_LOCK_MS : 0;
+      setHidePinPasswordAttempts({count:shouldLock ? 0 : nextCount, lockedUntil});
+      setMessage(shouldLock
+        ? "Too many password attempts. Try again in 10 minutes."
+        : (error.response?.data?.message || "Application password is incorrect"));
+    }finally{
+      setIsHidePinConfirming(false);
+    }
   };
 
   const closeDangerConfirm = () => {
@@ -1112,58 +1163,32 @@ function Profile() {
             </form>
 
             <form className="hide-password-settings" onSubmit={handleHidePasswordSave}>
-              {hasSavedHidePin ? (
-                <div className="hide-pin-remove-row">
-                  <button
-                    type="button"
-                    className="hide-password-remove-btn"
-                    onClick={handleHidePasswordRemove}
-                  >
-                    Remove PIN
-                  </button>
-                  <span className="hide-pin-info-wrap">
-                    <button
-                      type="button"
-                      className="hide-pin-info-btn"
-                      aria-label="Hiding PIN details"
-                      aria-expanded={showHidePinInfo}
-                      onClick={()=>setShowHidePinInfo((current)=>!current)}
-                    >
-                      i
-                    </button>
-                    <span className={`hide-pin-info-bubble ${showHidePinInfo ? "show" : ""}`}>
-                      This 4-digit PIN is required to open Hidden Images. Removing it means a new PIN must be set before Hidden Images can be opened again.
-                    </span>
-                  </span>
-                </div>
-              ) : (
-                <div className="settings-check-row hide-password-toggle">
-                  <span className="hide-password-checkmark checked" aria-hidden="true" />
-                  <span>Hidden Images PIN required</span>
-                </div>
-              )}
+              <h3 className="hide-pin-form-title">Set PIN for hiding</h3>
 
               <div className="hide-pin-controls">
-                  <div className="hide-password-fields">
-                    <label>
-                      <span>{hasSavedHidePin ? "Update PIN" : "4-digit PIN"}</span>
-                      <input
-                        type="password"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        placeholder={hasSavedHidePin ? "New PIN" : "Enter PIN"}
-                        value={hidePinDraft}
-                        maxLength={4}
-                        onChange={(e)=>{
-                          const nextValue = e.target.value.replace(/\D/g, "").slice(0, 4);
-                          setHidePinDraft(nextValue);
-                        }}
-                      />
-                    </label>
-                  </div>
-
-                  <button type="submit">{hasSavedHidePin ? "Update PIN" : "Save hiding PIN"}</button>
+                <div className="hide-password-fields">
+                  <label>
+                    <span>{hasSavedHidePin ? "Update PIN" : "4-digit PIN"}</span>
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      placeholder={hasSavedHidePin ? "New PIN" : "Enter PIN"}
+                      value={hidePinDraft}
+                      maxLength={4}
+                      disabled={Date.now() < hidePinPasswordAttempts.lockedUntil}
+                      onChange={(e)=>{
+                        const nextValue = e.target.value.replace(/\D/g, "").slice(0, 4);
+                        setHidePinDraft(nextValue);
+                      }}
+                    />
+                  </label>
                 </div>
+
+                <button type="submit" disabled={Date.now() < hidePinPasswordAttempts.lockedUntil}>
+                  {hasSavedHidePin ? "Update PIN" : "Save hiding PIN"}
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -1172,6 +1197,33 @@ function Profile() {
           Back to Timeline
         </button>
 
+
+        {pendingHidePin && (
+          <div className="confirm-overlay hide-pin-password-overlay" onClick={closeHidePinPasswordConfirm}>
+            <form className="confirm-dialog hide-pin-password-dialog" onSubmit={handleHidePinPasswordConfirm} onClick={(event)=>event.stopPropagation()}>
+              <h3>Confirm application password</h3>
+              <p>Enter your application password to {hasSavedHidePin ? "update" : "save"} the Hidden Images PIN.</p>
+              <input
+                type="password"
+                className="hide-pin-password-input"
+                autoFocus
+                autoComplete="current-password"
+                placeholder="Application password"
+                value={hidePinAppPassword}
+                disabled={isHidePinConfirming}
+                onChange={(event)=>setHidePinAppPassword(event.target.value)}
+              />
+              <div className="confirm-actions hide-pin-password-actions">
+                <button type="button" className="confirm-cancel-btn" disabled={isHidePinConfirming} onClick={closeHidePinPasswordConfirm}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={isHidePinConfirming || !hidePinAppPassword}>
+                  {isHidePinConfirming ? "Checking..." : "Confirm"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
         {confirmAction && (
           <div className="confirm-overlay">
             <div className="confirm-dialog profile-danger-confirm">

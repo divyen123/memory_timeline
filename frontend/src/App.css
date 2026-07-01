@@ -12775,3 +12775,94 @@ body :where(.hide-eye-emoji,.toggle-btn,.logout-btn,.memory-action-icon,.preview
     transform:translateX(-50%) rotate(45deg);
   }
 }
+
+.preview-actions .preview-export-btn span.preview-download-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:auto;
+  height:auto;
+  font-size:18px;
+  line-height:1;
+  transform:none;
+}
+
+.preview-actions .preview-export-btn span.preview-download-icon::before,
+.preview-actions .preview-export-btn span.preview-download-icon::after{
+  content:none;
+}
+
+@media (max-width:760px){
+  .preview-actions .preview-export-btn span.preview-download-icon{
+    display:inline-flex;
+    width:auto;
+    height:auto;
+    font-size:22px;
+    line-height:1;
+  }
+}
+
+.password-card .hide-pin-form-title{
+  width:100%;
+  margin:0 auto 2px;
+  text-align:center;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:15px;
+  line-height:1.2;
+  color:var(--adaptive-text-color);
+}
+
+.password-card .hide-password-settings{
+  height:auto;
+  min-height:112px;
+}
+
+.hide-pin-password-overlay{
+  z-index:120;
+}
+
+.hide-pin-password-dialog{
+  width:min(420px,90vw);
+  display:grid;
+  gap:14px;
+  text-align:center;
+  background:rgba(255,255,255,calc(var(--container-glass-alpha) + 0.08));
+  border:1px solid rgba(255,255,255,0.22);
+  box-shadow:0 28px 80px rgba(0,0,0,0.34);
+  backdrop-filter:blur(22px);
+}
+
+body.light .hide-pin-password-dialog{
+  background:rgba(255,255,255,0.5);
+  border-color:rgba(68,46,103,0.16);
+  color:#25213d;
+  box-shadow:0 28px 80px rgba(78,48,116,0.2);
+}
+
+.hide-pin-password-dialog h3,
+.hide-pin-password-dialog p{
+  margin:0;
+}
+
+.hide-pin-password-input{
+  width:min(280px,100%);
+  margin:0 auto;
+  text-align:center;
+}
+
+.hide-pin-password-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+@media (max-width:760px){
+  .hide-pin-password-dialog{
+    width:min(330px,88vw);
+    padding:22px 18px;
+  }
+
+  .hide-pin-password-actions{
+    grid-template-columns:1fr;
+  }
+}

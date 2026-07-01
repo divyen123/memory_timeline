@@ -157,6 +157,6 @@ export const deleteAccount = (confirmation)=>API.delete("/profile", {
 });
 export const updatePassword = (data)=>API.put("/profile/password",data);
 export const getAppearanceSettings = (profile)=>API.get(`/profile/settings/${profile}`);
-export const updateAppearanceSettings = (profile,settings)=>API.put(`/profile/settings/${profile}`, {settings});
+export const updateAppearanceSettings = (profile,settings,currentPassword)=>API.put(`/profile/settings/${profile}`, currentPassword ? {settings,currentPassword} : {settings});
 
 export default API;

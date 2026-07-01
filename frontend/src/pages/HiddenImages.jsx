@@ -35,6 +35,11 @@ const getMemoryImages = (memory) => (
   memory?.images?.length ? memory.images : (memory?.image ? [memory.image] : [])
 );
 
+const PIN_ATTEMPT_LIMIT = 5;
+const PIN_LOCK_MS = 5 * 60 * 1000;
+const APP_PASSWORD_ATTEMPT_LIMIT = 3;
+const APP_PASSWORD_LOCK_MS = 10 * 60 * 1000;
+const getLockMinutes = (lockedUntil) => Math.max(1, Math.ceil((lockedUntil - Date.now()) / 60000));
 function HiddenImages() {
   const navigate = useNavigate();
   const [memories, setMemories] = useState([]);
@@ -44,6 +49,11 @@ function HiddenImages() {
   const [settings, setSettings] = useState(()=>loadSettings(deviceProfile));
   const [viewMode, setViewMode] = useState(()=>loadSettings(deviceProfile).defaultMemoryView);
   const [passwordInput, setPasswordInput] = useState("");
+  const [pendingHiddenPin, setPendingHiddenPin] = useState(null);
+  const [pinAppPassword, setPinAppPassword] = useState("");
+  const [isPinConfirming, setIsPinConfirming] = useState(false);
+  const [pinAttempts, setPinAttempts] = useState({count:0, lockedUntil:0});
+  const [appPasswordAttempts, setAppPasswordAttempts] = useState({count:0, lockedUntil:0});
   const [previewMemory, setPreviewMemory] = useState(null);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
   const [memoryToUnhide, setMemoryToUnhide] = useState(null);
@@ -88,21 +98,25 @@ function HiddenImages() {
     };
   }, {}), [memories]);
 
-  const persistHiddenPin = async (nextPin) => {
+  const persistHiddenPin = async (nextPin, currentPassword) => {
     const nextSettings = {
       ...settings,
       hidePasswordEnabled:true,
       hidePasswordType:"pin",
       hidePasswordValue:nextPin
     };
-    const savedSettings = saveSettings(nextSettings, deviceProfile);
-    setSettings(savedSettings);
 
-    try{
-      await updateAppearanceSettings(deviceProfile, savedSettings);
-    }catch{
-      setMessage("PIN saved on this device, but cloud sync failed");
-    }
+    const {data} = await updateAppearanceSettings(deviceProfile, nextSettings, currentPassword);
+    const savedSettings = saveSettings({
+      ...nextSettings,
+      ...(data.settings || {}),
+      hidePasswordEnabled:true,
+      hidePasswordType:"pin",
+      hidePasswordValue:/^\d{4}$/.test(data.settings?.hidePasswordValue || "")
+        ? data.settings.hidePasswordValue
+        : nextPin
+    }, deviceProfile);
+    setSettings(savedSettings);
 
     return savedSettings;
   };
@@ -110,27 +124,83 @@ function HiddenImages() {
   const handleUnlock = async (event) => {
     event.preventDefault();
 
+    if(Date.now() < pinAttempts.lockedUntil){
+      setMessage(`Too many PIN attempts. Try again in ${getLockMinutes(pinAttempts.lockedUntil)} minutes.`);
+      return;
+    }
+
     if(!/^\d{4}$/.test(passwordInput || "")){
       setMessage("Use a 4-digit hiding PIN");
       return;
     }
 
     if(!hasSavedHidePin){
-      await persistHiddenPin(passwordInput);
-      setUnlocked(true);
-      setPasswordInput("");
-      setMessage("Hiding PIN saved");
+      setPendingHiddenPin(passwordInput);
+      setPinAppPassword("");
       return;
     }
 
     if(passwordInput === settings.hidePasswordValue){
       setUnlocked(true);
       setPasswordInput("");
+      setPinAttempts({count:0, lockedUntil:0});
       setMessage("Hidden images unlocked");
       return;
     }
 
-    setMessage("Password does not match");
+    const nextCount = pinAttempts.count + 1;
+    const shouldLock = nextCount >= PIN_ATTEMPT_LIMIT;
+    setPinAttempts({count:shouldLock ? 0 : nextCount, lockedUntil:shouldLock ? Date.now() + PIN_LOCK_MS : 0});
+    setMessage(shouldLock ? "Too many PIN attempts. Try again in 5 minutes." : "PIN does not match");
+  };
+
+  const closeHiddenPinPasswordConfirm = () => {
+    if(isPinConfirming){
+      return;
+    }
+
+    setPendingHiddenPin(null);
+    setPinAppPassword("");
+  };
+
+  const handleHiddenPinPasswordConfirm = async (event) => {
+    event.preventDefault();
+
+    if(!pendingHiddenPin){
+      return;
+    }
+
+    if(Date.now() < appPasswordAttempts.lockedUntil){
+      setMessage(`Too many password attempts. Try again in ${getLockMinutes(appPasswordAttempts.lockedUntil)} minutes.`);
+      return;
+    }
+
+    if(!pinAppPassword){
+      setMessage("Enter your application password");
+      return;
+    }
+
+    setIsPinConfirming(true);
+
+    try{
+      await persistHiddenPin(pendingHiddenPin, pinAppPassword);
+      setUnlocked(true);
+      setPasswordInput("");
+      setPendingHiddenPin(null);
+      setPinAppPassword("");
+      setPinAttempts({count:0, lockedUntil:0});
+      setAppPasswordAttempts({count:0, lockedUntil:0});
+      setMessage("Hiding PIN saved");
+    }catch(error){
+      const nextCount = appPasswordAttempts.count + 1;
+      const shouldLock = error.response?.status === 429 || nextCount >= APP_PASSWORD_ATTEMPT_LIMIT;
+      setAppPasswordAttempts({count:shouldLock ? 0 : nextCount, lockedUntil:shouldLock ? Date.now() + APP_PASSWORD_LOCK_MS : 0});
+      setMessage(shouldLock
+        ? "Too many password attempts. Try again in 10 minutes."
+        : (error.response?.data?.message || "Application password is incorrect"));
+    }finally{
+      setIsPinConfirming(false);
+    }
   };
 
   const requestUnhide = (memory) => {
@@ -293,7 +363,7 @@ function HiddenImages() {
               maxLength={4}
               onChange={(event)=>setPasswordInput(event.target.value.replace(/\D/g, "").slice(0, 4))}
             />
-            <button type="submit">{hasSavedHidePin ? "Open" : "Save PIN"}</button>
+            <button type="submit" disabled={Date.now() < pinAttempts.lockedUntil}>{hasSavedHidePin ? "Open" : "Save PIN"}</button>
           </form>
         ) : loading ? (
           <div className="empty-state"><h3>Loading hidden images</h3></div>
@@ -338,6 +408,33 @@ function HiddenImages() {
           </div>
         )}
 
+
+        {pendingHiddenPin && (
+          <div className="confirm-overlay hide-pin-password-overlay" onClick={closeHiddenPinPasswordConfirm}>
+            <form className="confirm-dialog hide-pin-password-dialog" onSubmit={handleHiddenPinPasswordConfirm} onClick={(event)=>event.stopPropagation()}>
+              <h3>Confirm application password</h3>
+              <p>Enter your application password to save the Hidden Images PIN.</p>
+              <input
+                type="password"
+                className="hide-pin-password-input"
+                autoFocus
+                autoComplete="current-password"
+                placeholder="Application password"
+                value={pinAppPassword}
+                disabled={isPinConfirming}
+                onChange={(event)=>setPinAppPassword(event.target.value)}
+              />
+              <div className="confirm-actions hide-pin-password-actions">
+                <button type="button" className="confirm-cancel-btn" disabled={isPinConfirming} onClick={closeHiddenPinPasswordConfirm}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={isPinConfirming || !pinAppPassword}>
+                  {isPinConfirming ? "Checking..." : "Confirm"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
         <AnimatePresence>
           {previewMemory && (
             <motion.div

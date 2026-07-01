@@ -49,6 +49,7 @@ function HiddenImages() {
   const [settings, setSettings] = useState(()=>loadSettings(deviceProfile));
   const [viewMode, setViewMode] = useState(()=>loadSettings(deviceProfile).defaultMemoryView);
   const [passwordInput, setPasswordInput] = useState("");
+  const [confirmPinInput, setConfirmPinInput] = useState("");
   const [pendingHiddenPin, setPendingHiddenPin] = useState(null);
   const [pinAppPassword, setPinAppPassword] = useState("");
   const [isPinConfirming, setIsPinConfirming] = useState(false);
@@ -135,6 +136,11 @@ function HiddenImages() {
     }
 
     if(!hasSavedHidePin){
+      if(passwordInput !== confirmPinInput){
+        setMessage("Hiding PIN and confirm PIN do not match");
+        return;
+      }
+
       setPendingHiddenPin(passwordInput);
       setPinAppPassword("");
       return;
@@ -143,6 +149,7 @@ function HiddenImages() {
     if(passwordInput === settings.hidePasswordValue){
       setUnlocked(true);
       setPasswordInput("");
+      setConfirmPinInput("");
       setPinAttempts({count:0, lockedUntil:0});
       setMessage("Hidden images unlocked");
       return;
@@ -186,6 +193,7 @@ function HiddenImages() {
       await persistHiddenPin(pendingHiddenPin, pinAppPassword);
       setUnlocked(true);
       setPasswordInput("");
+      setConfirmPinInput("");
       setPendingHiddenPin(null);
       setPinAppPassword("");
       setPinAttempts({count:0, lockedUntil:0});
@@ -363,6 +371,18 @@ function HiddenImages() {
               maxLength={4}
               onChange={(event)=>setPasswordInput(event.target.value.replace(/\D/g, "").slice(0, 4))}
             />
+            {!hasSavedHidePin && (
+              <input
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="one-time-code"
+                placeholder="Confirm 4-digit PIN"
+                value={confirmPinInput}
+                maxLength={4}
+                onChange={(event)=>setConfirmPinInput(event.target.value.replace(/\D/g, "").slice(0, 4))}
+              />
+            )}
             <button type="submit" disabled={Date.now() < pinAttempts.lockedUntil}>{hasSavedHidePin ? "Open" : "Save PIN"}</button>
           </form>
         ) : loading ? (

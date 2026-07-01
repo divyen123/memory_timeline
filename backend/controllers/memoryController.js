@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs/promises");
 const path = require("path");
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 const Memory = require("../models/Memory");
 const ShareLink = require("../models/ShareLink");
 const Session = require("../models/Session");
@@ -13,7 +14,6 @@ const TRASH_RETENTION_DAYS = 30;
 const TRASH_RETENTION_MS = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 const UPLOADS_ROOT = path.resolve("uploads");
 const PUBLIC_SHARE_EXPIRY_DAYS = Number(process.env.PUBLIC_SHARE_EXPIRY_DAYS || 7);
-const ACCOUNT_DELETE_CONFIRMATION = "delete account permenantly";
 const ENCRYPTED_MEDIA_PREFIX = "enc:v1:";
 const ENCRYPTED_MEDIA_MAGIC = Buffer.from("MTENC1");
 const RESERVED_MEMORY_TITLE = "app/hide-image/";
@@ -883,11 +883,21 @@ exports.clearAllMemories = async (req,res)=>{
 
 exports.deleteAccount = async (req,res)=>{
   try{
-    if(req.body?.confirmation !== ACCOUNT_DELETE_CONFIRMATION){
-      return res.status(400).json({message:"Type the confirmation phrase exactly"});
+    const password = String(req.body?.password || "");
+
+    if(!password){
+      return res.status(400).json({message:"Enter your application password"});
     }
 
     const userId = req.user.userId;
+    const user = await User.findById(userId);
+    const validPassword = user ? await bcrypt.compare(password, user.password) : false;
+
+    if(!validPassword){
+      securityWarn("account_delete_password_failed", {userId:String(userId)});
+      return res.status(401).json({message:"Application password is incorrect"});
+    }
+
     const memories = await Memory.find({userId});
 
     await Promise.all(memories.map(deleteStoredImages));

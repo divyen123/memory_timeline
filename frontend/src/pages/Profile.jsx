@@ -119,7 +119,6 @@ const collapseDesktopBackgroundColors = (settings, profile) => {
 };
 
 const isValidHidePin = (value) => /^\d{4}$/.test(value || "");
-const ACCOUNT_DELETE_CONFIRMATION = "delete account permenantly";
 const APP_PASSWORD_ATTEMPT_LIMIT = 3;
 const APP_PASSWORD_LOCK_MS = 10 * 60 * 1000;
 
@@ -153,7 +152,7 @@ function Profile() {
   const [newPassword,setNewPassword] = useState("");
   const [message,setMessage] = useState("");
   const [confirmAction,setConfirmAction] = useState(null);
-  const [accountDeleteConfirmation,setAccountDeleteConfirmation] = useState("");
+  const [accountDeletePassword,setAccountDeletePassword] = useState("");
   const [isDangerBusy,setIsDangerBusy] = useState(false);
   const [showAccountInfo,setShowAccountInfo] = useState(false);
   const [hidePinDraft,setHidePinDraft] = useState("");
@@ -358,7 +357,7 @@ function Profile() {
   const closeDangerConfirm = () => {
     if(!isDangerBusy){
       setConfirmAction(null);
-      setAccountDeleteConfirmation("");
+      setAccountDeletePassword("");
     }
   };
 
@@ -369,7 +368,7 @@ function Profile() {
 
     if(confirmAction === "delete-account"){
       setConfirmAction("delete-account-typed");
-      setAccountDeleteConfirmation("");
+      setAccountDeletePassword("");
       return;
     }
 
@@ -389,7 +388,7 @@ function Profile() {
       }
 
       if(confirmAction === "delete-account-typed"){
-        await deleteAccount(accountDeleteConfirmation);
+        await deleteAccount(accountDeletePassword);
         clearAuthenticatedUser();
         navigate("/", {replace:true});
         return;
@@ -399,7 +398,7 @@ function Profile() {
     }finally{
       setIsDangerBusy(false);
       setConfirmAction(null);
-      setAccountDeleteConfirmation("");
+      setAccountDeletePassword("");
     }
   };
 
@@ -1232,25 +1231,25 @@ function Profile() {
                   ? "Move all memories to trash?"
                   : confirmAction === "delete-account"
                     ? "Delete account permanently?"
-                    : "Type to confirm deletion"}
+                    : "Enter password to confirm"}
               </h3>
               <p>
                 {confirmAction === "clear-memories"
                   ? "All memories will move to trash. You can restore them before they are permanently deleted."
                   : confirmAction === "delete-account"
                     ? "This permanently deletes your account, memories, images, and profile information from the database."
-                    : <>Type <strong>{ACCOUNT_DELETE_CONFIRMATION}</strong> to permanently delete your account and all information.</>}
+                    : "Enter your application password to permanently delete your account and all information."}
               </p>
               {confirmAction === "delete-account-typed" && (
                 <input
-                  type="text"
+                  type="password"
                   className="profile-delete-confirm-input"
-                  aria-label="Delete account confirmation phrase"
-                  autoComplete="off"
+                  aria-label="Application password for account deletion"
+                  autoComplete="current-password"
                   autoFocus
-                  placeholder={ACCOUNT_DELETE_CONFIRMATION}
-                  value={accountDeleteConfirmation}
-                  onChange={(event)=>setAccountDeleteConfirmation(event.target.value)}
+                  placeholder="Application password"
+                  value={accountDeletePassword}
+                  onChange={(event)=>setAccountDeletePassword(event.target.value)}
                 />
               )}
               <div className="confirm-actions profile-danger-confirm-actions">
@@ -1264,7 +1263,7 @@ function Profile() {
                   disabled={
                     isDangerBusy ||
                     (confirmAction === "delete-account-typed" &&
-                      accountDeleteConfirmation !== ACCOUNT_DELETE_CONFIRMATION)
+                      !accountDeletePassword)
                   }
                 >
                   {isDangerBusy

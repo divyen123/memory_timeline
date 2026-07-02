@@ -952,24 +952,27 @@ exports.updateMemory = async (req,res)=>{
       return res.status(404).json({message:"Memory not found"});
     }
 
-    const previousStoredImages = images.length ? {
+    const hasRetainedImages = Object.prototype.hasOwnProperty.call(req.body, "retainedImages");
+    const currentImages = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
+    const currentThumbnails = memory.thumbnails || [];
+    let previousStoredImages = images.length && !hasRetainedImages ? {
       image:memory.image,
       images:memory.images || [],
       thumbnails:memory.thumbnails || []
     } : null;
     let removedStoredImages = null;
 
-    if(!images.length && Object.prototype.hasOwnProperty.call(req.body, "retainedImages")){
+    if(hasRetainedImages){
       const retainedImages = parseRetainedMediaList(req.body.retainedImages) || [];
       const retainedThumbnails = parseRetainedMediaList(req.body.retainedThumbnails) || [];
-      const currentImages = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
-      const currentThumbnails = memory.thumbnails || [];
       const retainedImageSet = new Set(retainedImages);
       const retainedThumbnailSet = new Set(retainedThumbnails);
+      const nextImages = [...retainedImages, ...images];
+      const nextThumbnails = [...retainedThumbnails.slice(0, retainedImages.length), ...thumbnails];
 
-      updateData.image = retainedImages[0] || "";
-      updateData.images = retainedImages;
-      updateData.thumbnails = retainedThumbnails.slice(0, retainedImages.length);
+      updateData.image = nextImages[0] || "";
+      updateData.images = nextImages;
+      updateData.thumbnails = nextThumbnails.slice(0, nextImages.length);
       removedStoredImages = {
         images:currentImages.filter((image)=>!retainedImageSet.has(image)),
         thumbnails:currentThumbnails.filter((image)=>!retainedThumbnailSet.has(image))

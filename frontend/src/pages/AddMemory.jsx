@@ -187,7 +187,10 @@ function AddMemory() {
   const handleImagesChange = (event) => {
     const selectedImages = Array.from(event.target.files || []);
     const nextImages = [...images, ...selectedImages];
-    const validationMessage = validateImages(nextImages);
+    const totalImages = existingImages.length + nextImages.length;
+    const validationMessage = totalImages > MAX_MEMORY_IMAGES
+      ? `Maximum is ${MAX_MEMORY_IMAGES} images`
+      : validateImages(nextImages);
 
     if(validationMessage){
       setMessage(validationMessage);
@@ -268,7 +271,10 @@ function AddMemory() {
       return;
     }
 
-    const validationMessage = validateImages(images);
+    const totalImages = isEditing ? existingImages.length + images.length : images.length;
+    const validationMessage = totalImages > MAX_MEMORY_IMAGES
+      ? `Maximum is ${MAX_MEMORY_IMAGES} images`
+      : validateImages(images);
 
     if(isReservedMemoryTitle(title)){
       setMessage("title invalid. choose another title.");
@@ -301,7 +307,7 @@ function AddMemory() {
       formData.append("category",category);
       formData.append("reminderDate",reminderDate);
 
-      if(isEditing && images.length === 0){
+      if(isEditing){
         formData.append("retainedImages", JSON.stringify(existingImages));
         formData.append("retainedThumbnails", JSON.stringify(existingThumbnails));
       }
@@ -484,18 +490,18 @@ function AddMemory() {
             <div className="selected-files-panel">
               <div className="selected-files-header">
                 <strong>
-                  {hasReplacementImages
-                    ? `${images.length} ${images.length === 1 ? "image" : "images"} selected`
-                    : `${existingImages.length} current ${existingImages.length === 1 ? "image" : "images"}`}
+                  {isEditing
+                    ? `${existingImages.length + images.length} ${existingImages.length + images.length === 1 ? "image" : "images"} in memory`
+                    : `${images.length} ${images.length === 1 ? "image" : "images"} selected`}
                 </strong>
                 <div className="selected-files-limit">
                   <small>Maximum {MAX_MEMORY_IMAGES}</small>
-                  {(hasReplacementImages ? images.length : existingImages.length) < MAX_MEMORY_IMAGES && (
+                  {(existingImages.length + images.length) < MAX_MEMORY_IMAGES && (
                     <button
                       type="button"
                       className="selected-files-add-btn"
-                      aria-label={hasReplacementImages ? "Add more images" : "Choose replacement images"}
-                      title={hasReplacementImages ? "Add more images" : "Choose replacement images"}
+                      aria-label="Add more images"
+                      title="Add more images"
                       onClick={()=>fileInputRef.current?.click()}
                     >
                       +
@@ -504,43 +510,41 @@ function AddMemory() {
                 </div>
               </div>
               <div className="selected-files-list">
-                {hasReplacementImages ? (
-                  images.map((image,index)=>(
-                    <div className="selected-file-row" key={`${image.name}-${image.size}-${index}`}>
-                      <span>{image.name}</span>
-                      <button
-                        type="button"
-                        className="selected-file-remove-btn"
-                        aria-label={`Remove ${image.name}`}
-                        title="Remove image"
-                        onClick={()=>removeImage(index)}
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  existingImages.map((image,index)=>(
-                    <div className="selected-file-row existing-file-row" key={`existing-${index}`}>
-                      <img
-                        src={existingThumbnails[index]
-                          ? getMemoryImageUrl({...editingMemory, images:existingImages, thumbnails:existingThumbnails}, "thumbnails", index)
-                          : getMemoryImageUrl({...editingMemory, images:existingImages, image}, "images", index)}
-                        alt={`Current memory image ${index + 1}`}
-                      />
-                      <span>Current image {index + 1}</span>
-                      <button
-                        type="button"
-                        className="selected-file-remove-btn existing-image-remove-btn"
-                        aria-label={`Remove current image ${index + 1}`}
-                        title="Remove image"
-                        onClick={()=>removeExistingImage(index)}
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  ))
-                )}
+                {existingImages.map((image,index)=>(
+                  <div className="selected-file-row existing-file-row" key={`existing-${index}`}>
+                    <img
+                      src={existingThumbnails[index]
+                        ? getMemoryImageUrl({...editingMemory, images:existingImages, thumbnails:existingThumbnails}, "thumbnails", index)
+                        : getMemoryImageUrl({...editingMemory, images:existingImages, image}, "images", index)}
+                      alt={`Current memory image ${index + 1}`}
+                    />
+                    <span>Current image {index + 1}</span>
+                    <button
+                      type="button"
+                      className="selected-file-remove-btn existing-image-remove-btn"
+                      aria-label={`Remove current image ${index + 1}`}
+                      title="Remove image"
+                      onClick={()=>removeExistingImage(index)}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+
+                {images.map((image,index)=>(
+                  <div className="selected-file-row" key={`${image.name}-${image.size}-${index}`}>
+                    <span>{image.name}</span>
+                    <button
+                      type="button"
+                      className="selected-file-remove-btn"
+                      aria-label={`Remove ${image.name}`}
+                      title="Remove image"
+                      onClick={()=>removeImage(index)}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           )}

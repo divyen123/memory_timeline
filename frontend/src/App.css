@@ -11047,6 +11047,13 @@ body.light .calendar-memory{
     text-align:left;
   }
 
+  body.light .profile-mobile-desktop-note{
+    background:rgba(31,31,51,0.045);
+    border-color:rgba(31,31,51,0.12);
+    color:rgba(31,31,51,0.78);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.76);
+  }
+
   .settings-actions,
   .settings-save-actions{
     display:grid;

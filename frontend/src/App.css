@@ -6200,26 +6200,27 @@ body.light .rich-editor:empty:before{
   top:14px;
   right:14px;
   z-index:4;
-  width:38px;
-  height:38px;
-  min-height:38px;
+  width:34px;
+  height:34px;
+  min-height:34px;
   padding:0;
   display:flex;
   align-items:center;
   justify-content:center;
   border-radius:50%;
-  background:var(--button-bg-color);
-  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white);
-  color:white;
-  box-shadow:0 10px 24px color-mix(in srgb, var(--button-bg-color) 24%, transparent), inset 0 1px 0 rgba(255,255,255,0.3);
-  backdrop-filter:blur(14px);
-  font-size:16px;
+  background:rgba(255,255,255,0.24);
+  border:1px solid rgba(255,255,255,0.28);
+  color:var(--adaptive-icon-color);
+  box-shadow:0 12px 30px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.32);
+  backdrop-filter:blur(16px) saturate(1.1);
+  font-size:15px;
 }
 
 .preview-image-expand-btn:hover{
-  background:color-mix(in srgb, var(--button-bg-color) 86%, white);
-  color:white;
-  box-shadow:0 12px 28px color-mix(in srgb, var(--button-bg-color) 30%, transparent), inset 0 1px 0 rgba(255,255,255,0.38);
+  transform:scale(1.08);
+  background:rgba(255,255,255,0.3);
+  color:var(--adaptive-icon-color);
+  box-shadow:0 14px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.38);
 }
 
 .preview-image-expand-btn span{
@@ -10500,19 +10501,19 @@ body.tile-card-shape-circle .small-container-memory .calendar-memory-thumbnail::
     justify-content:center;
     padding:0;
     border-radius:50%;
-    border:1px solid rgba(255,255,255,0.22);
-    background:rgba(10,11,30,0.72);
-    color:white;
-    box-shadow:0 12px 30px rgba(0,0,0,0.34);
-    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.28);
+    background:rgba(255,255,255,0.24);
+    color:var(--adaptive-icon-color);
+    box-shadow:0 12px 30px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.32);
+    backdrop-filter:blur(16px) saturate(1.1);
     font-size:20px;
     line-height:36px;
     text-align:center;
   }
 
   .details-back-btn:hover{
-    transform:none;
-    background:color-mix(in srgb, var(--button-bg-color) 82%, transparent);
+    transform:scale(1.08);
+    background:rgba(255,255,255,0.3);
   }
 
   .preview-back-btn{
@@ -10528,32 +10529,19 @@ body.tile-card-shape-circle .small-container-memory .calendar-memory-thumbnail::
     justify-content:center;
     padding:0;
     border-radius:50%;
-    border:1px solid rgba(255,255,255,0.22);
-    background:rgba(10,11,30,0.72);
-    color:white;
-    box-shadow:0 12px 30px rgba(0,0,0,0.34);
-    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.28);
+    background:rgba(255,255,255,0.24);
+    color:var(--adaptive-icon-color);
+    box-shadow:0 12px 30px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.32);
+    backdrop-filter:blur(16px) saturate(1.1);
     font-size:20px;
     line-height:36px;
     text-align:center;
   }
 
   .preview-back-btn:hover{
-    transform:none;
-    background:color-mix(in srgb, var(--button-bg-color) 82%, transparent);
-  }
-
-  body.light .details-back-btn,
-  body.light .preview-back-btn{
-    border-color:rgba(31,31,51,0.12);
-    background:rgba(255,255,255,0.82);
-    color:var(--adaptive-icon-color);
-    box-shadow:0 12px 30px rgba(31,31,51,0.16), inset 0 1px 0 rgba(255,255,255,0.86);
-  }
-
-  body.light .details-back-btn:hover,
-  body.light .preview-back-btn:hover{
-    background:rgba(255,255,255,0.94);
+    transform:scale(1.08);
+    background:rgba(255,255,255,0.3);
   }
 
   .upload-helper,

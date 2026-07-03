@@ -41,7 +41,7 @@ const PROFILE_CATEGORY_COLORS = [
 
 const getCategoryChartGradient = (items) => {
   if(!items.length){
-    return "conic-gradient(rgba(255,255,255,0.14) 0% 100%)";
+    return "conic-gradient(var(--profile-chart-empty-color) 0% 100%)";
   }
 
   let start = 0;
@@ -695,8 +695,9 @@ function Profile() {
               </div>
 
               <div
+                key={`${categoryChartTotal}-${categoryBreakdown.length}`}
                 className="profile-category-pie"
-                style={{background:categoryChartGradient}}
+                style={{"--category-chart-gradient":categoryChartGradient}}
                 onMouseMove={handleCategoryPieMove}
                 onMouseLeave={()=>setActiveCategory("")}
               >

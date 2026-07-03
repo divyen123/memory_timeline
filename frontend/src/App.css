@@ -12420,6 +12420,10 @@ body.light .password-card .hide-pin-info-bubble{
   transform:none;
 }
 
+.password-card .hide-password-settings .hide-pin-controls > button[type="submit"]{
+  transform:translateY(6px);
+}
+
 .hidden-unlock-panel{
   width:min(300px,86vw);
   min-height:260px;

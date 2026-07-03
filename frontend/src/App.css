@@ -91,7 +91,6 @@ html,body{
   background-clip:padding-box;
 }
 
-
 @property --profile-category-fill{
   syntax:"<percentage>";
   inherits:false;
@@ -5564,7 +5563,6 @@ body.button-glass-on .about-modal-close{
   background:color-mix(in srgb, var(--button-bg-color) 86%, white);
 }
 
-
 .password-update-form .password-confirm-row{
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(190px,0.62fr);
@@ -5643,6 +5641,12 @@ body.button-glass-on .about-modal-close{
   min-width:0;
 }
 
+.profile-title-block{
+  width:100%;
+  margin-bottom:18px;
+  text-align:center;
+}
+
 .profile-eyebrow{
   margin-bottom:6px;
   color:rgba(255,255,255,0.74);
@@ -5653,8 +5657,8 @@ body.button-glass-on .about-modal-close{
 }
 
 .profile-summary-content h1{
-  margin:0 0 18px;
-  text-align:left;
+  margin:0;
+  text-align:center;
   font-size:34px;
   line-height:1.1;
   overflow-wrap:anywhere;
@@ -5759,7 +5763,6 @@ body.button-glass-on .about-modal-close{
   filter:saturate(1.12) brightness(1.04);
 }
 
-
 .profile-category-pie::before{
   content:"";
   position:absolute;
@@ -5860,7 +5863,6 @@ body.button-glass-on .about-modal-close{
   color:white;
   font-style:normal;
 }
-
 
 body.light .profile-category-heading span,
 body.light .profile-category-legend > span{
@@ -8940,14 +8942,17 @@ body.light .days-counter{
     border-radius:21px;
     font-size:34px;
   }
-
   .profile-eyebrow{
     margin-bottom:4px;
     font-size:11px;
   }
 
-  .profile-summary-content h1{
+  .profile-title-block{
     margin-bottom:12px;
+  }
+
+  .profile-summary-content h1{
+    margin-bottom:0;
     font-size:26px;
   }
 
@@ -12295,7 +12300,6 @@ body.light .password-card .hide-pin-info-bubble{
   margin:6px 0 0;
   padding:4px 10px;
 }
-
 
 .password-card .hide-pin-controls > .hide-password-fields{
   grid-column:1 / span 2;

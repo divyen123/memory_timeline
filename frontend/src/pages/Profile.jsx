@@ -659,8 +659,10 @@ function Profile() {
             </div>
 
             <div className="profile-summary-content">
-              <p className="profile-eyebrow">Your profile</p>
-              <h1>{name || "Name not set"}</h1>
+              <div className="profile-title-block">
+                <p className="profile-eyebrow">Your profile</p>
+                <h1>{name || "Name not set"}</h1>
+              </div>
 
               <div className="profile-info-list">
                 <div className="profile-info-tile">

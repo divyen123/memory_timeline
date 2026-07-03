@@ -130,6 +130,24 @@ function App(){
     document.documentElement.style.setProperty("--dark-gradient-start", settings.darkGradientStart || "#0f172a");
     document.documentElement.style.setProperty("--dark-gradient-middle", settings.darkGradientMiddle || "#1e1b4b");
     document.documentElement.style.setProperty("--dark-gradient-end", settings.darkGradientEnd || "#020617");
+    const activeGradientMiddle = darkMode
+      ? (settings.darkGradientMiddle || "#1e1b4b")
+      : (settings.lightGradientMiddle || "#c45cff");
+    const activeGradientEnd = darkMode
+      ? (settings.darkGradientStart || "#0f172a")
+      : (settings.lightGradientEnd || "#7a8cff");
+    document.documentElement.style.setProperty(
+      "--scrollbar-thumb-color",
+      darkMode
+        ? `color-mix(in srgb, ${activeGradientMiddle} 74%, white)`
+        : `color-mix(in srgb, ${activeGradientMiddle} 78%, #1a1a2e)`
+    );
+    document.documentElement.style.setProperty(
+      "--scrollbar-thumb-hover-color",
+      darkMode
+        ? `color-mix(in srgb, ${activeGradientEnd} 68%, white)`
+        : `color-mix(in srgb, ${activeGradientEnd} 82%, #1a1a2e)`
+    );
 
   },[darkMode, settings]);
 

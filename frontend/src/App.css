@@ -36,6 +36,8 @@
   --toolbar-control-gap:12px;
   --toolbar-wide-control-gap:14px;
   --toolbar-radius:16px;
+  --scrollbar-thumb-color:color-mix(in srgb, var(--dark-gradient-middle) 74%, white);
+  --scrollbar-thumb-hover-color:color-mix(in srgb, var(--dark-gradient-start) 68%, white);
 }
 
 html{
@@ -50,12 +52,12 @@ html,body{
   font-weight:var(--app-font-weight);
   font-style:var(--app-font-style);
   scrollbar-width:thin;
-  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 72%, white) transparent;
+  scrollbar-color:var(--scrollbar-thumb-color) transparent;
 }
 
 *{
   scrollbar-width:thin;
-  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 72%, white) transparent;
+  scrollbar-color:var(--scrollbar-thumb-color) transparent;
 }
 
 *::-webkit-scrollbar{
@@ -69,14 +71,14 @@ html,body{
 }
 
 *::-webkit-scrollbar-thumb{
-  background:color-mix(in srgb, var(--button-bg-color) 72%, white);
+  background:var(--scrollbar-thumb-color);
   border:3px solid transparent;
   border-radius:999px;
   background-clip:padding-box;
 }
 
 *::-webkit-scrollbar-thumb:hover{
-  background:color-mix(in srgb, var(--button-bg-color) 88%, white);
+  background:var(--scrollbar-thumb-hover-color);
   border:3px solid transparent;
   background-clip:padding-box;
 }
@@ -99,11 +101,11 @@ body.light{
   --container-solid-bg:color-mix(in srgb, var(--light-gradient-middle) 18%, rgba(255,255,255,0.82));
   --container-solid-border:color-mix(in srgb, var(--light-gradient-middle) 28%, rgba(255,255,255,0.52));
   --container-text-color:#1f1f33;
-  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 70%, #1a1a2e) transparent;
+  scrollbar-color:var(--scrollbar-thumb-color) transparent;
 }
 
 body.light *{
-  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 70%, #1a1a2e) transparent;
+  scrollbar-color:var(--scrollbar-thumb-color) transparent;
 }
 
 body.light *::-webkit-scrollbar-track{
@@ -12058,16 +12060,16 @@ body.light .password-card .hide-pin-info-bubble{
 }
 
 .password-card .hide-password-fields label > span{
-  margin-bottom:4px;
+  display:block;
   font-size:13px;
   line-height:1.2;
 }
 
 .password-card .hide-password-fields input{
   width:100%;
-  min-height:36px;
-  margin:0;
-  padding:7px 10px;
+  min-height:30px;
+  margin:6px 0 0;
+  padding:4px 10px;
 }
 
 

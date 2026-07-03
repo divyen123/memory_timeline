@@ -140,6 +140,7 @@ function MemoryTimeline() {
   const [previewImageDetails, setPreviewImageDetails] = useState({});
   const [showPreviewImageDetails, setShowPreviewImageDetails] = useState(false);
   const [showPreviewImageViewer, setShowPreviewImageViewer] = useState(false);
+  const [isPreviewImageZoomed, setIsPreviewImageZoomed] = useState(false);
   const [disablePreviewSharedLayout, setDisablePreviewSharedLayout] = useState(false);
   const [exportPanel, setExportPanel] = useState(null);
   const [selectedMemoryIds, setSelectedMemoryIds] = useState([]);
@@ -1049,6 +1050,10 @@ function MemoryTimeline() {
   }, [previewMemory]);
 
   useEffect(() => {
+    setIsPreviewImageZoomed(false);
+  }, [showPreviewImageViewer, previewMemory?._id, previewImageIndex]);
+
+  useEffect(() => {
     if(!showPreviewImageViewer){
       return;
     }
@@ -1064,6 +1069,10 @@ function MemoryTimeline() {
 
       if(event.key === "ArrowRight" && hasMultiplePreviewImages){
         showNextPreviewImage();
+      }
+
+      if(event.key.toLowerCase() === "z"){
+        setIsPreviewImageZoomed((current)=>!current);
       }
     };
 
@@ -2162,7 +2171,7 @@ function MemoryTimeline() {
 
           {showPreviewImageViewer && currentPreviewImage && (
             <div
-              className={`carousel-overlay preview-image-viewer ${hasMultiplePreviewImages ? "multiple-images" : "single-image"}`}
+              className={`carousel-overlay preview-image-viewer ${hasMultiplePreviewImages ? "multiple-images" : "single-image"} ${isPreviewImageZoomed ? "zoomed" : ""}`}
               role="dialog"
               aria-modal="true"
               aria-label={`${previewMemory.title} image viewer`}
@@ -2209,6 +2218,22 @@ function MemoryTimeline() {
                   </button>
                 </>
               )}
+
+              <button
+                type="button"
+                className={`preview-image-zoom-btn ${isPreviewImageZoomed ? "zoomed" : ""}`}
+                title={isPreviewImageZoomed ? "Zoom out" : "Zoom in"}
+                aria-label={isPreviewImageZoomed ? "Zoom out" : "Zoom in"}
+                aria-pressed={isPreviewImageZoomed}
+                onClick={(event)=>{
+                  event.stopPropagation();
+                  setIsPreviewImageZoomed((current)=>!current);
+                }}
+              >
+                <span className="preview-zoom-lens" aria-hidden="true">
+                  <span className="preview-zoom-mark">{isPreviewImageZoomed ? "-" : "+"}</span>
+                </span>
+              </button>
 
               <SmartImage
                 key={`${currentPreviewImage}-viewer-${previewImageIndex}`}

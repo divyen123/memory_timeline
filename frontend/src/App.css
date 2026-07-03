@@ -114,14 +114,14 @@ body.light{
   --container-solid-bg:color-mix(in srgb, var(--light-gradient-middle) 18%, rgba(255,255,255,0.82));
   --container-solid-border:color-mix(in srgb, var(--light-gradient-middle) 28%, rgba(255,255,255,0.52));
   --container-text-color:#1f1f33;
-  --profile-chart-color-1:#e11d48;
-  --profile-chart-color-2:#0f766e;
-  --profile-chart-color-3:#6d5dfc;
-  --profile-chart-color-4:#2563eb;
-  --profile-chart-color-5:#059669;
-  --profile-chart-color-6:#b45309;
-  --profile-chart-color-7:#475569;
-  --profile-chart-empty-color:rgba(31,31,51,0.14);
+  --profile-chart-color-1:#ff6f91;
+  --profile-chart-color-2:#31b6a4;
+  --profile-chart-color-3:#8b7bff;
+  --profile-chart-color-4:#6aa5ff;
+  --profile-chart-color-5:#54c98f;
+  --profile-chart-color-6:#e59a45;
+  --profile-chart-color-7:#94a3b8;
+  --profile-chart-empty-color:rgba(31,31,51,0.08);
   scrollbar-color:var(--scrollbar-thumb-color) transparent;
 }
 
@@ -5956,6 +5956,19 @@ body.button-glass-on .about-modal-close{
   font-style:normal;
 }
 
+
+body.light .profile-category-pie{
+  box-shadow:0 18px 34px rgba(31,31,51,0.1), inset 0 0 0 1px rgba(31,31,51,0.08);
+}
+
+body.light .profile-category-pie::after{
+  background:rgba(255,255,255,0.52);
+  box-shadow:inset 0 0 0 1px rgba(31,31,51,0.08), 0 8px 18px rgba(31,31,51,0.06);
+}
+
+body.pure-white-theme .profile-category-pie::after{
+  background:rgba(255,255,255,0.62);
+}
 body.light .profile-category-heading span,
 body.light .profile-category-legend > span{
   color:rgba(31,31,51,0.72);

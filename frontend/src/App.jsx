@@ -89,6 +89,8 @@ function App(){
 
     document.body.classList.remove("card-size-small", "card-size-medium", "card-size-large");
     document.body.classList.add(`card-size-${settings.cardSize || "medium"}`);
+    document.body.classList.remove("tile-card-shape-square", "tile-card-shape-circle");
+    document.body.classList.add(`tile-card-shape-${settings.tileCardShape || "square"}`);
     document.body.classList.toggle("glass-containers-off", !settings.containerGlass);
     document.body.classList.toggle("button-glass-on", Boolean(settings.buttonGlass));
     document.body.classList.toggle("memory-hover-off", !settings.hoverEnabled);

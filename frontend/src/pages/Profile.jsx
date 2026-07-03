@@ -992,6 +992,16 @@ function Profile() {
                 />
               </label>
 
+              <label className="settings-field">
+                <span>Tile card shape</span>
+                <select
+                  value={appSettings.tileCardShape}
+                  onChange={(e)=>updateSetting("tileCardShape", e.target.value)}
+                >
+                  <option value="square">Square</option>
+                  <option value="circle">Circle</option>
+                </select>
+              </label>
               <div className="settings-section-title">Background Colors</div>
 
               {isMobileProfile ? (

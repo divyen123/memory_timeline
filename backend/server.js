@@ -48,6 +48,7 @@ const SETTINGS_KEYS = new Set([
   "reminderLeadDays",
   "defaultTheme",
   "cardSize",
+  "tileCardShape",
   "defaultMemoryView",
   "cardBorderRadius",
   "topButtonsPosition",

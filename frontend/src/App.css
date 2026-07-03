@@ -7116,6 +7116,14 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
   }
 }
 
+body.tile-card-shape-circle .small-container-memory,
+body.tile-card-shape-circle .small-container-memory .calendar-memory-thumbnail{
+  border-radius:50%;
+}
+
+body.tile-card-shape-circle .small-container-memory .calendar-memory-thumbnail::after{
+  border-radius:inherit;
+}
 @media (max-width:1040px){
   .timeline{
     grid-template-columns:repeat(3,minmax(0,1fr));
@@ -10211,6 +10219,14 @@ body.light .calendar-memory{
   align-items:flex-start;
 }
 
+body.tile-card-shape-circle .small-container-memory,
+body.tile-card-shape-circle .small-container-memory .calendar-memory-thumbnail{
+  border-radius:50%;
+}
+
+body.tile-card-shape-circle .small-container-memory .calendar-memory-thumbnail::after{
+  border-radius:inherit;
+}
 @media (max-width:1040px){
   .calendar-grid{
     grid-template-columns:repeat(3,minmax(0,1fr));

@@ -5,6 +5,7 @@ import {
   deleteAccount,
   getAppearanceSettings,
   getProfile,
+  getMemories,
   updateAppearanceSettings,
   updatePassword,
   updateProfile
@@ -27,6 +28,33 @@ const LIGHT_BACKGROUND_PRESETS = [
   {label:"Dark grey background", color:"#5f6368"}
 ];
 
+const PROFILE_MEMORY_CATEGORIES = ["Personal","Family","Friends","Travel","School","Work","Other"];
+const PROFILE_CATEGORY_COLORS = [
+  "var(--profile-chart-color-1)",
+  "var(--profile-chart-color-2)",
+  "var(--profile-chart-color-3)",
+  "var(--profile-chart-color-4)",
+  "var(--profile-chart-color-5)",
+  "var(--profile-chart-color-6)",
+  "var(--profile-chart-color-7)"
+];
+
+const getCategoryChartGradient = (items) => {
+  if(!items.length){
+    return "conic-gradient(rgba(255,255,255,0.14) 0% 100%)";
+  }
+
+  let start = 0;
+  const stops = items.map((item, index) => {
+    const end = index === items.length - 1 ? 100 : start + item.percentage;
+    const color = item.color || PROFILE_CATEGORY_COLORS[index % PROFILE_CATEGORY_COLORS.length];
+    const stop = `${color} ${start.toFixed(2)}% ${end.toFixed(2)}%`;
+    start = end;
+    return stop;
+  });
+
+  return `conic-gradient(${stops.join(", ")})`;
+};
 const DARK_BACKGROUND_PRESETS = [
   {label:"Dark grey background", color:"#2f333a"},
   {label:"Extra dark grey background", color:"#181a20"},
@@ -148,6 +176,7 @@ function Profile() {
   const [email,setEmail] = useState("");
   const [memoryCount,setMemoryCount] = useState(0);
   const [favoriteCount,setFavoriteCount] = useState(0);
+  const [categoryBreakdown,setCategoryBreakdown] = useState([]);
   const [currentPassword,setCurrentPassword] = useState("");
   const [newPassword,setNewPassword] = useState("");
   const [confirmPassword,setConfirmPassword] = useState("");
@@ -181,7 +210,53 @@ function Profile() {
       setFavoriteCount(res.data.favoriteCount);
     };
 
+    const fetchCategoryBreakdown = async () => {
+      try{
+        const counts = PROFILE_MEMORY_CATEGORIES.reduce((result, category) => ({
+          ...result,
+          [category]:0
+        }), {});
+        let nextPage = 1;
+        let hasMoreMemories = true;
+
+        while(hasMoreMemories){
+          const res = await getMemories({
+            page:nextPage,
+            limit:30,
+            sort:"newest",
+            category:"All"
+          });
+          const memories = Array.isArray(res.data.memories) ? res.data.memories : [];
+
+          memories.forEach((memory) => {
+            const category = PROFILE_MEMORY_CATEGORIES.includes(memory.category) ? memory.category : "Other";
+            counts[category] = (counts[category] || 0) + 1;
+          });
+
+          hasMoreMemories = Boolean(res.data.hasMore);
+          nextPage += 1;
+        }
+
+        const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+        setCategoryBreakdown(PROFILE_MEMORY_CATEGORIES
+          .map((category, index) => ({
+            category,
+            count:counts[category] || 0,
+            color:PROFILE_CATEGORY_COLORS[index % PROFILE_CATEGORY_COLORS.length],
+            percentage:total ? ((counts[category] || 0) / total) * 100 : 0
+          }))
+          .filter((item)=>item.count > 0));
+      }catch{
+        setCategoryBreakdown([]);
+      }
+    };
+
     fetchProfile();
+    if(isMobileProfile){
+      setCategoryBreakdown([]);
+    }else{
+      fetchCategoryBreakdown();
+    }
 
     getAppearanceSettings(deviceProfile)
       .then(({data})=>{
@@ -197,7 +272,7 @@ function Profile() {
         }
       })
       .catch(()=>{});
-  },[deviceProfile]);
+  },[deviceProfile,isMobileProfile]);
 
   useEffect(()=>{
     return () => {
@@ -551,43 +626,74 @@ function Profile() {
     playAppSound(type, appSettings);
   };
 
+  const categoryChartTotal = categoryBreakdown.reduce((sum, item) => sum + item.count, 0);
+  const categoryChartGradient = getCategoryChartGradient(categoryBreakdown);
+
   return (
     <PageTransition>
       <div className="profile-page">
         {message && <div className="toast">{message}</div>}
 
         <section className="profile-summary-card">
-          <div className="profile-avatar" aria-hidden="true">
-            {(name || email || "U").charAt(0).toUpperCase()}
-          </div>
+          <div className="profile-summary-main">
+            <div className="profile-avatar" aria-hidden="true">
+              {(name || email || "U").charAt(0).toUpperCase()}
+            </div>
 
-          <div className="profile-summary-content">
-            <p className="profile-eyebrow">Your profile</p>
-            <h1>{name || "Name not set"}</h1>
+            <div className="profile-summary-content">
+              <p className="profile-eyebrow">Your profile</p>
+              <h1>{name || "Name not set"}</h1>
 
-            <div className="profile-info-list">
-              <div className="profile-info-tile">
-                <span>Name</span>
-                <strong>{name || "Not set"}</strong>
-              </div>
-              <div className="profile-info-tile">
-                <span>Age</span>
-                <strong>{age !== "" ? `${age}` : "Not set"}</strong>
-              </div>
-              <div className="profile-info-tile">
-                <span>Total memories</span>
-                <strong>{memoryCount}</strong>
-              </div>
-              <div className="profile-info-tile">
-                <span>Favorites</span>
-                <strong>{favoriteCount}</strong>
-              </div>
-              <div className="profile-info-tile profile-info-email">
-                <span>Email</span>
-                <strong>{email || "Not set"}</strong>
+              <div className="profile-info-list">
+                <div className="profile-info-tile">
+                  <span>Name</span>
+                  <strong>{name || "Not set"}</strong>
+                </div>
+                <div className="profile-info-tile">
+                  <span>Age</span>
+                  <strong>{age !== "" ? `${age}` : "Not set"}</strong>
+                </div>
+                <div className="profile-info-tile">
+                  <span>Total memories</span>
+                  <strong>{memoryCount}</strong>
+                </div>
+                <div className="profile-info-tile">
+                  <span>Favorites</span>
+                  <strong>{favoriteCount}</strong>
+                </div>
+                <div className="profile-info-tile profile-info-email">
+                  <span>Email</span>
+                  <strong>{email || "Not set"}</strong>
+                </div>
               </div>
             </div>
           </div>
+
+          {!isMobileProfile && (
+            <aside className="profile-category-chart" aria-label="Memories by category">
+              <div className="profile-category-heading">
+                <span>Memories by category</span>
+                <strong>{categoryChartTotal}</strong>
+              </div>
+
+              <div className="profile-category-pie" style={{background:categoryChartGradient}}>
+                <span>{categoryBreakdown.length || 0}</span>
+                <small>{categoryBreakdown.length === 1 ? "category" : "categories"}</small>
+              </div>
+
+              <div className="profile-category-legend">
+                {categoryBreakdown.length ? categoryBreakdown.map((item)=>(
+                  <span key={item.category} style={{"--chart-color":item.color}}>
+                    <i aria-hidden="true" />
+                    <strong>{item.category}</strong>
+                    <em>{item.count}</em>
+                  </span>
+                )) : (
+                  <span className="profile-category-empty">No memories yet</span>
+                )}
+              </div>
+            </aside>
+          )}
         </section>
 
         <div className="profile-grid">

@@ -13732,3 +13732,43 @@ body.pure-white-theme .timeline-action-btn[title="Settings"]::before{
     text-align:center;
   }
 }
+
+/* Keep floating hearts visible behind app content on every device. */
+.container{
+  position:relative;
+  isolation:isolate;
+}
+
+.container > :not(.hearts){
+  position:relative;
+  z-index:1;
+}
+
+.hearts{
+  z-index:0;
+}
+
+body.light .hearts span,
+body.pure-white-theme .hearts span{
+  opacity:0.72;
+  filter:saturate(1.28) brightness(1.05) drop-shadow(0 6px 14px rgba(255,45,104,0.2));
+}
+
+body.dark .hearts span{
+  opacity:0.64;
+  filter:saturate(1.18) drop-shadow(0 8px 18px rgba(255,94,139,0.22));
+}
+
+body.light .preview-back-btn,
+body.pure-white-theme .preview-back-btn{
+  border-color:rgba(31,31,51,0.12);
+  background:rgba(255,255,255,0.78);
+  color:#242038;
+  box-shadow:0 12px 30px rgba(31,31,51,0.14), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+body.light .preview-back-btn:hover,
+body.pure-white-theme .preview-back-btn:hover{
+  background:rgba(255,255,255,0.92);
+  color:#1f1f33;
+}

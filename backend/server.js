@@ -436,7 +436,8 @@ app.get("/api/profile", authMiddleware, async(req,res)=>{
     const user = await User.findById(req.user.userId).select("-password");
     const activeMemoryFilter = {
       userId:req.user.userId,
-      deletedAt:null
+      deletedAt:null,
+      hiddenAt:null
     };
     const memoryCount = await Memory.countDocuments(activeMemoryFilter);
     const favoriteCount = await Memory.countDocuments({

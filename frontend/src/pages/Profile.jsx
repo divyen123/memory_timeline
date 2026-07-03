@@ -1192,7 +1192,6 @@ function Profile() {
               <div className="hide-pin-controls">
                 <div className="hide-password-fields">
                   <label>
-                    <span>{hasSavedHidePin ? "Update PIN" : "4-digit PIN"}</span>
                     <input
                       type="password"
                       inputMode="numeric"
@@ -1208,7 +1207,6 @@ function Profile() {
                     />
                   </label>
                   <label>
-                    <span>Confirm PIN</span>
                     <input
                       type="password"
                       inputMode="numeric"

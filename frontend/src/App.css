@@ -13739,13 +13739,19 @@ body.pure-white-theme .timeline-action-btn[title="Settings"]::before{
   isolation:isolate;
 }
 
-.container > :not(.hearts){
+.container > :not(.hearts):not(.top-buttons){
   position:relative;
   z-index:1;
 }
 
 .hearts{
   z-index:0;
+}
+
+.top-buttons,
+.reminder-menu{
+  position:fixed;
+  z-index:1000;
 }
 
 body.light .hearts span,

@@ -324,7 +324,7 @@ function App(){
 
     <div className={`container ${isPublicSharePage ? "public-route-container" : ""}`}>
 
-      {!isPublicSharePage && <div className="hearts">
+      {!isPublicSharePage && deviceProfile !== "mobile" && <div className="hearts">
         <span>❤️</span>
         <span>💖</span>
         <span>💕</span>

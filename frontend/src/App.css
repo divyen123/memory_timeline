@@ -13626,6 +13626,50 @@ body.light .hide-pin-password-dialog{
   border-color:rgba(255,255,255,0.12) !important;
   box-shadow:none !important;
 }
+body.pure-white-theme{
+  --timeline-line-color:rgba(31,31,51,0.16);
+  --timeline-dot-center:#ffffff;
+}
+
+body.pure-white-theme .timeline-item::before{
+  background:linear-gradient(90deg, transparent 0, rgba(31,31,51,0.14) 8%, rgba(31,31,51,0.2) 50%, rgba(31,31,51,0.14) 92%, transparent 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,0.72);
+}
+
+body.pure-white-theme .timeline-controls .timeline-search-shell:not(.open),
+body.pure-white-theme .timeline-controls .timeline-icon-control,
+body.pure-white-theme .timeline-controls .filter-toggle,
+body.pure-white-theme .timeline-controls .timeline-action-btn{
+  background:rgba(31,31,51,0.055) !important;
+  border-color:rgba(31,31,51,0.1) !important;
+  color:#242038 !important;
+  box-shadow:0 10px 24px rgba(31,31,51,0.06), inset 0 1px 0 rgba(255,255,255,0.86) !important;
+}
+
+body.pure-white-theme .timeline-controls .timeline-icon-control:hover,
+body.pure-white-theme .timeline-controls .timeline-icon-control.active,
+body.pure-white-theme .timeline-controls .filter-toggle:hover,
+body.pure-white-theme .timeline-controls .filter-toggle.active,
+body.pure-white-theme .timeline-controls .timeline-action-btn:hover,
+body.pure-white-theme .timeline-controls .timeline-action-btn.active{
+  background:rgba(31,31,51,0.085) !important;
+  border-color:rgba(31,31,51,0.16) !important;
+  color:#1f1f33 !important;
+}
+
+body.pure-white-theme .timeline-controls .filter-funnel-icon::before,
+body.pure-white-theme .timeline-controls .filter-funnel-icon::after,
+body.pure-white-theme.toolbar-icons-separate .timeline-controls .filter-funnel-icon::before,
+body.pure-white-theme.toolbar-icons-separate .timeline-controls .filter-funnel-icon::after,
+body.pure-white-theme.toolbar-icons-minimal .timeline-controls .filter-funnel-icon::before,
+body.pure-white-theme.toolbar-icons-minimal .timeline-controls .filter-funnel-icon::after{
+  background:#242038 !important;
+}
+
+body.pure-white-theme .timeline-action-btn[title="Settings"]::before{
+  color:#242038;
+  text-shadow:none;
+}
 
 @media (min-width:761px){
   .timeline-controls-shell{

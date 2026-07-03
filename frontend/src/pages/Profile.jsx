@@ -177,6 +177,7 @@ function Profile() {
   const [memoryCount,setMemoryCount] = useState(0);
   const [favoriteCount,setFavoriteCount] = useState(0);
   const [categoryBreakdown,setCategoryBreakdown] = useState([]);
+  const [activeCategory,setActiveCategory] = useState("");
   const [currentPassword,setCurrentPassword] = useState("");
   const [newPassword,setNewPassword] = useState("");
   const [confirmPassword,setConfirmPassword] = useState("");
@@ -625,7 +626,24 @@ function Profile() {
   const testSound = (type) => {
     playAppSound(type, appSettings);
   };
+  const handleCategoryPieMove = (event) => {
+    if(!categoryBreakdown.length){
+      return;
+    }
 
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left - rect.width / 2;
+    const y = event.clientY - rect.top - rect.height / 2;
+    const position = (((Math.atan2(y, x) * 180) / Math.PI + 450) % 360) / 360 * 100;
+    let cumulative = 0;
+
+    const hoveredCategory = categoryBreakdown.find((item, index) => {
+      cumulative += item.percentage;
+      return position <= cumulative || index === categoryBreakdown.length - 1;
+    });
+
+    setActiveCategory(hoveredCategory?.category || "");
+  };
   const categoryChartTotal = categoryBreakdown.reduce((sum, item) => sum + item.count, 0);
   const categoryChartGradient = getCategoryChartGradient(categoryBreakdown);
 
@@ -676,14 +694,23 @@ function Profile() {
                 <strong>{categoryChartTotal}</strong>
               </div>
 
-              <div className="profile-category-pie" style={{background:categoryChartGradient}}>
+              <div
+                className="profile-category-pie"
+                style={{background:categoryChartGradient}}
+                onMouseMove={handleCategoryPieMove}
+                onMouseLeave={()=>setActiveCategory("")}
+              >
                 <span>{categoryBreakdown.length || 0}</span>
                 <small>{categoryBreakdown.length === 1 ? "category" : "categories"}</small>
               </div>
 
               <div className="profile-category-legend">
                 {categoryBreakdown.length ? categoryBreakdown.map((item)=>(
-                  <span key={item.category} style={{"--chart-color":item.color}}>
+                  <span
+                    key={item.category}
+                    className={activeCategory === item.category ? "active" : ""}
+                    style={{"--chart-color":item.color}}
+                  >
                     <i aria-hidden="true" />
                     <strong>{item.category}</strong>
                     <em>{item.count}</em>

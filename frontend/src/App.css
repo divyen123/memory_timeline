@@ -38,13 +38,13 @@
   --toolbar-radius:16px;
   --scrollbar-thumb-color:color-mix(in srgb, var(--dark-gradient-middle) 74%, white);
   --scrollbar-thumb-hover-color:color-mix(in srgb, var(--dark-gradient-start) 68%, white);
-  --profile-chart-color-1:color-mix(in srgb, var(--dark-gradient-start) 76%, white);
-  --profile-chart-color-2:color-mix(in srgb, var(--dark-gradient-middle) 82%, white);
-  --profile-chart-color-3:color-mix(in srgb, var(--dark-gradient-end) 72%, white);
-  --profile-chart-color-4:color-mix(in srgb, var(--timeline-dot-color) 84%, white);
-  --profile-chart-color-5:color-mix(in srgb, var(--dark-gradient-middle) 58%, #70f0ff);
-  --profile-chart-color-6:color-mix(in srgb, var(--dark-gradient-start) 62%, #ffd166);
-  --profile-chart-color-7:color-mix(in srgb, var(--dark-gradient-end) 58%, #f8f8ff);
+  --profile-chart-color-1:#fb7185;
+  --profile-chart-color-2:#2dd4bf;
+  --profile-chart-color-3:#a78bfa;
+  --profile-chart-color-4:#60a5fa;
+  --profile-chart-color-5:#34d399;
+  --profile-chart-color-6:#fbbf24;
+  --profile-chart-color-7:#cbd5e1;
 }
 
 html{
@@ -108,13 +108,13 @@ body.light{
   --container-solid-bg:color-mix(in srgb, var(--light-gradient-middle) 18%, rgba(255,255,255,0.82));
   --container-solid-border:color-mix(in srgb, var(--light-gradient-middle) 28%, rgba(255,255,255,0.52));
   --container-text-color:#1f1f33;
-  --profile-chart-color-1:color-mix(in srgb, var(--light-gradient-start) 76%, #ffffff);
-  --profile-chart-color-2:color-mix(in srgb, var(--light-gradient-middle) 82%, #ffffff);
-  --profile-chart-color-3:color-mix(in srgb, var(--light-gradient-end) 76%, #ffffff);
-  --profile-chart-color-4:color-mix(in srgb, var(--timeline-dot-color) 82%, #ffffff);
-  --profile-chart-color-5:color-mix(in srgb, var(--light-gradient-middle) 58%, #2f6bff);
-  --profile-chart-color-6:color-mix(in srgb, var(--light-gradient-start) 58%, #f59e0b);
-  --profile-chart-color-7:color-mix(in srgb, var(--light-gradient-end) 56%, #1f1f33);
+  --profile-chart-color-1:#e11d48;
+  --profile-chart-color-2:#0f766e;
+  --profile-chart-color-3:#6d5dfc;
+  --profile-chart-color-4:#2563eb;
+  --profile-chart-color-5:#059669;
+  --profile-chart-color-6:#b45309;
+  --profile-chart-color-7:#475569;
   scrollbar-color:var(--scrollbar-thumb-color) transparent;
 }
 
@@ -142,13 +142,13 @@ body.dark{
   --container-solid-bg:color-mix(in srgb, var(--dark-gradient-middle) 42%, rgba(8,10,22,0.92));
   --container-solid-border:color-mix(in srgb, var(--dark-gradient-middle) 36%, rgba(255,255,255,0.2));
   --container-text-color:white;
-  --profile-chart-color-1:color-mix(in srgb, var(--dark-gradient-start) 76%, white);
-  --profile-chart-color-2:color-mix(in srgb, var(--dark-gradient-middle) 82%, white);
-  --profile-chart-color-3:color-mix(in srgb, var(--dark-gradient-end) 72%, white);
-  --profile-chart-color-4:color-mix(in srgb, var(--timeline-dot-color) 84%, white);
-  --profile-chart-color-5:color-mix(in srgb, var(--dark-gradient-middle) 58%, #70f0ff);
-  --profile-chart-color-6:color-mix(in srgb, var(--dark-gradient-start) 62%, #ffd166);
-  --profile-chart-color-7:color-mix(in srgb, var(--dark-gradient-end) 58%, #f8f8ff);
+  --profile-chart-color-1:#fb7185;
+  --profile-chart-color-2:#2dd4bf;
+  --profile-chart-color-3:#a78bfa;
+  --profile-chart-color-4:#60a5fa;
+  --profile-chart-color-5:#34d399;
+  --profile-chart-color-6:#fbbf24;
+  --profile-chart-color-7:#cbd5e1;
 }
 
 @keyframes gradientMove{
@@ -5740,6 +5740,12 @@ body.button-glass-on .about-modal-close{
   position:relative;
   border-radius:50%;
   box-shadow:0 20px 36px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.22);
+  cursor:pointer;
+  transition:filter 0.18s ease, transform 0.18s ease;
+}
+
+.profile-category-pie:hover{
+  filter:saturate(1.12) brightness(1.04);
 }
 
 .profile-category-pie::after{
@@ -5790,6 +5796,22 @@ body.button-glass-on .about-modal-close{
   color:rgba(255,255,255,0.82);
   font-size:12px;
   font-weight:800;
+  padding:3px 4px;
+  border-radius:10px;
+  transition:transform 0.18s ease, color 0.18s ease, background 0.18s ease;
+}
+
+.profile-category-legend > span.active,
+.profile-category-legend > span:hover{
+  color:#fff;
+  background:rgba(255,255,255,0.08);
+  transform:translateY(-3px);
+}
+
+.profile-category-legend > span:last-child:nth-child(odd):not(.profile-category-empty){
+  grid-column:1 / -1;
+  justify-self:center;
+  width:min(132px,100%);
 }
 
 .profile-category-legend i{

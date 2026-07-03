@@ -98,9 +98,6 @@ function App(){
     document.body.classList.add(`top-icons-${settings.topButtonsIconStyle || "circle"}`);
     document.body.classList.remove("toolbar-icons-box", "toolbar-icons-circle", "toolbar-icons-separate", "toolbar-icons-pill", "toolbar-icons-soft", "toolbar-icons-minimal");
     document.body.classList.add(`toolbar-icons-${settings.toolbarIconStyle || "box"}`);
-    document.body.classList.remove("hearts-slow", "hearts-normal", "hearts-fast", "hearts-fixed");
-    document.body.classList.add(`hearts-${settings.heartsSpeed || "normal"}`);
-
     document.documentElement.style.setProperty("--app-font-size", FONT_SIZE_MAP[settings.fontSize] || FONT_SIZE_MAP.normal);
     document.documentElement.style.setProperty("--app-font-delta", {
       small:"-2px",
@@ -323,17 +320,6 @@ function App(){
   return(
 
     <div className={`container ${isPublicSharePage ? "public-route-container" : ""}`}>
-
-      {!isPublicSharePage && deviceProfile !== "mobile" && <div className="hearts">
-        <span>❤️</span>
-        <span>💖</span>
-        <span>💕</span>
-        <span>💗</span>
-        <span>💞</span>
-        <span>💓</span>
-        <span>💘</span>
-        <span>💝</span>
-      </div>}
 
       {/* BUTTON GROUP */}
 

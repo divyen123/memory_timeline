@@ -64,7 +64,6 @@ const SETTINGS_KEYS = new Set([
   "buttonBackgroundColor",
   "buttonGlass",
   "buttonGlassAlpha",
-  "heartsSpeed",
   "lightGradientStart",
   "lightGradientMiddle",
   "lightGradientEnd",

@@ -31,7 +31,6 @@ export const defaultSettings = {
   buttonBackgroundColor:"#ff4b7d",
   buttonGlass:false,
   buttonGlassAlpha:0.18,
-  heartsSpeed:"normal",
   lightGradientStart:"#ff7ac6",
   lightGradientMiddle:"#c45cff",
   lightGradientEnd:"#7a8cff",

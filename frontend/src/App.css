@@ -7759,31 +7759,6 @@ body.light .preview-actions .preview-delete-btn:hover{
   transition:all 0.8s ease;
 }
 
-/* ================= FLOATING HEARTS ================= */
-
-.hearts{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  z-index:-1;
-}
-
-.hearts span{
-  position:absolute;
-  bottom:-50px;
-  font-size:22px;
-  animation:parallaxHearts linear infinite;
-}
-
-@keyframes parallaxHearts{
-  0%{transform:translateY(0);opacity:0;}
-  20%{opacity:1;}
-  100%{transform:translateY(-120vh);opacity:0;}
-}
-
 /* ================= FLOAT CARD ================= */
 
 @keyframes floatCard{
@@ -8446,138 +8421,6 @@ body.light .confirm-dialog{
 body.dark .confirm-dialog{
   background:rgba(255,255,255,0.12);
   color:white;
-}
-/* ================= FLOATING HEARTS BACKGROUND ================= */
-
-.hearts{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  overflow:hidden;
-  z-index:-1;
-}
-
-/* HEART ELEMENT */
-
-.hearts span{
-  position:absolute;
-  bottom:-50px;
-  font-size:22px;
-  opacity:0.8;
-  animation:parallaxHearts linear infinite;
-}
-
-/* HEART ANIMATION */
-
-@keyframes parallaxHearts{
-
-  0%{
-    transform:translateY(0) scale(1);
-    opacity:0;
-  }
-
-  20%{
-    opacity:1;
-  }
-
-  100%{
-    transform:translateY(-120vh) scale(1.5);
-    opacity:0;
-  }
-
-}
-
-/* RANDOM POSITIONS */
-
-.hearts span:nth-child(1){ left:10%; --heart-speed:14s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(2){ left:20%; --heart-speed:18s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(3){ left:30%; --heart-speed:22s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(4){ left:40%; --heart-speed:12s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(5){ left:55%; --heart-speed:20s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(6){ left:70%; --heart-speed:16s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(7){ left:85%; --heart-speed:24s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(8){ left:95%; --heart-speed:19s; animation-duration:var(--heart-speed); }
-
-body.hearts-slow .hearts span{
-  animation-duration:calc(var(--heart-speed, 1s) * 1.6);
-}
-
-body.hearts-fast .hearts span{
-  animation-duration:calc(var(--heart-speed, 1s) * 0.55);
-}
-
-body.hearts-fixed .hearts span{
-  animation:none;
-  opacity:0.45;
-}
-/* ================= FLOATING HEARTS BACKGROUND ================= */
-
-.hearts{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  overflow:hidden;
-  z-index:-1;
-}
-
-/* HEART ELEMENT */
-
-.hearts span{
-  position:absolute;
-  bottom:-50px;
-  font-size:22px;
-  opacity:0.8;
-  animation:parallaxHearts linear infinite;
-}
-
-/* HEART ANIMATION */
-
-@keyframes parallaxHearts{
-
-  0%{
-    transform:translateY(0) scale(1);
-    opacity:0;
-  }
-
-  20%{
-    opacity:1;
-  }
-
-  100%{
-    transform:translateY(-120vh) scale(1.5);
-    opacity:0;
-  }
-
-}
-
-/* RANDOM POSITIONS */
-
-.hearts span:nth-child(1){ left:10%; --heart-speed:14s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(2){ left:20%; --heart-speed:18s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(3){ left:30%; --heart-speed:22s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(4){ left:40%; --heart-speed:12s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(5){ left:55%; --heart-speed:20s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(6){ left:70%; --heart-speed:16s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(7){ left:85%; --heart-speed:24s; animation-duration:var(--heart-speed); }
-.hearts span:nth-child(8){ left:95%; --heart-speed:19s; animation-duration:var(--heart-speed); }
-
-body.hearts-slow .hearts span{
-  animation-duration:calc(var(--heart-speed) * 1.6);
-}
-
-body.hearts-fast .hearts span{
-  animation-duration:calc(var(--heart-speed) * 0.55);
-}
-
-body.hearts-fixed .hearts span{
-  animation:none;
-  opacity:0.45;
 }
 /* FLOAT ANIMATION */
 
@@ -10403,17 +10246,7 @@ body.light .calendar-memory{
   .export-selection-bar{
     backdrop-filter:none;
   }
-
-  .hearts span:nth-child(n+4){
-    display:none;
-  }
-
-  .hearts span{
-    animation-duration:24s !important;
-    opacity:0.46;
-  }
-
-  .calendar-view{
+.calendar-view{
     width:100%;
     margin-top:26px;
     gap:15px;
@@ -11286,13 +11119,7 @@ body.light .calendar-memory{
     flex-basis:25px;
     font-size:10px;
   }
-
-  body.light .hearts span{
-    opacity:0.98;
-    filter:saturate(1.38) brightness(1.12) drop-shadow(0 5px 13px rgba(255,45,104,0.24));
-  }
-
-  .trash-page{
+.trash-page{
     min-height:100dvh;
     padding:42px 10px 34px;
     gap:10px;
@@ -13733,48 +13560,3 @@ body.pure-white-theme .timeline-action-btn[title="Settings"]::before{
   }
 }
 
-/* Keep floating hearts visible behind app content on every device. */
-.container{
-  position:relative;
-  isolation:isolate;
-}
-
-.container > :not(.hearts):not(.top-buttons){
-  position:relative;
-  z-index:1;
-}
-
-.hearts{
-  z-index:0;
-}
-
-.top-buttons,
-.reminder-menu{
-  position:fixed;
-  z-index:1000;
-}
-
-body.light .hearts span,
-body.pure-white-theme .hearts span{
-  opacity:0.72;
-  filter:saturate(1.28) brightness(1.05) drop-shadow(0 6px 14px rgba(255,45,104,0.2));
-}
-
-body.dark .hearts span{
-  opacity:0.64;
-  filter:saturate(1.18) drop-shadow(0 8px 18px rgba(255,94,139,0.22));
-}
-
-body.light .preview-back-btn,
-body.pure-white-theme .preview-back-btn{
-  border-color:rgba(31,31,51,0.12);
-  background:rgba(255,255,255,0.78);
-  color:#242038;
-  box-shadow:0 12px 30px rgba(31,31,51,0.14), inset 0 1px 0 rgba(255,255,255,0.9);
-}
-
-body.light .preview-back-btn:hover,
-body.pure-white-theme .preview-back-btn:hover{
-  background:rgba(255,255,255,0.92);
-  color:#1f1f33;
-}

@@ -13261,3 +13261,62 @@ body.light .hide-pin-password-dialog{
     font-size:11px;
   }
 }
+
+/* Transparent, slimmer timeline navbar. */
+.timeline-controls .timeline-search-shell:not(.open),
+.timeline-controls .timeline-icon-control,
+.timeline-controls .filter-toggle,
+.timeline-controls .timeline-action-btn{
+  background:transparent !important;
+  border-color:transparent !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.timeline-controls .timeline-search-shell.open{
+  min-height:var(--toolbar-button-size);
+}
+
+.timeline-controls .timeline-icon-control:hover,
+.timeline-controls .timeline-icon-control.active,
+.timeline-controls .filter-toggle:hover,
+.timeline-controls .filter-toggle.active,
+.timeline-controls .timeline-action-btn:hover,
+.timeline-controls .timeline-action-btn.active{
+  background:rgba(255,255,255,0.08) !important;
+  border-color:rgba(255,255,255,0.12) !important;
+  box-shadow:none !important;
+}
+
+@media (min-width:761px){
+  .timeline-controls-shell{
+    width:min(740px,92vw);
+  }
+
+  .timeline-controls{
+    width:min(740px,92vw);
+    --toolbar-button-size:48px;
+    --toolbar-icon-font-size:21px;
+    --toolbar-control-gap:9px;
+    --toolbar-wide-control-gap:10px;
+  }
+}
+
+@media (max-width:760px){
+  .timeline-controls-shell{
+    max-width:330px;
+  }
+
+  .timeline-controls{
+    grid-template-columns:repeat(7,36px);
+    gap:6px;
+    --toolbar-button-size:36px;
+    --toolbar-icon-font-size:19px;
+  }
+
+  .timeline-search{
+    height:36px;
+    min-height:36px;
+  }
+}

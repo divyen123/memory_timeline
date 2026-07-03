@@ -47,6 +47,8 @@ const FONT_FAMILY_MAP = {
   italic:"'Segoe UI', Arial, sans-serif"
 };
 
+const isPureWhiteColor = (color) => String(color || "").trim().toLowerCase() === "#ffffff";
+
 function App(){
 
   const [deviceProfile,setDeviceProfile] = useState(()=>getDeviceProfile());
@@ -90,6 +92,7 @@ function App(){
     document.body.classList.toggle("glass-containers-off", !settings.containerGlass);
     document.body.classList.toggle("button-glass-on", Boolean(settings.buttonGlass));
     document.body.classList.toggle("memory-hover-off", !settings.hoverEnabled);
+    document.body.classList.toggle("pure-white-theme", !darkMode && isPureWhiteColor(settings.lightGradientStart) && isPureWhiteColor(settings.lightGradientMiddle) && isPureWhiteColor(settings.lightGradientEnd));
     document.body.classList.toggle("top-actions-left", settings.topButtonsPosition === "left");
     document.body.classList.remove("top-icons-box", "top-icons-circle", "top-icons-soft", "top-icons-minimal");
     document.body.classList.add(`top-icons-${settings.topButtonsIconStyle || "circle"}`);

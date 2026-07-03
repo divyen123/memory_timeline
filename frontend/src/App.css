@@ -276,6 +276,37 @@ input[type="file"]{
 body.light input[type="file"]{
   color:#2c2c2c;
 }
+body.light select option{
+  background:color-mix(in srgb, var(--light-gradient-middle) 16%, #ffffff);
+  color:#242038;
+}
+
+body.dark select option{
+  background:color-mix(in srgb, var(--dark-gradient-middle) 82%, #020617);
+  color:#ffffff;
+}
+
+body.pure-white-theme input:not([type="range"]):not([type="checkbox"]):not([type="color"]):not([type="file"]),
+body.pure-white-theme textarea,
+body.pure-white-theme select,
+body.pure-white-theme .rich-editor{
+  border-color:rgba(31,31,51,0.18);
+  background:rgba(255,255,255,0.64);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.82), 0 0 0 1px rgba(31,31,51,0.05);
+}
+
+body.pure-white-theme input:not([type="range"]):not([type="checkbox"]):not([type="color"]):not([type="file"]):focus,
+body.pure-white-theme textarea:focus,
+body.pure-white-theme select:focus,
+body.pure-white-theme .rich-editor:focus{
+  border-color:rgba(31,31,51,0.32);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.92), 0 0 0 2px rgba(108,99,255,0.14);
+}
+
+body.pure-white-theme select option{
+  background:#ffffff;
+  color:#242038;
+}
 
 input[type="file"]::file-selector-button{
   background:var(--button-bg-color);
@@ -796,6 +827,43 @@ body.light .login-brand p:not(.login-brand-typing){
   background:rgba(255,255,255,0.24);
   border-color:rgba(255,255,255,0.42);
   box-shadow:0 24px 70px rgba(58,44,106,0.16);
+}
+.split-login-page.login-pure-white .animated-login-card{
+  background:rgba(255,255,255,0.66);
+  border-color:rgba(31,31,51,0.12);
+  color:#1f1f33;
+  box-shadow:0 24px 70px rgba(31,31,51,0.12), 0 0 0 1px rgba(255,255,255,0.72) inset;
+}
+
+.split-login-page.login-pure-white .animated-login-card h2{
+  color:#1f1f33;
+}
+
+.split-login-page.login-pure-white .login-field-shell{
+  border-color:rgba(31,31,51,0.18);
+  background:rgba(255,255,255,0.52);
+  color:#1f1f33;
+}
+
+.split-login-page.login-pure-white .animated-field.focused .login-field-shell{
+  border-color:rgba(108,99,255,0.54);
+  background:rgba(255,255,255,0.7);
+  box-shadow:0 0 0 2px rgba(108,99,255,0.13), 0 16px 32px rgba(31,31,51,0.08);
+}
+
+.split-login-page.login-pure-white .login-floating-label,
+.split-login-page.login-pure-white .animated-field.focused .login-floating-label,
+.split-login-page.login-pure-white .animated-field.filled .login-floating-label,
+.split-login-page.login-pure-white .animated-field:focus-within .login-floating-label,
+.split-login-page.login-pure-white .animated-field:has(.login-motion-input:not(:placeholder-shown)) .login-floating-label,
+.split-login-page.login-pure-white .animated-field:has(.login-motion-input:-webkit-autofill) .login-floating-label{
+  color:#4a435f;
+}
+
+.split-login-page.login-pure-white .login-motion-input,
+.split-login-page.login-pure-white .login-motion-input:-webkit-autofill{
+  color:#1f1f33;
+  -webkit-text-fill-color:#1f1f33 !important;
 }
 
 @keyframes loginLogoFloat{
@@ -5181,6 +5249,30 @@ body.light .profile-info-list strong{
   background:var(--button-bg-color);
 }
 
+
+body.pure-white-theme .segmented-setting{
+  gap:10px;
+}
+
+body.pure-white-theme .segmented-setting button{
+  border:1px solid rgba(31,31,51,0.16);
+  background:rgba(255,255,255,0.72);
+  color:#242038;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.86), 0 8px 20px rgba(31,31,51,0.06);
+}
+
+body.pure-white-theme .segmented-setting button.active,
+body.pure-white-theme .segmented-setting button:hover{
+  border-color:color-mix(in srgb, var(--button-bg-color) 44%, rgba(31,31,51,0.16));
+  background:linear-gradient(135deg, color-mix(in srgb, var(--button-bg-color) 90%, #ffffff), color-mix(in srgb, var(--button-bg-color) 68%, #6c63ff));
+  color:#ffffff;
+}
+
+body.pure-white-theme .settings-device-note,
+body.pure-white-theme .settings-toggle{
+  border-color:rgba(31,31,51,0.14);
+  background:rgba(255,255,255,0.5);
+}
 .settings-section-title{
   margin:22px 0 12px;
   padding-top:16px;

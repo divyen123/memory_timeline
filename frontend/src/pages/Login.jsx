@@ -90,6 +90,11 @@ const [showDescriptionCursor,setShowDescriptionCursor] = useState(true);
 const backgroundPreference = useRef(loadBackgroundPreference()).current;
 const backgroundStyle = getBackgroundStyle(backgroundPreference);
 const isLightBackground = getBackgroundLuminance(backgroundPreference) > 0.54;
+const isPureWhiteBackground = backgroundPreference.type === "color"
+  ? normalizeHexColor(backgroundPreference.value) === "ffffff"
+  : backgroundPreference.type !== "image" && [backgroundPreference.start, backgroundPreference.middle, backgroundPreference.end]
+    .filter(Boolean)
+    .every((color)=>normalizeHexColor(color) === "ffffff");
 const introCompletedRef = useRef(false);
 const onboardingRequiredRef = useRef(false);
 const loginStartedRef = useRef(false);
@@ -315,7 +320,7 @@ useEffect(() => {
 return(
 
 <div
-  className={`login-page split-login-page ${isLightBackground ? "login-contrast-light" : "login-contrast-dark"}`}
+  className={`login-page split-login-page ${isLightBackground ? "login-contrast-light" : "login-contrast-dark"} ${isPureWhiteBackground ? "login-pure-white" : ""}`}
   style={backgroundStyle}
 >
 

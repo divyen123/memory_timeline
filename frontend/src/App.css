@@ -38,6 +38,10 @@
   --toolbar-radius:16px;
 }
 
+html{
+  background:#020617;
+}
+
 html,body{
   min-height:100vh;
   overflow-x:hidden;
@@ -46,21 +50,21 @@ html,body{
   font-weight:var(--app-font-weight);
   font-style:var(--app-font-style);
   scrollbar-width:thin;
-  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 72%, white) rgba(255,255,255,0.1);
+  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 72%, white) transparent;
 }
 
 *{
   scrollbar-width:thin;
-  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 72%, white) rgba(255,255,255,0.1);
+  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 72%, white) transparent;
 }
 
 *::-webkit-scrollbar{
-  width:12px;
-  height:12px;
+  width:10px;
+  height:10px;
 }
 
 *::-webkit-scrollbar-track{
-  background:rgba(255,255,255,0.08);
+  background:transparent;
   border-radius:999px;
 }
 
@@ -95,15 +99,15 @@ body.light{
   --container-solid-bg:color-mix(in srgb, var(--light-gradient-middle) 18%, rgba(255,255,255,0.82));
   --container-solid-border:color-mix(in srgb, var(--light-gradient-middle) 28%, rgba(255,255,255,0.52));
   --container-text-color:#1f1f33;
-  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 70%, #1a1a2e) rgba(26,26,46,0.1);
+  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 70%, #1a1a2e) transparent;
 }
 
 body.light *{
-  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 70%, #1a1a2e) rgba(26,26,46,0.1);
+  scrollbar-color:color-mix(in srgb, var(--button-bg-color) 70%, #1a1a2e) transparent;
 }
 
 body.light *::-webkit-scrollbar-track{
-  background:rgba(26,26,46,0.1);
+  background:transparent;
 }
 
 body.dark{

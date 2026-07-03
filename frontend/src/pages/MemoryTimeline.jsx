@@ -35,6 +35,9 @@ const MEMORY_BATCH_SIZE_BY_CARD_SIZE = {
 };
 const SETTINGS_TIP_PENDING_KEY = "memory-settings-tip-pending";
 const SETTINGS_TIP_DISMISSED_KEY = "memory-settings-tip-dismissed";
+const PREVIEW_IMAGE_MIN_ZOOM = 1;
+const PREVIEW_IMAGE_MAX_ZOOM = 2.25;
+const PREVIEW_IMAGE_ZOOM_STEP = 0.25;
 
 const getMemoryImageList = (memory) => (
   memory?.images?.length ? memory.images : (memory?.image ? [memory.image] : [])
@@ -140,7 +143,8 @@ function MemoryTimeline() {
   const [previewImageDetails, setPreviewImageDetails] = useState({});
   const [showPreviewImageDetails, setShowPreviewImageDetails] = useState(false);
   const [showPreviewImageViewer, setShowPreviewImageViewer] = useState(false);
-  const [isPreviewImageZoomed, setIsPreviewImageZoomed] = useState(false);
+  const [previewImageZoom, setPreviewImageZoom] = useState(PREVIEW_IMAGE_MIN_ZOOM);
+  const [previewImagePan, setPreviewImagePan] = useState({x:0, y:0});
   const [disablePreviewSharedLayout, setDisablePreviewSharedLayout] = useState(false);
   const [exportPanel, setExportPanel] = useState(null);
   const [selectedMemoryIds, setSelectedMemoryIds] = useState([]);
@@ -174,6 +178,7 @@ function MemoryTimeline() {
   const filterMenuRef = useRef(null);
   const previewHistoryGuardRef = useRef(false);
   const previewDragRef = useRef(null);
+  const previewPanRef = useRef(null);
   const previewHeadingRef = useRef(null);
   const previewReturnFocusRef = useRef(null);
   const memoriesRef = useRef([]);
@@ -184,6 +189,7 @@ function MemoryTimeline() {
   const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
   const memoryBatchSize = MEMORY_BATCH_SIZE_BY_CARD_SIZE[settings.cardSize] || MEMORY_BATCH_SIZE_BY_CARD_SIZE.medium;
   const shouldVirtualizeTimeline = viewMode === "timeline" && memories.length > (isMobileTimeline ? 12 : 30);
+  const isPreviewImageZoomed = previewImageZoom > PREVIEW_IMAGE_MIN_ZOOM;
 
   const loadMemories = useCallback(async (nextPage = 1, replace = false) => {
     setLoading(true);
@@ -918,7 +924,7 @@ function MemoryTimeline() {
   };
 
   const handlePreviewDragStart = (event) => {
-    if(previewImages.length < 2){
+    if(isPreviewImageZoomed || previewImages.length < 2){
       return;
     }
 
@@ -929,7 +935,7 @@ function MemoryTimeline() {
   };
 
   const handlePreviewDragEnd = (event) => {
-    if(!previewDragRef.current || previewImages.length < 2){
+    if(isPreviewImageZoomed || !previewDragRef.current || previewImages.length < 2){
       previewDragRef.current = null;
       return;
     }
@@ -948,6 +954,58 @@ function MemoryTimeline() {
     else{
       showNextPreviewImage();
     }
+  };
+
+  const zoomPreviewImageIn = () => {
+    setPreviewImageZoom((current)=>Math.min(
+      PREVIEW_IMAGE_MAX_ZOOM,
+      Number((current + PREVIEW_IMAGE_ZOOM_STEP).toFixed(2))
+    ));
+  };
+
+  const zoomPreviewImageOut = () => {
+    setPreviewImageZoom((current)=>Math.max(
+      PREVIEW_IMAGE_MIN_ZOOM,
+      Number((current - PREVIEW_IMAGE_ZOOM_STEP).toFixed(2))
+    ));
+  };
+
+  const handlePreviewImagePanStart = (event) => {
+    if(!isPreviewImageZoomed){
+      return;
+    }
+
+    event.stopPropagation();
+    previewPanRef.current = {
+      pointerId:event.pointerId,
+      x:event.clientX,
+      y:event.clientY,
+      startX:previewImagePan.x,
+      startY:previewImagePan.y
+    };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
+  const handlePreviewImagePanMove = (event) => {
+    if(!previewPanRef.current || previewPanRef.current.pointerId !== event.pointerId){
+      return;
+    }
+
+    event.stopPropagation();
+    setPreviewImagePan({
+      x:previewPanRef.current.startX + event.clientX - previewPanRef.current.x,
+      y:previewPanRef.current.startY + event.clientY - previewPanRef.current.y
+    });
+  };
+
+  const handlePreviewImagePanEnd = (event) => {
+    if(!previewPanRef.current || previewPanRef.current.pointerId !== event.pointerId){
+      return;
+    }
+
+    event.stopPropagation();
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    previewPanRef.current = null;
   };
 
   const openPreviewMemory = (memory, sourceNode = null) => {
@@ -1050,8 +1108,17 @@ function MemoryTimeline() {
   }, [previewMemory]);
 
   useEffect(() => {
-    setIsPreviewImageZoomed(false);
+    setPreviewImageZoom(PREVIEW_IMAGE_MIN_ZOOM);
+    setPreviewImagePan({x:0, y:0});
+    previewPanRef.current = null;
   }, [showPreviewImageViewer, previewMemory?._id, previewImageIndex]);
+
+  useEffect(() => {
+    if(!isPreviewImageZoomed){
+      setPreviewImagePan({x:0, y:0});
+      previewPanRef.current = null;
+    }
+  }, [isPreviewImageZoomed]);
 
   useEffect(() => {
     if(!showPreviewImageViewer){
@@ -1072,13 +1139,18 @@ function MemoryTimeline() {
       }
 
       if(event.key.toLowerCase() === "z"){
-        setIsPreviewImageZoomed((current)=>!current);
+        if(isPreviewImageZoomed){
+          setPreviewImageZoom(PREVIEW_IMAGE_MIN_ZOOM);
+        }
+        else{
+          setPreviewImageZoom(PREVIEW_IMAGE_MIN_ZOOM + (PREVIEW_IMAGE_ZOOM_STEP * 2));
+        }
       }
     };
 
     window.addEventListener("keydown", handleViewerKeyDown);
     return () => window.removeEventListener("keydown", handleViewerKeyDown);
-  }, [hasMultiplePreviewImages, showPreviewImageViewer]);
+  }, [hasMultiplePreviewImages, isPreviewImageZoomed, showPreviewImageViewer]);
 
   useEffect(() => {
     if(!previewMemory){
@@ -2219,28 +2291,44 @@ function MemoryTimeline() {
                 </>
               )}
 
-              <button
-                type="button"
-                className={`preview-image-zoom-btn ${isPreviewImageZoomed ? "zoomed" : ""}`}
-                title={isPreviewImageZoomed ? "Zoom out" : "Zoom in"}
-                aria-label={isPreviewImageZoomed ? "Zoom out" : "Zoom in"}
-                aria-pressed={isPreviewImageZoomed}
-                onClick={(event)=>{
-                  event.stopPropagation();
-                  setIsPreviewImageZoomed((current)=>!current);
-                }}
-              >
-                <span className="preview-zoom-lens" aria-hidden="true">
-                  <span className="preview-zoom-mark">{isPreviewImageZoomed ? "-" : "+"}</span>
-                </span>
-              </button>
+              <div className="preview-image-zoom-controls" onClick={(event)=>event.stopPropagation()}>
+                <button
+                  type="button"
+                  className="preview-image-zoom-btn"
+                  title="Zoom in"
+                  aria-label="Zoom in"
+                  onClick={zoomPreviewImageIn}
+                  disabled={previewImageZoom >= PREVIEW_IMAGE_MAX_ZOOM}
+                >
+                  <span className="preview-zoom-lens" aria-hidden="true">
+                    <span className="preview-zoom-mark">+</span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="preview-image-zoom-btn"
+                  title="Zoom out"
+                  aria-label="Zoom out"
+                  onClick={zoomPreviewImageOut}
+                  disabled={previewImageZoom <= PREVIEW_IMAGE_MIN_ZOOM}
+                >
+                  <span className="preview-zoom-lens" aria-hidden="true">
+                    <span className="preview-zoom-mark">-</span>
+                  </span>
+                </button>
+              </div>
 
               <SmartImage
                 key={`${currentPreviewImage}-viewer-${previewImageIndex}`}
                 src={getMemoryImageUrl(previewMemory, "images", previewImageIndex)}
                 alt={previewMemory.title}
+                style={{transform:`translate3d(${previewImagePan.x}px, ${previewImagePan.y}px, 0) scale(${previewImageZoom})`}}
                 draggable={false}
                 detectFaces={false}
+                onPointerDown={handlePreviewImagePanStart}
+                onPointerMove={handlePreviewImagePanMove}
+                onPointerUp={handlePreviewImagePanEnd}
+                onPointerCancel={handlePreviewImagePanEnd}
                 onClick={(event)=>event.stopPropagation()}
               />
             </div>

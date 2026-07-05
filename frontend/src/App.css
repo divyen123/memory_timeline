@@ -5755,25 +5755,27 @@ body.button-glass-on .about-modal-close{
 
 .profile-avatar-action{
   position:absolute;
-  right:-8px;
-  bottom:-8px;
-  width:34px;
-  height:34px;
-  display:grid;
-  place-items:center;
+  right:-5px;
+  bottom:-5px;
+  width:26px;
+  height:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
   border-radius:999px;
   border:1px solid rgba(255,255,255,0.46);
   background:linear-gradient(145deg,rgba(255,255,255,0.38),rgba(255,255,255,0.16));
   color:white;
-  box-shadow:0 10px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.35);
+  box-shadow:0 8px 18px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.35);
   backdrop-filter:blur(12px);
   cursor:pointer;
   transition:transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
 .profile-avatar-action svg{
-  width:18px;
-  height:18px;
+  width:13px;
+  height:13px;
   fill:currentColor;
 }
 
@@ -5798,7 +5800,7 @@ body.light .profile-avatar-action{
   border-color:rgba(31,31,51,0.16);
   background:linear-gradient(145deg,rgba(255,255,255,0.94),rgba(255,255,255,0.68));
   color:#25253a;
-  box-shadow:0 10px 24px rgba(31,31,51,0.18), inset 0 1px 0 rgba(255,255,255,0.8);
+  box-shadow:0 8px 18px rgba(31,31,51,0.16), inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 body.light .profile-avatar-action.delete{
@@ -13658,4 +13660,3 @@ body.pure-white-theme .timeline-action-btn[title="Settings"]::before{
     text-align:center;
   }
 }
-

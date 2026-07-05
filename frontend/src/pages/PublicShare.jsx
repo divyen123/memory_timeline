@@ -53,13 +53,22 @@ function PublicShare() {
 
   const memories = share.type === "memory" ? [share.memory] : share.memories;
   const isAlbum = share.type === "category";
+  const owner = share.owner || {};
+  const ownerName = owner.name || "Memory keeper";
+  const ownerInitial = ownerName.charAt(0).toUpperCase();
 
   return (
     <main className={`public-share-page ${isAlbum ? "public-share-album" : "public-share-single"}`}>
       <header className="public-share-header">
-        <div className="public-share-brand">
-          <span className="public-share-mark">MT</span>
-          <span>Memory Timeline</span>
+        <div className="public-share-brand public-share-owner">
+          <span className="public-share-mark public-share-owner-photo">
+            {owner.profilePhoto ? (
+              <img src={owner.profilePhoto} alt={`${ownerName} profile`} />
+            ) : (
+              ownerInitial
+            )}
+          </span>
+          <span>{ownerName}</span>
         </div>
         <p>{isAlbum ? "A collection of moments shared with you" : "A special moment shared with you"}</p>
         <h1>{isAlbum ? `${share.category} Memories` : "Shared Memory"}</h1>

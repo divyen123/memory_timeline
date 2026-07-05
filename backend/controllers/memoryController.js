@@ -1129,6 +1129,14 @@ exports.revokeCategoryShare = async (req,res)=>{
   }
 };
 
+const getShareOwner = async (userId) => {
+  const user = await User.findById(userId).select("name profilePhoto").lean();
+
+  return {
+    name:user?.name || "Memory keeper",
+    profilePhoto:user?.profilePhoto || ""
+  };
+};
 exports.getPublicShare = async (req,res)=>{
   try{
     const memory = await Memory.findOne({
@@ -1141,6 +1149,7 @@ exports.getPublicShare = async (req,res)=>{
     if(memory){
       return res.json({
         type:"memory",
+        owner:await getShareOwner(memory.userId),
         memory:await withSignedImages(memory)
       });
     }
@@ -1163,6 +1172,7 @@ exports.getPublicShare = async (req,res)=>{
 
     res.json({
       type:"category",
+      owner:await getShareOwner(share.userId),
       category:share.category,
       memories:await Promise.all(memories.map(withSignedImages))
     });

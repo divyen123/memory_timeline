@@ -6863,7 +6863,28 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
   box-shadow:0 12px 28px rgba(0,0,0,0.28);
 }
 
-.public-share-header > p{
+
+.public-share-owner{
+  text-transform:none;
+  letter-spacing:0;
+  font-size:18px;
+  font-weight:800;
+}
+
+.public-share-owner-photo{
+  overflow:hidden;
+  border-radius:50%;
+  font-size:17px;
+  letter-spacing:0;
+}
+
+.public-share-owner-photo img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+  .public-share-header > p{
   margin:24px 0 8px;
   color:rgba(255,255,255,0.66);
   font-size:15px;
@@ -7049,6 +7070,16 @@ body:not(.button-glass-on) .preview-actions .preview-image-info-btn:hover{
 @media (max-width:520px){
   .public-share-page{
     padding:24px 16px 36px;
+  }
+
+  .public-share-owner{
+    font-size:16px;
+  }
+
+  .public-share-owner-photo{
+    width:38px;
+    height:38px;
+    font-size:15px;
   }
 
   .public-share-header > p{
@@ -8977,6 +9008,23 @@ body.light .days-counter{
     height:76px;
     border-radius:21px;
     font-size:34px;
+  }
+
+  .profile-avatar-action{
+    right:-4px;
+    bottom:-4px;
+    width:24px;
+    min-width:24px;
+    height:24px;
+    min-height:24px;
+    aspect-ratio:1;
+    border-radius:50%;
+    padding:0;
+  }
+
+  .profile-avatar-action svg{
+    width:11px;
+    height:11px;
   }
   .profile-eyebrow{
     margin-bottom:4px;

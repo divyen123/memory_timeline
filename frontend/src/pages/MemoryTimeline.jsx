@@ -9,6 +9,7 @@ import SmartImage from "../components/SmartImage";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
 import { playAppSound } from "../sound";
+import { maybeShowReminderNotification, requestReminderNotificationPermission } from "../reminderNotifications";
 import { shareUrl } from "../share";
 import {
   memorySharedLayoutTransition,
@@ -1416,6 +1417,21 @@ function MemoryTimeline() {
 
     setActiveReminder(reminder || null);
   }, [memories, reminderActionVersion, settings.reminderLeadDays]);
+  useEffect(() => {
+    const refreshReminderState = () => {
+      setReminderActionVersion(version => version + 1);
+    };
+    const intervalId = window.setInterval(refreshReminderState, 15 * 60 * 1000);
+
+    window.addEventListener("focus", refreshReminderState);
+    document.addEventListener("visibilitychange", refreshReminderState);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", refreshReminderState);
+      document.removeEventListener("visibilitychange", refreshReminderState);
+    };
+  }, []);
 
   const dismissReminderToday = () => {
     if(!activeReminder){
@@ -1453,6 +1469,28 @@ function MemoryTimeline() {
     lastSoundReminderRef.current = reminderKey;
     playAppSound("reminder");
   }, [activeReminder]);
+  useEffect(() => {
+    if(!activeReminder){
+      return;
+    }
+
+    const showNotification = () => {
+      maybeShowReminderNotification(activeReminder, {
+        reminderKey:getReminderKey(activeReminder),
+        leadDays:settings.reminderLeadDays,
+        onClick:()=>openPreviewMemory(activeReminder)
+      });
+    };
+
+    showNotification();
+    window.addEventListener("blur", showNotification);
+    document.addEventListener("visibilitychange", showNotification);
+
+    return () => {
+      window.removeEventListener("blur", showNotification);
+      document.removeEventListener("visibilitychange", showNotification);
+    };
+  }, [activeReminder, settings.reminderLeadDays]);
 
   return (
 
@@ -1474,6 +1512,7 @@ function MemoryTimeline() {
             className="reminder-icon-btn"
             aria-label="Show reminders"
             onClick={()=>{
+              void requestReminderNotificationPermission();
               setShowReminderPanel(!showReminderPanel);
               setReminderPage(0);
             }}

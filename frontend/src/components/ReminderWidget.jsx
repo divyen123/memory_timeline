@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { getMemories } from "../services/api";
 import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
 import { playAppSound } from "../sound";
+import { maybeShowReminderNotification, requestReminderNotificationPermission } from "../reminderNotifications";
 import { AUTH_UPDATED_EVENT, getAuthenticatedUserId } from "../auth";
 
 function ReminderWidget(){
@@ -55,6 +56,21 @@ function ReminderWidget(){
       window.removeEventListener(SETTINGS_PREVIEW_EVENT, handleSettingsUpdated);
       window.removeEventListener("storage", handleSettingsUpdated);
       window.removeEventListener(AUTH_UPDATED_EVENT, handleAuthUpdated);
+    };
+  }, []);
+  useEffect(() => {
+    const refreshReminderState = () => {
+      setReminderActionVersion(version => version + 1);
+    };
+    const intervalId = window.setInterval(refreshReminderState, 15 * 60 * 1000);
+
+    window.addEventListener("focus", refreshReminderState);
+    document.addEventListener("visibilitychange", refreshReminderState);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", refreshReminderState);
+      document.removeEventListener("visibilitychange", refreshReminderState);
     };
   }, []);
 
@@ -195,6 +211,30 @@ function ReminderWidget(){
     lastSoundReminderRef.current = reminderKey;
     playAppSound("reminder");
   }, [activeReminder]);
+  useEffect(() => {
+    if(!activeReminder){
+      return;
+    }
+
+    const showNotification = () => {
+      maybeShowReminderNotification(activeReminder, {
+        reminderKey:getReminderKey(activeReminder),
+        leadDays:settings.reminderLeadDays,
+        onClick:()=>{
+          window.location.assign("/timeline");
+        }
+      });
+    };
+
+    showNotification();
+    window.addEventListener("blur", showNotification);
+    document.addEventListener("visibilitychange", showNotification);
+
+    return () => {
+      window.removeEventListener("blur", showNotification);
+      document.removeEventListener("visibilitychange", showNotification);
+    };
+  }, [activeReminder, settings.reminderLeadDays]);
 
   return (
     <>
@@ -204,6 +244,7 @@ function ReminderWidget(){
           className="reminder-icon-btn"
           aria-label="Show reminders"
           onClick={()=>{
+            void requestReminderNotificationPermission();
             setShowReminderPanel(!showReminderPanel);
             setReminderPage(0);
           }}

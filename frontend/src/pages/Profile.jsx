@@ -38,6 +38,67 @@ const PROFILE_CATEGORY_COLORS = [
   "var(--profile-chart-color-6)",
   "var(--profile-chart-color-7)"
 ];
+const PROFILE_PHOTO_MAX_SOURCE_SIZE = 8 * 1024 * 1024;
+const PROFILE_PHOTO_SIZE = 360;
+const PROFILE_PHOTO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+function PencilIcon(){
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 20h4.6L19.8 8.8a2.1 2.1 0 0 0 0-3L18.2 4.2a2.1 2.1 0 0 0-3 0L4 15.4V20Zm3-3v-1.4l8.9-8.9 1.4 1.4L8.4 17H7Z" />
+    </svg>
+  );
+}
+
+function TrashIcon(){
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M7 21c-.6 0-1.1-.2-1.5-.6S5 19.5 5 19V8H4V6h5V4h6v2h5v2h-1v11c0 .6-.2 1.1-.6 1.5S17.5 21 17 21H7Zm2-4h2V10H9v7Zm4 0h2V10h-2v7Z" />
+    </svg>
+  );
+}
+
+const loadImageFromFile = (file) => new Promise((resolve, reject) => {
+  const image = new Image();
+  const objectUrl = URL.createObjectURL(file);
+
+  image.onload = () => {
+    URL.revokeObjectURL(objectUrl);
+    resolve(image);
+  };
+  image.onerror = () => {
+    URL.revokeObjectURL(objectUrl);
+    reject(new Error("Unable to read profile photo"));
+  };
+  image.src = objectUrl;
+});
+
+const compressProfilePhoto = async(file) => {
+  if(!PROFILE_PHOTO_TYPES.has(file.type)){
+    throw new Error("Choose a JPG, PNG, or WebP image");
+  }
+
+  if(file.size > PROFILE_PHOTO_MAX_SOURCE_SIZE){
+    throw new Error("Profile photo must be under 8 MB");
+  }
+
+  const image = await loadImageFromFile(file);
+  const canvas = document.createElement("canvas");
+  const imageWidth = image.naturalWidth || image.width;
+  const imageHeight = image.naturalHeight || image.height;
+  const size = Math.min(imageWidth, imageHeight);
+  const sourceX = (imageWidth - size) / 2;
+  const sourceY = (imageHeight - size) / 2;
+  const context = canvas.getContext("2d");
+
+  canvas.width = PROFILE_PHOTO_SIZE;
+  canvas.height = PROFILE_PHOTO_SIZE;
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, PROFILE_PHOTO_SIZE, PROFILE_PHOTO_SIZE);
+  context.drawImage(image, sourceX, sourceY, size, size, 0, 0, PROFILE_PHOTO_SIZE, PROFILE_PHOTO_SIZE);
+
+  return canvas.toDataURL("image/jpeg", 0.84);
+};
 
 const getCategoryChartGradient = (items) => {
   if(!items.length){
@@ -174,6 +235,8 @@ function Profile() {
   const [name,setName] = useState("");
   const [age,setAge] = useState("");
   const [email,setEmail] = useState("");
+  const [profilePhoto,setProfilePhoto] = useState("");
+  const [isAvatarBusy,setIsAvatarBusy] = useState(false);
   const [memoryCount,setMemoryCount] = useState(0);
   const [favoriteCount,setFavoriteCount] = useState(0);
   const [categoryBreakdown,setCategoryBreakdown] = useState([]);
@@ -198,6 +261,7 @@ function Profile() {
     ()=>collapseDesktopBackgroundColors(loadSettings(deviceProfile), deviceProfile)
   );
   const backupFileRef = useRef(null);
+  const profilePhotoInputRef = useRef(null);
 
   useAutoDismissMessage(message, setMessage);
 
@@ -207,6 +271,7 @@ function Profile() {
       setName(res.data.name || "");
       setAge(res.data.age ?? "");
       setEmail(res.data.email);
+      setProfilePhoto(res.data.profilePhoto || "");
       setMemoryCount(res.data.memoryCount);
       setFavoriteCount(res.data.favoriteCount);
     };
@@ -299,6 +364,57 @@ function Profile() {
     }
   };
 
+  const saveProfilePhoto = async (nextProfilePhoto, successMessage) => {
+    setIsAvatarBusy(true);
+
+    try{
+      const res = await updateProfile({
+        name:name.trim(),
+        age,
+        email,
+        profilePhoto:nextProfilePhoto
+      });
+      setName(Object.hasOwn(res.data, "name") ? res.data.name : name.trim());
+      setAge(Object.hasOwn(res.data, "age") ? res.data.age ?? "" : age);
+      setEmail(res.data.email || email);
+      setProfilePhoto(res.data.profilePhoto || "");
+      setMessage(successMessage);
+    }catch(err){
+      setMessage(err.response?.data?.message || "Profile photo update failed");
+    }finally{
+      setIsAvatarBusy(false);
+    }
+  };
+
+  const handleProfilePhotoSelect = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if(!file){
+      return;
+    }
+
+    try{
+      setMessage("Preparing profile photo...");
+      const nextProfilePhoto = await compressProfilePhoto(file);
+      await saveProfilePhoto(nextProfilePhoto, "Profile photo updated");
+    }catch(err){
+      setMessage(err.message || "Profile photo update failed");
+    }
+  };
+
+  const handleProfilePhotoAction = () => {
+    if(isAvatarBusy){
+      return;
+    }
+
+    if(profilePhoto){
+      saveProfilePhoto("", "Profile photo removed");
+      return;
+    }
+
+    profilePhotoInputRef.current?.click();
+  };
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
 
@@ -654,8 +770,31 @@ function Profile() {
 
         <section className="profile-summary-card">
           <div className="profile-summary-main">
-            <div className="profile-avatar" aria-hidden="true">
-              {(name || email || "U").charAt(0).toUpperCase()}
+            <div className={`profile-avatar-shell ${profilePhoto ? "has-photo" : ""}`}>
+              <input
+                ref={profilePhotoInputRef}
+                className="profile-avatar-input"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleProfilePhotoSelect}
+              />
+              <div className="profile-avatar" aria-label="Profile photo">
+                {profilePhoto ? (
+                  <img className="profile-avatar-photo" src={profilePhoto} alt={`${name || "User"} profile`} />
+                ) : (
+                  <span>{(name || email || "U").charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <button
+                type="button"
+                className={`profile-avatar-action ${profilePhoto ? "delete" : "edit"}`}
+                onClick={handleProfilePhotoAction}
+                disabled={isAvatarBusy}
+                aria-label={profilePhoto ? "Remove profile photo" : "Upload profile photo"}
+                title={profilePhoto ? "Remove profile photo" : "Upload profile photo"}
+              >
+                {profilePhoto ? <TrashIcon /> : <PencilIcon />}
+              </button>
             </div>
 
             <div className="profile-summary-content">

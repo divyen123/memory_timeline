@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
     required:true
   },
 
+  profilePhoto:{
+    type:String,
+    default:""
+  },
+
   onboardingCompleted:{
     type:Boolean,
     default:true

@@ -50,6 +50,22 @@ const getAllowedOrigins = () => (
 );
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
+const MAX_PROFILE_PHOTO_LENGTH = 400000;
+const PROFILE_PHOTO_PATTERN = /^data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/=]+$/i;
+
+const sanitizeProfilePhoto = (photo) => {
+  if(photo === "" || photo === null || photo === undefined){
+    return "";
+  }
+
+  if(typeof photo !== "string" || photo.length > MAX_PROFILE_PHOTO_LENGTH || !PROFILE_PHOTO_PATTERN.test(photo)){
+    const error = new Error("Profile photo must be a JPG, PNG, or WebP image under 300 KB");
+    error.status = 400;
+    throw error;
+  }
+
+  return photo;
+};
 const SETTINGS_PROFILE_KEYS = new Set(["mobile", "desktop"]);
 const HIDE_PIN_SETTINGS_KEYS = ["hidePasswordEnabled", "hidePasswordType", "hidePasswordValue"];
 const SETTINGS_KEYS = new Set([
@@ -462,6 +478,7 @@ app.get("/api/profile", authMiddleware, async(req,res)=>{
       name:user.name || "",
       age:user.age ?? "",
       email:user.email,
+      profilePhoto:user.profilePhoto || "",
       memoryCount,
       favoriteCount
     });
@@ -502,23 +519,34 @@ app.put("/api/profile", authMiddleware, async(req,res)=>{
       return res.status(400).json({message:"Email already registered"});
     }
 
+    const updateFields = {
+      name:name?.trim() || "",
+      age:parsedAge,
+      email:normalizedEmail
+    };
+
+    if(Object.prototype.hasOwnProperty.call(req.body, "profilePhoto")){
+      updateFields.profilePhoto = sanitizeProfilePhoto(req.body.profilePhoto);
+    }
+
     const user = await User.findByIdAndUpdate(
       req.user.userId,
-      {
-        name:name?.trim() || "",
-        age:parsedAge,
-        email:normalizedEmail
-      },
+      updateFields,
       {new:true}
     ).select("-password");
 
     res.json({
       name:user.name || "",
       age:user.age ?? "",
-      email:user.email
+      email:user.email,
+      profilePhoto:user.profilePhoto || ""
     });
 
   }catch(err){
+
+    if(err.status){
+      return res.status(err.status).json({message:err.message});
+    }
 
     res.status(500).json({error:"Profile update failed"});
 

@@ -1,7 +1,7 @@
 import React,{Suspense,useCallback,useEffect,useRef,useState} from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { completeOnboarding, getSession, loginUser, refreshSession, registerUser } from "../services/api";
+import { completeOnboarding, getSession, loginUser, refreshSession, registerUser, updateProfile } from "../services/api";
 import OnboardingTour from "../components/OnboardingTour";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { setAuthenticatedUser } from "../auth";
@@ -69,6 +69,53 @@ const getBackgroundLuminance = (preference) => {
   return colors.reduce((total, color)=>total + getHexLuminance(color), 0) / colors.length;
 };
 
+const FIRST_PROFILE_PHOTO_MAX_SOURCE_SIZE = 8 * 1024 * 1024;
+const FIRST_PROFILE_PHOTO_SIZE = 360;
+const FIRST_PROFILE_PHOTO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+const loadFirstProfileImage = (file) => new Promise((resolve, reject) => {
+  const image = new Image();
+  const objectUrl = URL.createObjectURL(file);
+
+  image.onload = () => {
+    URL.revokeObjectURL(objectUrl);
+    resolve(image);
+  };
+
+  image.onerror = () => {
+    URL.revokeObjectURL(objectUrl);
+    reject(new Error("Unable to read profile photo"));
+  };
+
+  image.src = objectUrl;
+});
+
+const compressFirstProfilePhoto = async(file) => {
+  if(!FIRST_PROFILE_PHOTO_TYPES.has(file.type)){
+    throw new Error("Choose a JPG, PNG, or WebP image");
+  }
+
+  if(file.size > FIRST_PROFILE_PHOTO_MAX_SOURCE_SIZE){
+    throw new Error("Profile photo must be under 8 MB");
+  }
+
+  const image = await loadFirstProfileImage(file);
+  const imageWidth = image.naturalWidth || image.width;
+  const imageHeight = image.naturalHeight || image.height;
+  const cropSize = Math.min(imageWidth, imageHeight);
+  const sourceX = (imageWidth - cropSize) / 2;
+  const sourceY = (imageHeight - cropSize) / 2;
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  canvas.width = FIRST_PROFILE_PHOTO_SIZE;
+  canvas.height = FIRST_PROFILE_PHOTO_SIZE;
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, FIRST_PROFILE_PHOTO_SIZE, FIRST_PROFILE_PHOTO_SIZE);
+  context.drawImage(image, sourceX, sourceY, cropSize, cropSize, 0, 0, FIRST_PROFILE_PHOTO_SIZE, FIRST_PROFILE_PHOTO_SIZE);
+
+  return canvas.toDataURL("image/jpeg", 0.84);
+};
 function Login(){
 
 const [email,setEmail] = useState("");
@@ -88,6 +135,16 @@ const [loginStatus,setLoginStatus] = useState("idle");
 const [typedDescription,setTypedDescription] = useState("");
 const [showDescriptionCursor,setShowDescriptionCursor] = useState(true);
 const [sessionStatus,setSessionStatus] = useState("checking");
+const [showFirstProfileSetup,setShowFirstProfileSetup] = useState(false);
+const [showFirstWelcome,setShowFirstWelcome] = useState(false);
+const [setupName,setSetupName] = useState("");
+const [setupAge,setSetupAge] = useState("");
+const [setupProfilePhoto,setSetupProfilePhoto] = useState("");
+const [setupMessage,setSetupMessage] = useState("");
+const [setupStatus,setSetupStatus] = useState("idle");
+const [welcomeText,setWelcomeText] = useState("");
+const [welcomeComplete,setWelcomeComplete] = useState(false);
+const [welcomeStatus,setWelcomeStatus] = useState("idle");
 const backgroundPreference = useRef(loadBackgroundPreference()).current;
 const backgroundStyle = getBackgroundStyle(backgroundPreference);
 const isLightBackground = getBackgroundLuminance(backgroundPreference) > 0.54;
@@ -100,6 +157,8 @@ const introCompletedRef = useRef(false);
 const onboardingRequiredRef = useRef(false);
 const loginStartedRef = useRef(false);
 const refreshAbortRef = useRef(null);
+const firstProfileNameRef = useRef("");
+const setupPhotoInputRef = useRef(null);
 
 const navigate = useNavigate();
 
@@ -315,14 +374,124 @@ const showLoginForm = () => {
   setAuthMode("login");
 };
 
-const handleOnboardingComplete = async () => {
-  await completeOnboarding();
-  onboardingRequiredRef.current = false;
-  setShowOnboarding(false);
-  localStorage.setItem("memory-settings-tip-pending", "true");
-  navigate("/timeline", {replace:true, state:{showSettingsTip:true}});
+const handleFirstProfilePhotoSelect = async(event) => {
+  const file = event.target.files?.[0];
+
+  if(!file){
+    return;
+  }
+
+  setSetupMessage("");
+
+  try{
+    const nextProfilePhoto = await compressFirstProfilePhoto(file);
+    setSetupProfilePhoto(nextProfilePhoto);
+  }
+  catch(err){
+    setSetupMessage(err.message || "Could not prepare that photo");
+  }
+  finally{
+    event.target.value = "";
+  }
 };
 
+const handleFirstProfileSubmit = async(event) => {
+  event.preventDefault();
+
+  if(setupStatus === "loading"){
+    return;
+  }
+
+  const trimmedName = setupName.trim();
+  const parsedAge = Number(setupAge);
+
+  if(!trimmedName){
+    setSetupMessage("Enter your name to continue.");
+    return;
+  }
+
+  if(!setupAge || !Number.isInteger(parsedAge) || parsedAge < 1 || parsedAge > 120){
+    setSetupMessage("Enter a valid age to continue.");
+    return;
+  }
+
+  setSetupMessage("");
+  setSetupStatus("loading");
+
+  try{
+    const res = await updateProfile({
+      name:trimmedName,
+      age:parsedAge,
+      email:email.trim(),
+      profilePhoto:setupProfilePhoto
+    });
+
+    firstProfileNameRef.current = res.data?.name || trimmedName;
+    setSetupStatus("idle");
+    setShowFirstProfileSetup(false);
+    setShowFirstWelcome(true);
+  }
+  catch(err){
+    setSetupMessage(err.response?.data?.message || "Profile setup failed");
+    setSetupStatus("idle");
+  }
+};
+
+const handleFirstWelcomeDone = async() => {
+  if(welcomeStatus === "loading"){
+    return;
+  }
+
+  setWelcomeStatus("loading");
+
+  try{
+    await completeOnboarding();
+    onboardingRequiredRef.current = false;
+    setShowFirstWelcome(false);
+    localStorage.setItem("memory-settings-tip-pending", "true");
+    navigate("/timeline", {replace:true, state:{showSettingsTip:true}});
+  }
+  catch(err){
+    setSetupMessage(err.response?.data?.message || "Could not finish intro. Please try again.");
+    setWelcomeStatus("idle");
+  }
+};
+
+const handleOnboardingComplete = () => {
+  setShowOnboarding(false);
+  setSetupName("");
+  setSetupAge("");
+  setSetupProfilePhoto("");
+  setSetupMessage("");
+  setSetupStatus("idle");
+  setShowFirstProfileSetup(true);
+};
+
+useEffect(() => {
+  if(!showFirstWelcome){
+    return;
+  }
+
+  const profileName = firstProfileNameRef.current || setupName.trim() || "there";
+  const fullText = `Hii ${profileName}, your Memory Timeline is ready. Add special moments, attach photos, set reminders, mark favorites, hide private memories with your PIN, and share beautiful memories whenever you want.`;
+  let index = 0;
+
+  setWelcomeText("");
+  setWelcomeComplete(false);
+  setWelcomeStatus("idle");
+
+  const timer = window.setInterval(() => {
+    index += 1;
+    setWelcomeText(fullText.slice(0, index));
+
+    if(index >= fullText.length){
+      setWelcomeComplete(true);
+      window.clearInterval(timer);
+    }
+  }, 32);
+
+  return () => window.clearInterval(timer);
+}, [setupName, showFirstWelcome]);
 useEffect(() => {
   if(!showIntro){
     return;
@@ -356,6 +525,74 @@ return(
 
 {showOnboarding && (
   <OnboardingTour onComplete={handleOnboardingComplete} />
+)}
+
+{showFirstProfileSetup && (
+  <div className="first-profile-overlay" role="dialog" aria-modal="true" aria-labelledby="first-profile-title">
+    <form className="first-profile-card" onSubmit={handleFirstProfileSubmit}>
+      <p className="first-profile-kicker">One last touch</p>
+      <h2 id="first-profile-title">Set up your profile</h2>
+      <p className="first-profile-copy">This helps your timeline feel personal from the first moment.</p>
+
+      <div className="first-profile-avatar-picker">
+        <button
+          type="button"
+          className="first-profile-avatar"
+          onClick={()=>setupPhotoInputRef.current?.click()}
+          aria-label="Upload profile photo"
+        >
+          {setupProfilePhoto ? <img src={setupProfilePhoto} alt="Profile preview" /> : <span>{setupName.trim().charAt(0).toUpperCase() || "D"}</span>}
+        </button>
+        <button type="button" className="first-profile-photo-button" onClick={()=>setupPhotoInputRef.current?.click()}>
+          {setupProfilePhoto ? "Change photo" : "Upload photo"}
+        </button>
+        {setupProfilePhoto && (
+          <button type="button" className="first-profile-remove" onClick={()=>setSetupProfilePhoto("")}>Remove</button>
+        )}
+        <input
+          ref={setupPhotoInputRef}
+          className="visually-hidden"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleFirstProfilePhotoSelect}
+        />
+      </div>
+
+      <div className="first-profile-grid">
+        <label className="first-profile-field">
+          <span>Name</span>
+          <input value={setupName} onChange={(event)=>setSetupName(event.target.value)} placeholder="Your name" autoComplete="name" />
+        </label>
+        <label className="first-profile-field">
+          <span>Age</span>
+          <input value={setupAge} onChange={(event)=>setSetupAge(event.target.value)} placeholder="Your age" inputMode="numeric" />
+        </label>
+      </div>
+
+      {setupMessage && <p className="first-profile-message" role="alert">{setupMessage}</p>}
+
+      <button className="first-profile-primary" type="submit" disabled={setupStatus === "loading"}>
+        {setupStatus === "loading" ? "Saving..." : "Done"}
+      </button>
+    </form>
+  </div>
+)}
+
+{showFirstWelcome && (
+  <div className="first-profile-overlay" role="dialog" aria-modal="true" aria-labelledby="first-welcome-title">
+    <div className="first-profile-card first-welcome-card">
+      <p className="first-profile-kicker">Welcome in</p>
+      <h2 id="first-welcome-title">Your space is ready</h2>
+      <p className="first-welcome-text">
+        {welcomeText}
+        {!welcomeComplete && <span className="first-welcome-cursor" aria-hidden="true">|</span>}
+      </p>
+      {setupMessage && <p className="first-profile-message" role="alert">{setupMessage}</p>}
+      <button className="first-profile-primary" type="button" onClick={handleFirstWelcomeDone} disabled={welcomeStatus === "loading"}>
+        {welcomeStatus === "loading" ? "Opening..." : "Done"}
+      </button>
+    </div>
+  </div>
 )}
 
 <section className="login-brand-panel" aria-label="Memory Timeline introduction">
@@ -412,3 +649,4 @@ return(
 }
 
 export default Login;
+

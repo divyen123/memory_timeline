@@ -13129,6 +13129,24 @@ body :where(.hide-eye-emoji,.toggle-btn,.logout-btn,.memory-action-icon,.preview
   .login-actions{
     gap:10px;
   }
+
+  .split-login-page .login-toast{
+    position:static;
+    top:auto;
+    left:auto;
+    width:100%;
+    max-width:100%;
+    margin:0 0 14px;
+    box-sizing:border-box;
+    padding:10px 12px;
+    border-radius:12px;
+    text-align:center;
+    font-size:13px;
+    line-height:1.35;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    transform:none;
+  }
 }
 
 @media (max-width:380px){

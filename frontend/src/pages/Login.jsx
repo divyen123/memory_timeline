@@ -623,7 +623,7 @@ return(
     <div className="first-profile-card first-settings-tip-card">
       <p className="first-profile-kicker">Memory view</p>
       <h2 id="first-settings-tip-title">Make it yours</h2>
-      <p className="first-settings-tip-text">You can customize your own memory view here.</p>
+      <p className="first-settings-tip-text">You can customize your memory view by your choice from the Settings page.</p>
       {setupMessage && <p className="first-profile-message" role="alert">{setupMessage}</p>}
       <button className="first-profile-primary" type="button" onClick={handleFirstSettingsTipDone} disabled={settingsTipStatus === "loading"}>
         {settingsTipStatus === "loading" ? "Opening..." : "Open timeline"}

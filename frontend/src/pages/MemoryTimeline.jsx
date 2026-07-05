@@ -34,8 +34,6 @@ const MEMORY_BATCH_SIZE_BY_CARD_SIZE = {
   medium:8,
   large:6
 };
-const SETTINGS_TIP_PENDING_KEY = "memory-settings-tip-pending";
-const SETTINGS_TIP_DISMISSED_KEY = "memory-settings-tip-dismissed";
 const PREVIEW_IMAGE_MIN_ZOOM = 1;
 const PREVIEW_IMAGE_MAX_ZOOM = 2.25;
 const PREVIEW_IMAGE_ZOOM_STEP = 0.25;
@@ -155,10 +153,6 @@ function MemoryTimeline() {
   const [exportFavoritesOnly, setExportFavoritesOnly] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [settings, setSettings] = useState(()=>loadSettings());
-  const [showSettingsTip, setShowSettingsTip] = useState(()=>(
-    localStorage.getItem(SETTINGS_TIP_PENDING_KEY) === "true" &&
-    localStorage.getItem(SETTINGS_TIP_DISMISSED_KEY) !== "true"
-  ));
   const [isMobileTimeline, setIsMobileTimeline] = useState(()=>window.matchMedia("(max-width: 760px)").matches);
   const [virtualRange, setVirtualRange] = useState({
     start:0,
@@ -1049,8 +1043,6 @@ function MemoryTimeline() {
 
   useEffect(() => {
     const returnedPreview = location.state?.previewMemory;
-    const shouldShowSettingsTip = location.state?.showSettingsTip;
-
     if(returnedPreview){
       const returnedPreviewMediaKey = [
         returnedPreview.image,
@@ -1081,11 +1073,6 @@ function MemoryTimeline() {
       navigate(location.pathname, {replace:true, state:null});
     }
 
-    if(shouldShowSettingsTip && localStorage.getItem(SETTINGS_TIP_DISMISSED_KEY) !== "true"){
-      localStorage.setItem(SETTINGS_TIP_PENDING_KEY, "true");
-      setShowSettingsTip(true);
-      navigate(location.pathname, {replace:true, state:null});
-    }
   }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
@@ -1300,12 +1287,6 @@ function MemoryTimeline() {
       </button>
     );
   };
-  const dismissSettingsTip = () => {
-    localStorage.setItem(SETTINGS_TIP_DISMISSED_KEY, "true");
-    localStorage.removeItem(SETTINGS_TIP_PENDING_KEY);
-    setShowSettingsTip(false);
-  };
-
   const loadPreviewImageDetails = async () => {
     if(!previewMemory || !currentPreviewImage || !previewImageDetailsKey){
       return;
@@ -1747,19 +1728,6 @@ function MemoryTimeline() {
             👤
           </button>
           </div>
-
-          {showSettingsTip && (
-            <div className="settings-tip-bubble" role="status">
-              <span>You can customize your own memory view here.</span>
-              <button
-                type="button"
-                aria-label="Dismiss settings tip"
-                onClick={dismissSettingsTip}
-              >
-                &#10003;
-              </button>
-            </div>
-          )}
 
           {exportPanel === "menu" && (
             <div className="timeline-export-popover">

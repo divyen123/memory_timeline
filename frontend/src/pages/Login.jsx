@@ -146,6 +146,8 @@ const [setupStatus,setSetupStatus] = useState("idle");
 const [welcomeText,setWelcomeText] = useState("");
 const [welcomeComplete,setWelcomeComplete] = useState(false);
 const [welcomeStatus,setWelcomeStatus] = useState("idle");
+const [showFirstSettingsTip,setShowFirstSettingsTip] = useState(false);
+const [settingsTipStatus,setSettingsTipStatus] = useState("idle");
 const backgroundPreference = useRef(loadBackgroundPreference()).current;
 const backgroundStyle = getBackgroundStyle(backgroundPreference);
 const isLightBackground = getBackgroundLuminance(backgroundPreference) > 0.54;
@@ -453,18 +455,26 @@ const handleFirstWelcomeDone = async() => {
     return;
   }
 
-  setWelcomeStatus("loading");
+  setShowFirstWelcome(false);
+  setShowFirstSettingsTip(true);
+};
+
+const handleFirstSettingsTipDone = async() => {
+  if(settingsTipStatus === "loading"){
+    return;
+  }
+
+  setSettingsTipStatus("loading");
 
   try{
     await completeOnboarding();
     onboardingRequiredRef.current = false;
-    setShowFirstWelcome(false);
-    localStorage.setItem("memory-settings-tip-pending", "true");
-    navigate("/timeline", {replace:true, state:{showSettingsTip:true}});
+    setShowFirstSettingsTip(false);
+    navigate("/timeline", {replace:true});
   }
   catch(err){
     setSetupMessage(err.response?.data?.message || "Could not finish intro. Please try again.");
-    setWelcomeStatus("idle");
+    setSettingsTipStatus("idle");
   }
 };
 
@@ -475,6 +485,8 @@ const handleOnboardingComplete = () => {
   setSetupProfilePhoto("");
   setSetupMessage("");
   setSetupStatus("idle");
+  setShowFirstSettingsTip(false);
+  setSettingsTipStatus("idle");
   setShowFirstProfileSetup(true);
 };
 
@@ -600,7 +612,21 @@ return(
       </p>
       {setupMessage && <p className="first-profile-message" role="alert">{setupMessage}</p>}
       <button className="first-profile-primary" type="button" onClick={handleFirstWelcomeDone} disabled={welcomeStatus === "loading" || !welcomeComplete}>
-        {welcomeStatus === "loading" ? "Opening..." : "Done"}
+        Done
+      </button>
+    </div>
+  </div>
+)}
+
+{showFirstSettingsTip && (
+  <div className="first-profile-overlay" role="dialog" aria-modal="true" aria-labelledby="first-settings-tip-title">
+    <div className="first-profile-card first-settings-tip-card">
+      <p className="first-profile-kicker">Memory view</p>
+      <h2 id="first-settings-tip-title">Make it yours</h2>
+      <p className="first-settings-tip-text">You can customize your own memory view here.</p>
+      {setupMessage && <p className="first-profile-message" role="alert">{setupMessage}</p>}
+      <button className="first-profile-primary" type="button" onClick={handleFirstSettingsTipDone} disabled={settingsTipStatus === "loading"}>
+        {settingsTipStatus === "loading" ? "Opening..." : "Open timeline"}
       </button>
     </div>
   </div>

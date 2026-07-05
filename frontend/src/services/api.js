@@ -89,7 +89,7 @@ API.interceptors.response.use(
   async(error)=>{
     const originalRequest = error.config || {};
     const url = String(originalRequest.url || "");
-    const isAuthEndpoint = ["/login", "/register", "/request-reset-code", "/reset-password", "/auth/refresh"].some((path)=>url.includes(path));
+    const isAuthEndpoint = ["/login", "/register", "/request-reset-code", "/reset-password", "/auth/session", "/auth/refresh"].some((path)=>url.includes(path));
 
     if(error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint){
       originalRequest._retry = true;
@@ -152,7 +152,7 @@ export const getPublicShare = (token)=>API.get(`/public/share/${token}`);
 /* AUTH */
 export const loginUser = (data)=>API.post("/login",data);
 export const registerUser = (data)=>API.post("/register",data);
-export const getSession = ()=>API.get("/auth/session");
+export const getSession = (config = {})=>API.get("/auth/session", config);
 export const refreshSession = (config = {})=>API.post("/auth/refresh", {}, config);
 export const logoutUser = ()=>API.post("/logout");
 export const logoutAllSessions = ()=>API.post("/logout-all");

@@ -1,7 +1,7 @@
 import React,{Suspense,useCallback,useEffect,useRef,useState} from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { completeOnboarding, loginUser, refreshSession, registerUser } from "../services/api";
+import { completeOnboarding, getSession, loginUser, refreshSession, registerUser } from "../services/api";
 import OnboardingTour from "../components/OnboardingTour";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { setAuthenticatedUser } from "../auth";
@@ -87,6 +87,7 @@ const [showOnboarding,setShowOnboarding] = useState(false);
 const [loginStatus,setLoginStatus] = useState("idle");
 const [typedDescription,setTypedDescription] = useState("");
 const [showDescriptionCursor,setShowDescriptionCursor] = useState(true);
+const [sessionStatus,setSessionStatus] = useState("checking");
 const backgroundPreference = useRef(loadBackgroundPreference()).current;
 const backgroundStyle = getBackgroundStyle(backgroundPreference);
 const isLightBackground = getBackgroundLuminance(backgroundPreference) > 0.54;
@@ -142,16 +143,35 @@ useEffect(() => {
 
   refreshAbortRef.current = controller;
 
-  refreshSession({signal:controller.signal})
-    .then(({data}) => {
+  const restoreExistingSession = async() => {
+    try{
+      const {data} = await getSession({signal:controller.signal});
+
       if(!active || loginStartedRef.current){
         return;
       }
 
       setAuthenticatedUser(data.userId, data.token);
       navigate("/timeline", {replace:true});
-    })
-    .catch(()=>{});
+    }catch{
+      try{
+        const {data} = await refreshSession({signal:controller.signal});
+
+        if(!active || loginStartedRef.current){
+          return;
+        }
+
+        setAuthenticatedUser(data.userId, data.token);
+        navigate("/timeline", {replace:true});
+      }catch{
+        if(active && !loginStartedRef.current){
+          setSessionStatus("guest");
+        }
+      }
+    }
+  };
+
+  restoreExistingSession();
 
   return () => {
     active = false;
@@ -316,6 +336,10 @@ useEffect(() => {
 
   return () => clearTimeout(timer);
 }, [finishIntro, showIntro]);
+
+if(sessionStatus === "checking"){
+  return <div className="route-loading" aria-live="polite">Loading...</div>;
+}
 
 return(
 

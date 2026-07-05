@@ -5,7 +5,7 @@ const Session = require("./models/Session");
 const ACCESS_COOKIE = "mt_access";
 const REFRESH_COOKIE = "mt_refresh";
 const ACCESS_MINUTES = Number(process.env.ACCESS_TOKEN_MINUTES || 60);
-const REFRESH_DAYS = Number(process.env.REFRESH_TOKEN_DAYS || 30);
+const REFRESH_DAYS = Number(process.env.REFRESH_TOKEN_DAYS || 20);
 const isProduction = process.env.NODE_ENV === "production";
 
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");

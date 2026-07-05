@@ -7,6 +7,7 @@ const Memory = require("../models/Memory");
 const ShareLink = require("../models/ShareLink");
 const Session = require("../models/Session");
 const User = require("../models/User");
+const PushSubscription = require("../models/PushSubscription");
 const { clearSessionCookies } = require("../authSessions");
 const { securityInfo, securityWarn } = require("../securityLogger");
 
@@ -920,6 +921,7 @@ exports.deleteAccount = async (req,res)=>{
       Memory.deleteMany({userId}),
       ShareLink.deleteMany({userId}),
       Session.deleteMany({userId}),
+      PushSubscription.deleteMany({userId}),
       User.findByIdAndDelete(userId)
     ]);
 

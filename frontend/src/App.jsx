@@ -13,6 +13,7 @@ import PublicShare from "./pages/PublicShare";
 import About from "./pages/About";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReminderWidget from "./components/ReminderWidget";
+import { unsubscribeReminderPush } from "./reminderNotifications";
 import { getAppearanceSettings, logoutUser, updateAppearanceSettings } from "./services/api";
 import {
   AUTH_UPDATED_EVENT,
@@ -283,6 +284,7 @@ function App(){
 
     window.setTimeout(async() => {
       try{
+        await unsubscribeReminderPush();
         await logoutUser();
       }catch{
         // Local state is still cleared if the network is interrupted.

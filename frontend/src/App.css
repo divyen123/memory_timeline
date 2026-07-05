@@ -13761,10 +13761,10 @@ body.pure-white-theme .timeline-action-btn[title="Settings"]::before{
 
 .first-profile-avatar-picker{
   display:flex;
-  flex-wrap:wrap;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:12px;
+  gap:10px;
   margin:0 0 24px;
 }
 
@@ -13792,11 +13792,13 @@ body.pure-white-theme .timeline-action-btn[title="Settings"]::before{
 
 .first-profile-photo-button,
 .first-profile-remove{
-  min-height:42px;
+  width:min(220px, 100%);
+  min-height:36px;
   border:1px solid rgba(255,255,255,0.2);
-  border-radius:14px;
-  padding:0 16px;
+  border-radius:12px;
+  padding:0 14px;
   color:#ffffff;
+  font-size:0.94rem;
   font-weight:800;
   background:rgba(255,255,255,0.11);
   cursor:pointer;
@@ -13970,10 +13972,11 @@ body.pure-white-theme .first-profile-message{
 
   .first-profile-photo-button,
   .first-profile-remove{
-    min-height:38px;
-    border-radius:12px;
+    width:min(190px, 100%);
+    min-height:34px;
+    border-radius:11px;
     padding:0 12px;
-    font-size:0.92rem;
+    font-size:0.9rem;
   }
 
   .first-profile-grid{

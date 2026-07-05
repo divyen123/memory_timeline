@@ -927,7 +927,7 @@ exports.deleteAccount = async (req,res)=>{
 
     clearSessionCookies(res);
     securityWarn("account_deleted", {userId:String(userId)});
-    res.json({message:"Account deleted"});
+    res.json({message:"Account deleted successfully"});
   }catch(err){
     res.status(500).json({message:err.message || "Unable to delete account"});
   }

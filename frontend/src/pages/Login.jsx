@@ -11,6 +11,7 @@ import { loadBackgroundPreference } from "../settings";
 
 const LoginIntroMotion = React.lazy(()=>import("../components/LoginIntroMotion"));
 const LOGIN_DESCRIPTION = "Keep every special moment beautifully organized in one place.";
+const ACCOUNT_DELETE_MESSAGE_KEY = "memory-account-delete-message";
 
 const normalizeHexColor = (color = "") => {
   const value = String(color).replace("#", "").trim();
@@ -164,6 +165,16 @@ const navigate = useNavigate();
 
 useAutoDismissMessage(message, setMessage);
 useAutoDismissMessage(registerMessage, setRegisterMessage);
+
+useEffect(() => {
+  const accountDeleteMessage = sessionStorage.getItem(ACCOUNT_DELETE_MESSAGE_KEY);
+
+  if(accountDeleteMessage){
+    sessionStorage.removeItem(ACCOUNT_DELETE_MESSAGE_KEY);
+    setAuthMode("login");
+    setMessage(accountDeleteMessage);
+  }
+}, []);
 
 useEffect(() => {
   let index = 0;
@@ -438,7 +449,7 @@ const handleFirstProfileSubmit = async(event) => {
 };
 
 const handleFirstWelcomeDone = async() => {
-  if(welcomeStatus === "loading"){
+  if(welcomeStatus === "loading" || !welcomeComplete){
     return;
   }
 
@@ -588,7 +599,7 @@ return(
         {!welcomeComplete && <span className="first-welcome-cursor" aria-hidden="true">|</span>}
       </p>
       {setupMessage && <p className="first-profile-message" role="alert">{setupMessage}</p>}
-      <button className="first-profile-primary" type="button" onClick={handleFirstWelcomeDone} disabled={welcomeStatus === "loading"}>
+      <button className="first-profile-primary" type="button" onClick={handleFirstWelcomeDone} disabled={welcomeStatus === "loading" || !welcomeComplete}>
         {welcomeStatus === "loading" ? "Opening..." : "Done"}
       </button>
     </div>
@@ -649,4 +660,3 @@ return(
 }
 
 export default Login;
-

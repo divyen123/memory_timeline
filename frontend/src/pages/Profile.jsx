@@ -596,7 +596,8 @@ function Profile() {
       }
 
       if(confirmAction === "delete-account-typed"){
-        await deleteAccount(accountDeletePassword);
+        const {data} = await deleteAccount(accountDeletePassword);
+        sessionStorage.setItem("memory-account-delete-message", data.message || "Account deleted successfully");
         clearAuthenticatedUser();
         navigate("/", {replace:true});
         return;

@@ -67,6 +67,8 @@ export const requiresAuthenticatedImageFetch = (url = "") => {
   return imageUrl.startsWith(API_BASE_URL) && imageUrl.includes("/memories/") && imageUrl.includes("/view");
 };
 
+let refreshRequest = null;
+
 const API = axios.create({
 baseURL:API_BASE_URL,
 withCredentials:true
@@ -93,7 +95,14 @@ API.interceptors.response.use(
       originalRequest._retry = true;
 
       try{
-        const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {withCredentials:true});
+        if(!refreshRequest){
+          refreshRequest = axios.post(`${API_BASE_URL}/auth/refresh`, {}, {withCredentials:true})
+            .finally(()=>{
+              refreshRequest = null;
+            });
+        }
+
+        const refreshResponse = await refreshRequest;
         setAuthenticatedUser(refreshResponse.data.userId, refreshResponse.data.token);
         return API(originalRequest);
       }catch{

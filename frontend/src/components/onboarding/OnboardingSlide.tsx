@@ -126,7 +126,7 @@ function OnboardingSlide({
             disabled={saving}
           >
             {saving ? "Saving..." : isLast ? "Done" : "Next"}
-            {!saving && <span aria-hidden="true">{isLast ? "OK" : ">"}</span>}
+            {!saving && !isLast && <span aria-hidden="true">{">"}</span>}
           </button>
         </motion.div>
       </motion.div>

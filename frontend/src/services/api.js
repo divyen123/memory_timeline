@@ -12,12 +12,21 @@ const isInlineOrLocalPreviewImage = (image = "") => {
   );
 };
 
-const getMemoryImageList = (memory, kind = "images") => {
-  if(kind === "thumbnails"){
-    return memory?.thumbnails || [];
+const toMemoryMediaList = (value) => {
+  if(Array.isArray(value)){
+    return value.filter((item)=>typeof item === "string" && item);
   }
 
-  return memory?.images?.length ? memory.images : (memory?.image ? [memory.image] : []);
+  return typeof value === "string" && value ? [value] : [];
+};
+
+const getMemoryImageList = (memory, kind = "images") => {
+  if(kind === "thumbnails"){
+    return toMemoryMediaList(memory?.thumbnails);
+  }
+
+  const images = toMemoryMediaList(memory?.images);
+  return images.length ? images : toMemoryMediaList(memory?.image);
 };
 
 export const getImageUrl = (image) => (

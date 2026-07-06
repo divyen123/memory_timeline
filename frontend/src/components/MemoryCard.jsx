@@ -8,6 +8,19 @@ import {
   timelineItemPresenceVariants
 } from "./memoryTransition/transitions";
 
+const toMemoryMediaList = (value) => {
+  if(Array.isArray(value)){
+    return value.filter((item)=>typeof item === "string" && item);
+  }
+
+  return typeof value === "string" && value ? [value] : [];
+};
+
+const getMemoryImageList = (memory) => {
+  const images = toMemoryMediaList(memory?.images);
+  return images.length ? images : toMemoryMediaList(memory?.image);
+};
+
 function MemoryCard({
   memory,
   index,
@@ -35,9 +48,10 @@ function MemoryCard({
   const [readyOriginals, setReadyOriginals] = useState([]);
   const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
-  const displayImages = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
-  const hasSeparateThumbnails = Boolean(memory.thumbnails?.length);
-  const cardImages = hasSeparateThumbnails ? memory.thumbnails : displayImages;
+  const displayImages = getMemoryImageList(memory);
+  const thumbnails = toMemoryMediaList(memory.thumbnails);
+  const hasSeparateThumbnails = Boolean(thumbnails.length);
+  const cardImages = hasSeparateThumbnails ? thumbnails : displayImages;
   const cardImageKind = hasSeparateThumbnails ? "thumbnails" : "images";
 
   useEffect(() => {

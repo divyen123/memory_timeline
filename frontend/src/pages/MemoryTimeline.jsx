@@ -44,17 +44,29 @@ const isHiddenReminderMemory = (memory) => (
   String(memory?.title || "").trim().toLowerCase() === HIDDEN_IMAGE_MEMORY_TITLE
 );
 
-const getMemoryImageList = (memory) => (
-  memory?.images?.length ? memory.images : (memory?.image ? [memory.image] : [])
-);
+const toMemoryMediaList = (value) => {
+  if(Array.isArray(value)){
+    return value.filter((item)=>typeof item === "string" && item);
+  }
+
+  return typeof value === "string" && value ? [value] : [];
+};
+
+const getMemoryImageList = (memory) => {
+  const images = toMemoryMediaList(memory?.images);
+  return images.length ? images : toMemoryMediaList(memory?.image);
+};
+
+const getMemoryThumbnailList = (memory) => toMemoryMediaList(memory?.thumbnails);
 
 const mergeMemoryWithExistingMedia = (memory, existingMemory) => {
   const returnedImages = getMemoryImageList(memory);
   const existingImages = getMemoryImageList(existingMemory);
   const images = returnedImages.length ? returnedImages : existingImages;
-  const thumbnails = memory?.thumbnails?.length
-    ? memory.thumbnails
-    : (existingMemory?.thumbnails || []);
+  const returnedThumbnails = getMemoryThumbnailList(memory);
+  const thumbnails = returnedThumbnails.length
+    ? returnedThumbnails
+    : getMemoryThumbnailList(existingMemory);
 
   return {
     ...existingMemory,
@@ -490,7 +502,7 @@ function MemoryTimeline() {
         month:"short",
         year:"numeric"
       });
-      const images = memory.images?.length ? memory.images : (memory.image ? [memory.image] : []);
+      const images = getMemoryImageList(memory);
       const imageMarkup = images.map((image, index) => `
         <img src="${getMemoryImageUrl(memory, "images", index) || getImageUrl(image)}" alt="${memory.title}" />
       `).join("");
@@ -1244,8 +1256,9 @@ function MemoryTimeline() {
   const renderSmallMemoryCard = (memory, className = "calendar-memory") => {
     const memoryDate = new Date(memory.date);
     const memoryImages = getMemoryImages(memory);
-    const cardImages = memory.thumbnails?.length ? memory.thumbnails : memoryImages;
-    const cardImageKind = memory.thumbnails?.length ? "thumbnails" : "images";
+    const thumbnails = getMemoryThumbnailList(memory);
+    const cardImages = thumbnails.length ? thumbnails : memoryImages;
+    const cardImageKind = thumbnails.length ? "thumbnails" : "images";
     const isCompactCard = className.includes("small-container-memory");
     const formattedDate = memoryDate.toLocaleDateString("en-GB", {
       day:"2-digit",

@@ -34,6 +34,8 @@ function getFacePosition(face, image) {
 function SmartImage({ src, alt, className = "", style, loading = "lazy", decoding = "async", detectFaces = true, onLoad, onBlobReady, onPositionReady, ...props }) {
   const [objectPosition, setObjectPosition] = useState(facePositionCache.get(src) || "50% 35%");
   const [authenticatedImage, setAuthenticatedImage] = useState({src:"", url:""});
+  const [visibleAuthenticatedSrc, setVisibleAuthenticatedSrc] = useState("");
+  const imageRef = useRef(null);
   const onBlobReadyRef = useRef(onBlobReady);
 
   useEffect(()=>{
@@ -41,10 +43,44 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
   }, [onBlobReady]);
 
   useEffect(()=>{
+    if(!requiresAuthenticatedImageFetch(src)){
+      setVisibleAuthenticatedSrc("");
+      return () => {};
+    }
+
+    if(loading === "eager"){
+      setVisibleAuthenticatedSrc(src);
+      return () => {};
+    }
+
+    setVisibleAuthenticatedSrc("");
+
+    const image = imageRef.current;
+
+    if(!image || !("IntersectionObserver" in window)){
+      setVisibleAuthenticatedSrc(src);
+      return () => {};
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if(entry.isIntersecting){
+        setVisibleAuthenticatedSrc(src);
+        observer.disconnect();
+      }
+    }, {
+      rootMargin:"420px 0px"
+    });
+
+    observer.observe(image);
+
+    return () => observer.disconnect();
+  }, [loading, src]);
+
+  useEffect(()=>{
     let active = true;
     let objectUrl = "";
 
-    if(!requiresAuthenticatedImageFetch(src)){
+    if(!requiresAuthenticatedImageFetch(src) || visibleAuthenticatedSrc !== src){
       return () => {};
     }
 
@@ -84,7 +120,7 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [src]);
+  }, [src, visibleAuthenticatedSrc]);
 
   const resolvedSrc = requiresAuthenticatedImageFetch(src)
     ? (authenticatedImage.src === src ? authenticatedImage.url : "")
@@ -143,6 +179,7 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
 
   return (
     <img
+      ref={imageRef}
       src={resolvedSrc}
       alt={alt}
       loading={loading}

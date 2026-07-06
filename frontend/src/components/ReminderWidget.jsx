@@ -5,6 +5,13 @@ import { playAppSound } from "../sound";
 import { maybeShowReminderNotification, requestReminderNotificationPermission } from "../reminderNotifications";
 import { AUTH_UPDATED_EVENT, getAuthenticatedUserId } from "../auth";
 
+const HIDDEN_IMAGE_MEMORY_TITLE = "app/hide-image/";
+
+const isHiddenReminderMemory = (memory) => (
+  Boolean(memory?.hiddenAt) ||
+  String(memory?.title || "").trim().toLowerCase() === HIDDEN_IMAGE_MEMORY_TITLE
+);
+
 function ReminderWidget(){
   const [memories,setMemories] = useState([]);
   const [settings,setSettings] = useState(()=>loadSettings());
@@ -101,7 +108,7 @@ function ReminderWidget(){
     reminderWindowEnd.setDate(today.getDate() + Number(settings.reminderLeadDays || 2));
 
     return memories.filter((memory) => {
-      if(!memory.reminderDate){
+      if(!memory.reminderDate || isHiddenReminderMemory(memory)){
         return false;
       }
 
@@ -131,7 +138,7 @@ function ReminderWidget(){
     }
 
     const reminder = memories.find((memory) => {
-      if(!memory.reminderDate){
+      if(!memory.reminderDate || isHiddenReminderMemory(memory)){
         return false;
       }
 

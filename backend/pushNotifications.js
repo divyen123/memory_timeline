@@ -5,6 +5,7 @@ const User = require("./models/User");
 const { securityInfo, securityWarn, securityError } = require("./securityLogger");
 
 const MAX_SENT_KEYS = 120;
+const HIDDEN_IMAGE_MEMORY_TITLE = "app/hide-image/";
 const DEFAULT_REMINDER_LEAD_DAYS = 2;
 const MAX_REMINDER_LEAD_DAYS = 30;
 const DEFAULT_SCAN_INTERVAL_MS = 15 * 60 * 1000;
@@ -186,6 +187,7 @@ const sendDueReminderPushes = async () => {
         userId,
         deletedAt:null,
         hiddenAt:null,
+        title:{$ne:HIDDEN_IMAGE_MEMORY_TITLE},
         reminderDate:{
           $gte:today,
           $lte:reminderWindowEnd

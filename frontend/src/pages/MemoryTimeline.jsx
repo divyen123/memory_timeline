@@ -37,6 +37,12 @@ const MEMORY_BATCH_SIZE_BY_CARD_SIZE = {
 const PREVIEW_IMAGE_MIN_ZOOM = 1;
 const PREVIEW_IMAGE_MAX_ZOOM = 2.25;
 const PREVIEW_IMAGE_ZOOM_STEP = 0.25;
+const HIDDEN_IMAGE_MEMORY_TITLE = "app/hide-image/";
+
+const isHiddenReminderMemory = (memory) => (
+  Boolean(memory?.hiddenAt) ||
+  String(memory?.title || "").trim().toLowerCase() === HIDDEN_IMAGE_MEMORY_TITLE
+);
 
 const getMemoryImageList = (memory) => (
   memory?.images?.length ? memory.images : (memory?.image ? [memory.image] : [])
@@ -376,7 +382,7 @@ function MemoryTimeline() {
     reminderWindowEnd.setDate(today.getDate() + Number(settings.reminderLeadDays || 2));
 
     return memories.filter((memory) => {
-      if(!memory.reminderDate){
+      if(!memory.reminderDate || isHiddenReminderMemory(memory)){
         return false;
       }
 
@@ -1373,7 +1379,7 @@ function MemoryTimeline() {
 
   useEffect(() => {
     const reminder = memories.find((memory) => {
-      if(!memory.reminderDate){
+      if(!memory.reminderDate || isHiddenReminderMemory(memory)){
         return false;
       }
 

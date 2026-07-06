@@ -1,55 +1,45 @@
 # Memory Timeline
 
-Memory Timeline is a full-stack application for privately organizing, searching,
-sharing, and exporting personal memories.
+Memory Timeline is a full-stack web app for keeping personal memories organized
+in a private, visual timeline. Users can add moments with images, dates,
+categories, reminders, favorites, hidden images, and share/export options.
 
-## Live Application
+## Highlights
 
-The production frontend is intended to run on Vercel, with the API deployed on
-Render and data stored in MongoDB Atlas.
-
-The application is deployed over HTTPS. New users can register an account and
-maintain their own private collection of memories.
-
-## Features
-
-- Email registration and JWT authentication
-- User-isolated memory timelines
+- Account-based private timelines
 - Multiple images per memory
 - Search, sorting, categories, favorites, and reminders
-- Private image storage through Cloudinary authenticated delivery
-- Server-side encrypted Cloudinary media storage for new uploads
-- Hidden image area opened with the reserved `app/hide-image/` timeline search shortcut
-- Public share links for individual memories
-- Original-image export with ZIP downloads for multiple images
-- Permanent deletion removes stored image assets from Cloudinary when possible
-- Responsive light and dark themes
+- Hidden Images area opened with the `app/hide-image/` timeline shortcut
+- Public share links for selected memories or categories
+- ZIP export for memory images
+- Responsive desktop and mobile UI
+- Custom themes, card styles, fonts, sounds, and notification settings
+- Browser push reminders for due memories
 
-## Architecture
+## Safety
 
-- Frontend: React and Vite
-- Backend: Node.js and Express
+- Auth uses httpOnly session cookies with access/refresh token rotation.
+- Memory images are served through backend ownership checks.
+- Cloudinary uploads can be stored encrypted when `CLOUDINARY_ENCRYPT_MEDIA` is enabled.
+- Memory descriptions are sanitized with `sanitize-html` before being saved and returned.
+- Hidden Images PINs are stored as salted PBKDF2 hashes for new or updated PINs.
+- Uploads are validated by MIME type, extension, size, and Sharp metadata.
+
+Cloudinary media encryption protects files at rest in Cloudinary, but it is not
+end-to-end encryption because the backend holds the decryption key.
+
+## Stack
+
+- Frontend: React, Vite
+- Backend: Node.js, Express
 - Database: MongoDB Atlas
-- Image storage: Cloudinary
+- Media storage: Cloudinary
 - Frontend hosting: Vercel
 - Backend hosting: Render
 
-Authenticated memory images are streamed through the backend after ownership
-checks, so browsers load Render API image routes instead of direct Cloudinary
-asset URLs.
+## Local Setup
 
-New Cloudinary uploads are encrypted before storage when
-`CLOUDINARY_ENCRYPT_MEDIA` is not set to `false`. Encrypted assets are uploaded
-as authenticated raw `.enc` files, which prevents normal Cloudinary Media
-Library image previews. The backend decrypts them only after the requesting user
-passes the normal ownership or public-share checks.
-
-This protects media at rest in Cloudinary, but it is not full end-to-end
-encryption because the backend still holds the decryption key.
-
-## Local Development
-
-Create local configuration files from the examples:
+Create local environment files:
 
 ```powershell
 Copy-Item backend\.env.example backend\.env
@@ -61,7 +51,7 @@ Install and run the backend:
 ```powershell
 cd backend
 npm install
-node server.js
+npm start
 ```
 
 Install and run the frontend in another terminal:
@@ -72,42 +62,55 @@ npm install
 npm run dev
 ```
 
-Never commit `.env` files, private keys, deployment archives, or uploaded images.
+## Environment
 
-## Production Deployment
-
-Use `render.yaml` to create the Render backend service. Add the secret values in
-Render, not in GitHub:
+Backend values are documented in [backend/.env.example](backend/.env.example).
+Important production values include:
 
 - `MONGODB_URI`
+- `JWT_SECRET`
 - `ALLOWED_ORIGINS`
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
 - `MEDIA_ENCRYPTION_KEY`
-- `CLOUDINARY_ENCRYPT_MEDIA`
+- `VAPID_PUBLIC_KEY`
+- `VAPID_PRIVATE_KEY`
+- `VAPID_SUBJECT`
 
-Render generates `JWT_SECRET` automatically from the blueprint. After Render
-creates the backend URL, add the Vercel frontend URL to `ALLOWED_ORIGINS`, and
-set `VITE_API_URL` in Vercel to the backend API URL, for example:
+Frontend values are documented in [frontend/.env.example](frontend/.env.example).
+Set `VITE_API_URL` to the deployed API URL, for example:
 
 ```text
 https://memory-timeline-backend.onrender.com/api
 ```
 
-Set `MEDIA_ENCRYPTION_KEY` to a long random secret and keep it stable. Changing
-that value after uploads are encrypted will make existing encrypted media
-undecryptable. Keep `CLOUDINARY_ENCRYPT_MEDIA=true` for encrypted Cloudinary
-storage.
+Never commit `.env` files, private keys, deployment archives, or uploaded media.
 
-Never commit `.env` files, private keys, deployment archives, or uploaded
-images. Production secrets belong only in the hosting platform environment
-variable manager.
+## Deployment
+
+Use [render.yaml](render.yaml) for the Render backend service. Store all secrets
+in Render and Vercel environment settings, not in GitHub.
+
+After deploying the backend, add the Vercel frontend URL to `ALLOWED_ORIGINS`.
+After deploying the frontend, set `VITE_API_URL` to the backend `/api` URL.
+
+Keep `MEDIA_ENCRYPTION_KEY` stable. Changing it after encrypted uploads exist
+will make those files undecryptable.
 
 ## Verification
+
+Frontend:
 
 ```powershell
 cd frontend
 npm run lint
 npm run build
+```
+
+Backend:
+
+```powershell
+cd backend
+npm test
 ```

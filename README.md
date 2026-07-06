@@ -37,31 +37,6 @@ end-to-end encryption because the backend holds the decryption key.
 - Frontend hosting: Vercel
 - Backend hosting: Render
 
-## Local Setup
-
-Create local environment files:
-
-```powershell
-Copy-Item backend\.env.example backend\.env
-Copy-Item frontend\.env.example frontend\.env
-```
-
-Install and run the backend:
-
-```powershell
-cd backend
-npm install
-npm start
-```
-
-Install and run the frontend in another terminal:
-
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
 ## Environment
 
 Backend values are documented in [backend/.env.example](backend/.env.example).

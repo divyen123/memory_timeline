@@ -679,6 +679,7 @@ function Profile() {
 
     if(!enabled){
       await unsubscribeReminderPush();
+      setMessage("Outside-app reminder notifications are disabled for this browser.");
       return;
     }
 
@@ -1339,7 +1340,10 @@ function Profile() {
                     checked={appSettings.backgroundNotificationsEnabled !== false}
                     onChange={(e)=>void handleBackgroundNotificationsChange(e.target.checked)}
                   />
-                  <span>Notifications outside app</span>
+                  <span>
+                    Notifications outside app
+                    <small>Turns off Memory Timeline reminders outside the app. Browser permission may still show allowed.</small>
+                  </span>
                 </label>
               </div>
 

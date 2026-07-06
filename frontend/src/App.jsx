@@ -171,8 +171,13 @@ function App(){
       return;
     }
 
+    if(settings.backgroundNotificationsEnabled === false){
+      void unsubscribeReminderPush();
+      return;
+    }
+
     void ensureReminderPushSubscription();
-  },[authenticatedUserId]);
+  },[authenticatedUserId, settings.backgroundNotificationsEnabled]);
   useEffect(()=>{
     const handleSettingsUpdated = (event) => {
       setSettings(event.detail || loadSettings());

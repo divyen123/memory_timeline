@@ -41,6 +41,7 @@ export const defaultSettings = {
   hoverEnabled:true,
   hoverScale:1.05,
   soundEnabled:true,
+  backgroundNotificationsEnabled:true,
   createSound:"sparkle",
   updateSound:"chime",
   reminderSound:"bell",

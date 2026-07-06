@@ -1451,7 +1451,7 @@ function MemoryTimeline() {
     playAppSound("reminder");
   }, [activeReminder]);
   useEffect(() => {
-    if(!activeReminder){
+    if(!activeReminder || settings.backgroundNotificationsEnabled === false){
       return;
     }
 
@@ -1471,7 +1471,7 @@ function MemoryTimeline() {
       window.removeEventListener("blur", showNotification);
       document.removeEventListener("visibilitychange", showNotification);
     };
-  }, [activeReminder, settings.reminderLeadDays]);
+  }, [activeReminder, settings.backgroundNotificationsEnabled, settings.reminderLeadDays]);
 
   return (
 
@@ -1493,7 +1493,9 @@ function MemoryTimeline() {
             className="reminder-icon-btn"
             aria-label="Show reminders"
             onClick={()=>{
-              void requestReminderNotificationPermission();
+              if(settings.backgroundNotificationsEnabled !== false){
+                void requestReminderNotificationPermission();
+              }
               setShowReminderPanel(!showReminderPanel);
               setReminderPage(0);
             }}

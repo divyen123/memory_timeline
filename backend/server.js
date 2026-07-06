@@ -98,6 +98,7 @@ const SETTINGS_KEYS = new Set([
   "hoverEnabled",
   "hoverScale",
   "soundEnabled",
+  "backgroundNotificationsEnabled",
   "createSound",
   "updateSound",
   "reminderSound",

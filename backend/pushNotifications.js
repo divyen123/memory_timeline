@@ -34,6 +34,13 @@ const getReminderLeadDays = (user) => {
   return Math.min(Math.max(leadDays, 0), MAX_REMINDER_LEAD_DAYS);
 };
 
+const hasBackgroundNotificationsEnabled = (user) => {
+  const profiles = user?.settingsProfiles || {};
+  return [profiles.mobile, profiles.desktop]
+    .filter(Boolean)
+    .every((settings)=>settings.backgroundNotificationsEnabled !== false);
+};
+
 const configureWebPush = () => {
   const publicKey = process.env.VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
@@ -164,6 +171,10 @@ const sendDueReminderPushes = async () => {
 
       if(!user){
         await PushSubscription.deleteMany({userId});
+        continue;
+      }
+
+      if(!hasBackgroundNotificationsEnabled(user)){
         continue;
       }
 

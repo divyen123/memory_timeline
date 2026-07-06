@@ -21,6 +21,11 @@ import {
   saveSettings
 } from "../settings";
 import { playAppSound } from "../sound";
+import {
+  ensureReminderPushSubscription,
+  requestReminderNotificationPermission,
+  unsubscribeReminderPush
+} from "../reminderNotifications";
 
 const LIGHT_BACKGROUND_PRESETS = [
   {label:"White background", color:"#ffffff"},
@@ -669,6 +674,28 @@ function Profile() {
     });
   };
 
+  const handleBackgroundNotificationsChange = async (enabled) => {
+    updateSetting("backgroundNotificationsEnabled", enabled);
+
+    if(!enabled){
+      await unsubscribeReminderPush();
+      return;
+    }
+
+    const permission = await requestReminderNotificationPermission();
+
+    if(permission === "granted"){
+      await ensureReminderPushSubscription();
+      return;
+    }
+
+    updateSetting("backgroundNotificationsEnabled", false);
+    await unsubscribeReminderPush();
+    setMessage(permission === "denied"
+      ? "Browser notifications are blocked. Enable them in your browser settings."
+      : "Browser notifications were not enabled.");
+  };
+
   const updateBackgroundColor = (theme, color) => {
     const prefix = theme === "light" ? "lightGradient" : "darkGradient";
 
@@ -1296,14 +1323,25 @@ function Profile() {
                 onChange={restoreSettingsBackup}
               />
 
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={appSettings.soundEnabled}
-                  onChange={(e)=>updateSetting("soundEnabled", e.target.checked)}
-                />
-                <span>Notification sounds</span>
-              </label>
+              <div className="settings-notification-row">
+                <label className="settings-toggle">
+                  <input
+                    type="checkbox"
+                    checked={appSettings.soundEnabled}
+                    onChange={(e)=>updateSetting("soundEnabled", e.target.checked)}
+                  />
+                  <span>Reminder sounds</span>
+                </label>
+
+                <label className="settings-toggle">
+                  <input
+                    type="checkbox"
+                    checked={appSettings.backgroundNotificationsEnabled !== false}
+                    onChange={(e)=>void handleBackgroundNotificationsChange(e.target.checked)}
+                  />
+                  <span>Notifications outside app</span>
+                </label>
+              </div>
 
               <div className="settings-row settings-sound-row">
                 <label className="settings-field">

@@ -47,8 +47,6 @@ function About(){
 
   useEffect(()=>{
     let index = 0;
-    setTypedDescription("");
-    setShowCursor(true);
 
     const typingTimer = window.setInterval(()=>{
       index += 1;

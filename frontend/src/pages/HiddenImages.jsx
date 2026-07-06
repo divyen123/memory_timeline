@@ -7,6 +7,7 @@ import { getAppearanceSettings, getHiddenMemories, getMemoryImageUrl, permanentl
 import { getDeviceProfile, loadSettings, saveSettings } from "../settings";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import SmartImage from "../components/SmartImage";
+import { createHidePinValue, hasStoredHidePin, isFourDigitHidePin, verifyHidePinValue } from "../pinPrivacy";
 import {
   memorySharedLayoutTransition,
   previewContentChildVariants,
@@ -62,7 +63,7 @@ function HiddenImages() {
   const [showDeleteInfo, setShowDeleteInfo] = useState(false);
   const previewReturnFocusRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
-  const hasSavedHidePin = /^\d{4}$/.test(settings.hidePasswordValue || "");
+  const hasSavedHidePin = hasStoredHidePin(settings.hidePasswordValue);
   const [unlocked, setUnlocked] = useState(false);
   const nextViewMode = VIEW_MODES[(VIEW_MODES.indexOf(viewMode) + 1) % VIEW_MODES.length];
 
@@ -134,7 +135,7 @@ function HiddenImages() {
       ...settings,
       hidePasswordEnabled:true,
       hidePasswordType:"pin",
-      hidePasswordValue:nextPin
+      hidePasswordValue:await createHidePinValue(nextPin)
     };
 
     const {data} = await updateAppearanceSettings(deviceProfile, nextSettings, currentPassword);
@@ -143,9 +144,9 @@ function HiddenImages() {
       ...(data.settings || {}),
       hidePasswordEnabled:true,
       hidePasswordType:"pin",
-      hidePasswordValue:/^\d{4}$/.test(data.settings?.hidePasswordValue || "")
+      hidePasswordValue:hasStoredHidePin(data.settings?.hidePasswordValue || "")
         ? data.settings.hidePasswordValue
-        : nextPin
+        : nextSettings.hidePasswordValue
     }, deviceProfile);
     setSettings(savedSettings);
 
@@ -160,7 +161,7 @@ function HiddenImages() {
       return;
     }
 
-    if(!/^\d{4}$/.test(passwordInput || "")){
+    if(!isFourDigitHidePin(passwordInput)){
       setMessage("Use a 4-digit hiding PIN");
       return;
     }
@@ -176,7 +177,7 @@ function HiddenImages() {
       return;
     }
 
-    if(passwordInput === settings.hidePasswordValue){
+    if(await verifyHidePinValue(passwordInput, settings.hidePasswordValue)){
       setUnlocked(true);
       setPasswordInput("");
       setConfirmPinInput("");

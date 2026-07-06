@@ -26,6 +26,7 @@ import {
   requestReminderNotificationPermission,
   unsubscribeReminderPush
 } from "../reminderNotifications";
+import { createHidePinValue, hasStoredHidePin, isFourDigitHidePin } from "../pinPrivacy";
 
 const LIGHT_BACKGROUND_PRESETS = [
   {label:"White background", color:"#ffffff"},
@@ -212,7 +213,7 @@ const collapseDesktopBackgroundColors = (settings, profile) => {
   };
 };
 
-const isValidHidePin = (value) => /^\d{4}$/.test(value || "");
+const isValidHidePin = hasStoredHidePin;
 const APP_PASSWORD_ATTEMPT_LIMIT = 3;
 const APP_PASSWORD_LOCK_MS = 10 * 60 * 1000;
 
@@ -492,7 +493,7 @@ function Profile() {
       return;
     }
 
-    if(!/^\d{4}$/.test(nextPin || "")){
+    if(!isFourDigitHidePin(nextPin)){
       setMessage("Use a 4-digit hiding PIN");
       return;
     }
@@ -535,11 +536,12 @@ function Profile() {
     setIsHidePinConfirming(true);
 
     try{
+      const protectedHidePin = await createHidePinValue(pendingHidePin);
       await persistHideSettings(
         {
           ...appSettings,
           hidePasswordEnabled:true,
-          hidePasswordValue:pendingHidePin,
+          hidePasswordValue:protectedHidePin,
           hidePasswordType:"pin"
         },
         hasSavedHidePin ? "Hiding PIN updated" : "Hiding PIN saved",

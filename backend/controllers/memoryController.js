@@ -3,6 +3,7 @@ const fs = require("fs/promises");
 const path = require("path");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const sanitizeHtml = require("sanitize-html");
 const Memory = require("../models/Memory");
 const ShareLink = require("../models/ShareLink");
 const Session = require("../models/Session");
@@ -383,6 +384,7 @@ const withSignedImages = async (memory) => {
   return {
     ...data,
     image:images[0] || data.image || "",
+    description:sanitizeDescription(data.description),
     images,
     thumbnails
   };
@@ -438,14 +440,27 @@ const streamStoredImage = async (image, res, options = {}) => {
   });
 };
 
-const sanitizeDescription = (html = "") => {
-  return String(html)
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, "")
-    .replace(/\son\w+="[^"]*"/gi, "")
-    .replace(/\son\w+='[^']*'/gi, "")
-    .replace(/javascript:/gi, "");
-};
+const sanitizeDescription = (html = "") => sanitizeHtml(String(html), {
+  allowedTags:[
+    "p", "br", "b", "strong", "i", "em", "u", "s", "ul", "ol", "li", "blockquote", "a", "span"
+  ],
+  allowedAttributes:{
+    a:["href", "name", "target", "rel"]
+  },
+  allowedSchemes:["http", "https", "mailto"],
+  transformTags:{
+    a(tagName, attribs){
+      return {
+        tagName,
+        attribs:{
+          ...attribs,
+          target:"_blank",
+          rel:"noopener noreferrer"
+        }
+      };
+    }
+  }
+});
 
 const buildMemoryPayload = (req, images, thumbnails = []) => ({
   title:req.body.title,

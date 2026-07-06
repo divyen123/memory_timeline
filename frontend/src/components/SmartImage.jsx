@@ -43,23 +43,15 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
   }, [onBlobReady]);
 
   useEffect(()=>{
-    if(!requiresAuthenticatedImageFetch(src)){
-      setVisibleAuthenticatedSrc("");
+    if(!requiresAuthenticatedImageFetch(src) || loading === "eager"){
       return () => {};
     }
-
-    if(loading === "eager"){
-      setVisibleAuthenticatedSrc(src);
-      return () => {};
-    }
-
-    setVisibleAuthenticatedSrc("");
 
     const image = imageRef.current;
 
     if(!image || !("IntersectionObserver" in window)){
-      setVisibleAuthenticatedSrc(src);
-      return () => {};
+      const fallbackId = window.setTimeout(()=>setVisibleAuthenticatedSrc(src), 0);
+      return () => window.clearTimeout(fallbackId);
     }
 
     const observer = new IntersectionObserver(([entry]) => {
@@ -80,7 +72,7 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
     let active = true;
     let objectUrl = "";
 
-    if(!requiresAuthenticatedImageFetch(src) || visibleAuthenticatedSrc !== src){
+    if(!requiresAuthenticatedImageFetch(src) || (loading !== "eager" && visibleAuthenticatedSrc !== src)){
       return () => {};
     }
 
@@ -120,7 +112,7 @@ function SmartImage({ src, alt, className = "", style, loading = "lazy", decodin
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [src, visibleAuthenticatedSrc]);
+  }, [loading, src, visibleAuthenticatedSrc]);
 
   const resolvedSrc = requiresAuthenticatedImageFetch(src)
     ? (authenticatedImage.src === src ? authenticatedImage.url : "")

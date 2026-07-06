@@ -926,16 +926,25 @@ function MemoryTimeline() {
     getMemoryImageList(memory)
   );
 
-  const showPreviousPreviewImage = () => {
-    const images = getMemoryImages(previewMemory);
+  const showPreviousPreviewImage = useCallback(() => {
+    const images = getMemoryImageList(previewMemory);
+
+    if(!images.length){
+      return;
+    }
+
     setPreviewImageIndex(index => (index - 1 + images.length) % images.length);
-  };
+  }, [previewMemory]);
 
-  const showNextPreviewImage = () => {
-    const images = getMemoryImages(previewMemory);
+  const showNextPreviewImage = useCallback(() => {
+    const images = getMemoryImageList(previewMemory);
+
+    if(!images.length){
+      return;
+    }
+
     setPreviewImageIndex(index => (index + 1) % images.length);
-  };
-
+  }, [previewMemory]);
   const handlePreviewDragStart = (event) => {
     if(isPreviewImageZoomed || previewImages.length < 2){
       return;
@@ -1156,7 +1165,7 @@ function MemoryTimeline() {
 
     window.addEventListener("keydown", handleViewerKeyDown);
     return () => window.removeEventListener("keydown", handleViewerKeyDown);
-  }, [hasMultiplePreviewImages, isPreviewImageZoomed, showPreviewImageViewer]);
+  }, [hasMultiplePreviewImages, isPreviewImageZoomed, showNextPreviewImage, showPreviousPreviewImage, showPreviewImageViewer]);
 
   useEffect(() => {
     if(!previewMemory){

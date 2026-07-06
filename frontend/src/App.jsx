@@ -13,7 +13,7 @@ import PublicShare from "./pages/PublicShare";
 import About from "./pages/About";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReminderWidget from "./components/ReminderWidget";
-import { unsubscribeReminderPush } from "./reminderNotifications";
+import { ensureReminderPushSubscription, unsubscribeReminderPush } from "./reminderNotifications";
 import { getAppearanceSettings, logoutUser, updateAppearanceSettings } from "./services/api";
 import {
   AUTH_UPDATED_EVENT,
@@ -166,6 +166,13 @@ function App(){
     };
   },[]);
 
+  useEffect(()=>{
+    if(!authenticatedUserId){
+      return;
+    }
+
+    void ensureReminderPushSubscription();
+  },[authenticatedUserId]);
   useEffect(()=>{
     const handleSettingsUpdated = (event) => {
       setSettings(event.detail || loadSettings());

@@ -1,91 +1,100 @@
 # Memory Timeline
 
-Memory Timeline is a full-stack web app for keeping personal memories organized
-in a private, visual timeline. Users can add moments with images, dates,
-categories, reminders, favorites, hidden images, and share/export options.
+Memory Timeline is a full-stack web application built to store, organize, protect, and revisit personal memories through a rich visual timeline. It supports image-based memories, reminders, favorites, hidden memories, sharing, exporting, and highly customizable viewing styles across desktop and mobile.
 
-## Highlights
+## Project Overview
 
-- Account-based private timelines
-- Multiple images per memory
-- Search, sorting, categories, favorites, and reminders
-- Hidden Images area opened with the `app/hide-image/` timeline shortcut
-- Public share links for selected memories or categories
-- ZIP export for memory images
-- Responsive desktop and mobile UI
-- Custom themes, card styles, fonts, sounds, and notification settings
-- Browser push reminders for due memories
+The application is designed as a private digital memory space where users can create memories with images, dates, categories, descriptions, and reminders. Memories can be explored in multiple layouts such as timeline view, calendar view, and tile view, with user-controlled card size, border radius, themes, icon styles, sounds, and appearance settings.
 
-## Safety
+Memory Timeline also includes a protected hidden-images section, trash recovery flow, account management, image export, and secure media handling through backend ownership checks.
 
-- Auth uses httpOnly session cookies with access/refresh token rotation.
-- Memory images are served through backend ownership checks.
-- Cloudinary uploads can be stored encrypted when `CLOUDINARY_ENCRYPT_MEDIA` is enabled.
-- Memory descriptions are sanitized with `sanitize-html` before being saved and returned.
-- Hidden Images PINs are stored as salted PBKDF2 hashes for new or updated PINs.
-- Uploads are validated by MIME type, extension, size, and Sharp metadata.
+## Core Features
 
-Cloudinary media encryption protects files at rest in Cloudinary, but it is not
-end-to-end encryption because the backend holds the decryption key.
+- Account-based memory timeline with user-specific private data
+- Add, update, delete, restore, and permanently remove memories
+- Multiple image support for each memory
+- Image previews, full-screen viewing, carousel navigation, and zoom controls
+- Timeline view, calendar view, and tile view modes
+- Default memory view selection from settings
+- Search, sorting, category filtering, and favorite memories
+- Reminder support with notification sounds and reminder popups
+- Hidden images page protected by a mandatory 4-digit PIN
+- Application password confirmation before saving or updating sensitive PIN settings
+- Trash page with restore, select, empty bin, and permanent deletion flows
+- Public sharing support for selected memories
+- Export options for downloading memory images
+- Responsive desktop and mobile layouts
+- Customizable themes, card sizes, border radius, icon styles, button placement, fonts, and sounds
 
-## Stack
+## Security And Privacy Features
 
-- Frontend: React, Vite
-- Backend: Node.js, Express
-- Database: MongoDB Atlas
-- Media storage: Cloudinary
-- Frontend hosting: Vercel
-- Backend hosting: Render
+- User authentication with protected backend routes
+- Password hashing for account credentials
+- Hidden-images PIN stored securely using salted hashing
+- Application password confirmation for sensitive actions
+- Backend ownership checks before serving protected memory images
+- Cloudinary media protection using authenticated access and encrypted uploads
+- Sanitized memory descriptions before storage and response
+- File upload validation by type, extension, size, and image metadata
+- Permanent deletion flow designed to remove memory records and associated media
 
-## Environment
+## Tech Stack
 
-Backend values are documented in [backend/.env.example](backend/.env.example).
-Important production values include:
+| Layer | Technologies Used |
+| --- | --- |
+| Frontend | React, Vite, React Router, Framer Motion |
+| Backend | Node.js, Express.js |
+| Database | MongoDB Atlas with Mongoose |
+| Media Storage | Cloudinary |
+| Authentication | JWT, httpOnly cookies, bcryptjs |
+| Image Processing | Sharp, Multer |
+| Notifications | Web Push |
+| Export Handling | JSZip |
+| Security Utilities | Helmet, CORS, Express Rate Limit, sanitize-html |
+| Deployment | Vercel for frontend, Render for backend |
 
-- `MONGODB_URI`
-- `JWT_SECRET`
-- `ALLOWED_ORIGINS`
-- `CLOUDINARY_CLOUD_NAME`
-- `CLOUDINARY_API_KEY`
-- `CLOUDINARY_API_SECRET`
-- `MEDIA_ENCRYPTION_KEY`
-- `VAPID_PUBLIC_KEY`
-- `VAPID_PRIVATE_KEY`
-- `VAPID_SUBJECT`
+## Frontend
 
-Frontend values are documented in [frontend/.env.example](frontend/.env.example).
-Set `VITE_API_URL` to the deployed API URL, for example:
+The frontend is built with React and Vite for a fast, responsive user experience. React Router handles navigation across timeline, profile, hidden images, trash, calendar, and memory detail pages. Framer Motion is used for smooth transitions, intro animation, timeline interactions, and polished UI movement.
 
-```text
-https://memory-timeline-backend.onrender.com/api
-```
+The interface supports both desktop and mobile layouts with separate responsive behavior where needed, keeping the desktop experience rich while making mobile screens compact and usable.
 
-Never commit `.env` files, private keys, deployment archives, or uploaded media.
+## Backend
+
+The backend is built with Node.js and Express.js. It handles authentication, user profiles, memories, image uploads, reminders, hidden image access, trash operations, sharing, exporting, and protected media delivery.
+
+Backend routes are structured to ensure each user can access only their own memories and media. Sensitive operations such as hidden PIN updates and account deletion include additional password confirmation.
+
+## Database
+
+MongoDB Atlas is used as the cloud database. Mongoose manages application models such as users, memories, images, hidden-image settings, reminders, favorites, trash state, and account-related data.
+
+The database stores structured memory information while image files are handled separately through Cloudinary.
+
+## Media Storage
+
+Cloudinary is used for storing memory images and optimized image assets. The application uses Cloudinary for uploaded memory media, thumbnails, and full-view images while keeping access controlled through the backend.
+
+Encrypted media storage is used to reduce direct visibility of private user uploads from the media library side, while the application still serves images securely to the correct authenticated user.
 
 ## Deployment
 
-Use [render.yaml](render.yaml) for the Render backend service. Store all secrets
-in Render and Vercel environment settings, not in GitHub.
+| Part | Platform |
+| --- | --- |
+| Frontend | Vercel |
+| Backend API | Render |
+| Database | MongoDB Atlas |
+| Media Storage | Cloudinary |
 
-After deploying the backend, add the Vercel frontend URL to `ALLOWED_ORIGINS`.
-After deploying the frontend, set `VITE_API_URL` to the backend `/api` URL.
+The frontend is deployed on Vercel, the backend service is deployed on Render, MongoDB Atlas stores application data, and Cloudinary manages image storage.
 
-Keep `MEDIA_ENCRYPTION_KEY` stable. Changing it after encrypted uploads exist
-will make those files undecryptable.
+## Advantages
 
-## Verification
-
-Frontend:
-
-```powershell
-cd frontend
-npm run lint
-npm run build
-```
-
-Backend:
-
-```powershell
-cd backend
-npm test
-```
+- Keeps personal memories organized in a visual and searchable format
+- Supports multiple viewing styles for different user preferences
+- Protects private hidden memories with PIN-based access
+- Uses cloud storage and cloud database services for scalable deployment
+- Provides responsive behavior for both desktop and mobile users
+- Includes recovery-oriented trash handling before permanent deletion
+- Offers export and sharing options while keeping normal memories account-protected
+- Provides a polished, customizable UI suited for personal memory management

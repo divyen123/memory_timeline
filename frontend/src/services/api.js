@@ -77,18 +77,51 @@ export const requiresAuthenticatedImageFetch = (url = "") => {
 };
 
 let refreshRequest = null;
+let csrfToken = null;
+let csrfRequest = null;
+const UNSAFE_METHODS = new Set(["post", "put", "patch", "delete"]);
 
 const API = axios.create({
 baseURL:API_BASE_URL,
 withCredentials:true
 });
 
-API.interceptors.request.use((config)=>{
+const isUnsafeRequest = (method = "get") => UNSAFE_METHODS.has(String(method).toLowerCase());
+
+const getCsrfToken = async() => {
+  if(csrfToken){
+    return csrfToken;
+  }
+
+  if(!csrfRequest){
+    csrfRequest = axios.get(`${API_BASE_URL}/csrf-token`, {withCredentials:true})
+      .then((res)=>{
+        csrfToken = res.data?.csrfToken || "";
+        return csrfToken;
+      })
+      .finally(()=>{
+        csrfRequest = null;
+      });
+  }
+
+  return csrfRequest;
+};
+
+API.interceptors.request.use(async(config)=>{
   const token = getAuthToken();
 
   if(token){
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  if(isUnsafeRequest(config.method) && !String(config.url || "").includes("/csrf-token")){
+    const nextCsrfToken = await getCsrfToken();
+
+    if(nextCsrfToken){
+      config.headers = config.headers || {};
+      config.headers["X-CSRF-Token"] = nextCsrfToken;
+    }
   }
 
   return config;
@@ -99,13 +132,21 @@ API.interceptors.response.use(
     const originalRequest = error.config || {};
     const url = String(originalRequest.url || "");
     const isAuthEndpoint = ["/login", "/register", "/request-reset-code", "/reset-password", "/auth/session", "/auth/refresh"].some((path)=>url.includes(path));
+    const isCsrfError = error.response?.status === 403 && String(error.response?.data?.message || "").toLowerCase().includes("csrf");
+
+    if(isCsrfError && !originalRequest._csrfRetry){
+      originalRequest._csrfRetry = true;
+      csrfToken = null;
+      await getCsrfToken();
+      return API(originalRequest);
+    }
 
     if(error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint){
       originalRequest._retry = true;
 
       try{
         if(!refreshRequest){
-          refreshRequest = axios.post(`${API_BASE_URL}/auth/refresh`, {}, {withCredentials:true})
+          refreshRequest = API.post("/auth/refresh", {})
             .finally(()=>{
               refreshRequest = null;
             });
@@ -124,7 +165,6 @@ API.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 /* ADD MEMORY */
 export const addMemory = (data)=>API.post("/memories",data);
 

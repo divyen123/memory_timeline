@@ -41,6 +41,10 @@ const resetCodes = new Map();
 const loginAttempts = new Map();
 const resetAttempts = new Map();
 const hidePinPasswordAttempts = new Map();
+const CSRF_COOKIE = "mt_csrf";
+const CSRF_HEADER = "x-csrf-token";
+const CSRF_COOKIE_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 const getAllowedOrigins = () => (
   (process.env.ALLOWED_ORIGINS || "http://localhost:5173,http://127.0.0.1:5173")
@@ -48,6 +52,44 @@ const getAllowedOrigins = () => (
     .map((origin)=>origin.trim())
     .filter(Boolean)
 );
+
+const getCsrfCookieOptions = () => ({
+  httpOnly:true,
+  secure:isProduction,
+  sameSite:isProduction ? "none" : "lax",
+  maxAge:CSRF_COOKIE_MAX_AGE_MS,
+  path:"/api"
+});
+
+const createCsrfSecret = () => crypto.randomBytes(32).toString("base64url");
+
+const signCsrfSecret = (secret) => crypto
+  .createHmac("sha256", JWT_SECRET)
+  .update(secret)
+  .digest("base64url");
+
+const createCsrfToken = (secret) => `${secret}.${signCsrfSecret(secret)}`;
+
+const timingSafeEqualString = (left, right) => {
+  const leftBuffer = Buffer.from(String(left || ""));
+  const rightBuffer = Buffer.from(String(right || ""));
+
+  return leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer);
+};
+
+const isValidCsrfToken = (secret, token) => {
+  if(!secret || !token){
+    return false;
+  }
+
+  const [tokenSecret, tokenSignature, extra] = String(token).split(".");
+
+  if(extra !== undefined || !tokenSecret || !tokenSignature || !timingSafeEqualString(secret, tokenSecret)){
+    return false;
+  }
+
+  return timingSafeEqualString(signCsrfSecret(tokenSecret), tokenSignature);
+};
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
 const MAX_PROFILE_PHOTO_LENGTH = 400000;
@@ -206,7 +248,7 @@ app.use(cors({
     callback(new Error("Not allowed by CORS"));
   },
   methods:["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders:["Content-Type", "Authorization"],
+  allowedHeaders:["Content-Type", "Authorization", "X-CSRF-Token"],
   credentials:true,
   maxAge:600
 }));
@@ -222,8 +264,15 @@ app.use(expressRateLimit({
 app.use(express.json({limit:"1mb"}));
 app.use(cookieParser());
 
+app.get("/api/csrf-token", (req, res) => {
+  const secret = createCsrfSecret();
+
+  res.cookie(CSRF_COOKIE, secret, getCsrfCookieOptions());
+  res.json({csrfToken:createCsrfToken(secret)});
+});
+
 app.use((req, res, next) => {
-  if(!["POST", "PUT", "PATCH", "DELETE"].includes(req.method)){
+  if(!UNSAFE_METHODS.has(req.method)){
     return next();
   }
 
@@ -235,6 +284,19 @@ app.use((req, res, next) => {
   }
 
   next();
+});
+
+app.use((req, res, next) => {
+  if(!UNSAFE_METHODS.has(req.method)){
+    return next();
+  }
+
+  if(isValidCsrfToken(req.cookies?.[CSRF_COOKIE], req.get(CSRF_HEADER))){
+    return next();
+  }
+
+  securityWarn("csrf_rejected", {ip:req.ip, method:req.method});
+  return res.status(403).json({message:"Invalid CSRF token"});
 });
 
 /* AUTH ROUTES */

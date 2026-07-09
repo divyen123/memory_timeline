@@ -21,11 +21,7 @@ import {
   saveSettings
 } from "../settings";
 import { playAppSound } from "../sound";
-import {
-  ensureReminderPushSubscription,
-  requestReminderNotificationPermission,
-  unsubscribeReminderPush
-} from "../reminderNotifications";
+
 import { createHidePinValue, hasStoredHidePin, isFourDigitHidePin } from "../pinPrivacy";
 
 const LIGHT_BACKGROUND_PRESETS = [
@@ -676,27 +672,11 @@ function Profile() {
     });
   };
 
-  const handleBackgroundNotificationsChange = async (enabled) => {
+  const handleBackgroundNotificationsChange = (enabled) => {
     updateSetting("backgroundNotificationsEnabled", enabled);
-
-    if(!enabled){
-      await unsubscribeReminderPush();
-      setMessage("Outside-app reminder notifications are disabled for this browser.");
-      return;
-    }
-
-    const permission = await requestReminderNotificationPermission();
-
-    if(permission === "granted"){
-      await ensureReminderPushSubscription();
-      return;
-    }
-
-    updateSetting("backgroundNotificationsEnabled", false);
-    await unsubscribeReminderPush();
-    setMessage(permission === "denied"
-      ? "Browser notifications are blocked. Enable them in your browser settings."
-      : "Browser notifications were not enabled.");
+    setMessage(enabled
+      ? "Reminder emails will be sent to your registered email address."
+      : "Reminder emails are disabled.");
   };
 
   const updateBackgroundColor = (theme, color) => {
@@ -1343,8 +1323,8 @@ function Profile() {
                     onChange={(e)=>void handleBackgroundNotificationsChange(e.target.checked)}
                   />
                   <span>
-                    Notifications outside app
-                    <small>Turns off Memory Timeline reminders outside the app. Browser permission may still show allowed.</small>
+                    Email reminders
+                    <small>Sends due reminder messages to your registered email address.</small>
                   </span>
                 </label>
               </div>

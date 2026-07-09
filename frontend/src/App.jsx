@@ -13,7 +13,6 @@ import PublicShare from "./pages/PublicShare";
 import About from "./pages/About";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReminderWidget from "./components/ReminderWidget";
-import { ensureReminderPushSubscription, unsubscribeReminderPush } from "./reminderNotifications";
 import { getAppearanceSettings, logoutUser, updateAppearanceSettings } from "./services/api";
 import {
   AUTH_UPDATED_EVENT,
@@ -166,18 +165,7 @@ function App(){
     };
   },[]);
 
-  useEffect(()=>{
-    if(!authenticatedUserId){
-      return;
-    }
 
-    if(settings.backgroundNotificationsEnabled === false){
-      void unsubscribeReminderPush();
-      return;
-    }
-
-    void ensureReminderPushSubscription();
-  },[authenticatedUserId, settings.backgroundNotificationsEnabled]);
   useEffect(()=>{
     const handleSettingsUpdated = (event) => {
       setSettings(event.detail || loadSettings());
@@ -296,7 +284,6 @@ function App(){
 
     window.setTimeout(async() => {
       try{
-        await unsubscribeReminderPush();
         await logoutUser();
       }catch{
         // Local state is still cleared if the network is interrupted.

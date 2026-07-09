@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { getMemories } from "../services/api";
 import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
 import { playAppSound } from "../sound";
-import { maybeShowReminderNotification, requestReminderNotificationPermission } from "../reminderNotifications";
 import { AUTH_UPDATED_EVENT, getAuthenticatedUserId } from "../auth";
 
 const HIDDEN_IMAGE_MEMORY_TITLE = "app/hide-image/";
@@ -218,30 +217,6 @@ function ReminderWidget(){
     lastSoundReminderRef.current = reminderKey;
     playAppSound("reminder");
   }, [activeReminder]);
-  useEffect(() => {
-    if(!activeReminder || settings.backgroundNotificationsEnabled === false){
-      return;
-    }
-
-    const showNotification = () => {
-      maybeShowReminderNotification(activeReminder, {
-        reminderKey:getReminderKey(activeReminder),
-        leadDays:settings.reminderLeadDays,
-        onClick:()=>{
-          window.location.assign("/timeline");
-        }
-      });
-    };
-
-    showNotification();
-    window.addEventListener("blur", showNotification);
-    document.addEventListener("visibilitychange", showNotification);
-
-    return () => {
-      window.removeEventListener("blur", showNotification);
-      document.removeEventListener("visibilitychange", showNotification);
-    };
-  }, [activeReminder, settings.backgroundNotificationsEnabled, settings.reminderLeadDays]);
 
   return (
     <>
@@ -251,9 +226,6 @@ function ReminderWidget(){
           className="reminder-icon-btn"
           aria-label="Show reminders"
           onClick={()=>{
-            if(settings.backgroundNotificationsEnabled !== false){
-              void requestReminderNotificationPermission();
-            }
             setShowReminderPanel(!showReminderPanel);
             setReminderPage(0);
           }}

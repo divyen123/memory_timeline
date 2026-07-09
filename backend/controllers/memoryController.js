@@ -8,7 +8,6 @@ const Memory = require("../models/Memory");
 const ShareLink = require("../models/ShareLink");
 const Session = require("../models/Session");
 const User = require("../models/User");
-const PushSubscription = require("../models/PushSubscription");
 const { clearSessionCookies } = require("../authSessions");
 const { securityInfo, securityWarn } = require("../securityLogger");
 
@@ -475,6 +474,16 @@ const buildMemoryPayload = (req, images, thumbnails = []) => ({
   } : {})
 });
 
+const getReminderDateKey = (value) => {
+  if(!value){
+    return "";
+  }
+
+  const date = new Date(value);
+
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().split("T")[0];
+};
+
 const parseRetainedMediaList = (value) => {
   if(value === undefined){
     return null;
@@ -936,7 +945,6 @@ exports.deleteAccount = async (req,res)=>{
       Memory.deleteMany({userId}),
       ShareLink.deleteMany({userId}),
       Session.deleteMany({userId}),
-      PushSubscription.deleteMany({userId}),
       User.findByIdAndDelete(userId)
     ]);
 
@@ -967,6 +975,10 @@ exports.updateMemory = async (req,res)=>{
 
     if(!memory){
       return res.status(404).json({message:"Memory not found"});
+    }
+
+    if(getReminderDateKey(memory.reminderDate) !== getReminderDateKey(updateData.reminderDate)){
+      updateData.reminderEmailSentKey = "";
     }
 
     const hasRetainedImages = Object.prototype.hasOwnProperty.call(req.body, "retainedImages");

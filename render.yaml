@@ -31,6 +31,20 @@ services:
         generateValue: true
       - key: ALLOWED_ORIGINS
         sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_SECURE
+        value: "false"
+      - key: REMINDER_EMAIL_SCAN_INTERVAL_MS
+        value: "900000"
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY

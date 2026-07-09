@@ -17,7 +17,7 @@ Memory Timeline also includes a protected hidden-images section, trash recovery 
 - Timeline view, calendar view, and tile view modes
 - Default memory view selection from settings
 - Search, sorting, category filtering, and favorite memories
-- Reminder support with notification sounds and reminder popups
+- Reminder support with notification sounds, reminder popups, and registered-email reminder messages
 - Hidden images page protected by a mandatory 4-digit PIN
 - Application password confirmation before saving or updating sensitive PIN settings
 - Trash page with restore, select, empty bin, and permanent deletion flows
@@ -48,7 +48,7 @@ Memory Timeline also includes a protected hidden-images section, trash recovery 
 | Media Storage | Cloudinary |
 | Authentication | JWT, httpOnly cookies, bcryptjs |
 | Image Processing | Sharp, Multer |
-| Notifications | Web Push |
+| Notifications | Email reminders over SMTP |
 | Export Handling | JSZip |
 | Security Utilities | Helmet, CORS, Express Rate Limit, sanitize-html |
 | Deployment | Vercel for frontend, Render for backend |

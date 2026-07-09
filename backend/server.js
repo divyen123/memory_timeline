@@ -23,13 +23,10 @@ const {
   clearSessionCookies
 } = require("./authSessions");
 const {
-  configureWebPush,
-  getVapidPublicKey,
-  isPushConfigured,
-  removePushSubscription,
-  savePushSubscription,
-  startPushReminderScheduler
-} = require("./pushNotifications");
+  configureReminderEmail,
+  isReminderEmailConfigured,
+  startReminderEmailScheduler
+} = require("./reminderEmails");
 const { securityInfo, securityWarn, securityError } = require("./securityLogger");
 
 const app = express();
@@ -210,7 +207,7 @@ const rateLimit = (store, key, limit, windowMs) => {
 };
 
 validateProductionConfig();
-configureWebPush();
+configureReminderEmail();
 
 /* MIDDLEWARE */
 app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
@@ -802,33 +799,8 @@ app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
 
 });
 
-app.get("/api/push/public-key", authMiddleware, async(req,res)=>{
-  res.json({
-    enabled:isPushConfigured(),
-    publicKey:getVapidPublicKey()
-  });
-});
-
-app.post("/api/push/subscriptions", authMiddleware, async(req,res)=>{
-  try{
-    if(!isPushConfigured()){
-      return res.status(503).json({message:"Push notifications are not configured"});
-    }
-
-    await savePushSubscription(req.user.userId, req.body?.subscription, req.get("user-agent"));
-    res.status(204).end();
-  }catch(err){
-    res.status(err.status || 500).json({message:err.message || "Push subscription failed"});
-  }
-});
-
-app.delete("/api/push/subscriptions", authMiddleware, async(req,res)=>{
-  try{
-    await removePushSubscription(req.user.userId, req.body?.endpoint);
-    res.status(204).end();
-  }catch(err){
-    res.status(500).json({message:"Push unsubscribe failed"});
-  }
+app.get("/api/reminders/email-status", authMiddleware, async(req,res)=>{
+  res.json({enabled:isReminderEmailConfigured()});
 });
 /* MEMORY ROUTES */
 app.use("/api", memoryRoutes);
@@ -864,7 +836,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(()=>{
   securityInfo("database_connected");
-  startPushReminderScheduler();
+  startReminderEmailScheduler();
 })
 .catch(()=>securityError("database_connection_failed"));
 

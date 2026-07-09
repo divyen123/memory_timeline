@@ -216,8 +216,5 @@ export const deleteAccount = (password)=>API.delete("/profile", {
 export const updatePassword = (data)=>API.put("/profile/password",data);
 export const getAppearanceSettings = (profile)=>API.get(`/profile/settings/${profile}`);
 export const updateAppearanceSettings = (profile,settings,currentPassword)=>API.put(`/profile/settings/${profile}`, currentPassword ? {settings,currentPassword} : {settings});
-export const getPushPublicKey = ()=>API.get("/push/public-key");
-export const savePushSubscription = (subscription)=>API.post("/push/subscriptions", {subscription});
-export const deletePushSubscription = (endpoint)=>API.delete("/push/subscriptions", {data:{endpoint}});
 
 export default API;

@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
 const mongoose = require("mongoose");
 const Memory = require("./models/Memory");
 const User = require("./models/User");
@@ -13,6 +14,12 @@ let schedulerId = null;
 let scanInProgress = false;
 let transporter = null;
 let emailConfigured = false;
+
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch (error) {
+  // Older Node versions may not support this; the transport also sets family.
+}
 
 const getTodayKey = (date = new Date()) => {
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -78,6 +85,10 @@ const configureReminderEmail = () => {
     host,
     port:Number.isFinite(port) ? port : 587,
     secure:process.env.SMTP_SECURE === "true" || port === 465,
+    family:4,
+    connectionTimeout:30 * 1000,
+    greetingTimeout:30 * 1000,
+    socketTimeout:60 * 1000,
     auth:{user, pass}
   });
   emailConfigured = true;

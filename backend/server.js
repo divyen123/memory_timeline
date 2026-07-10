@@ -107,6 +107,7 @@ const sanitizeProfilePhoto = (photo) => {
 };
 const SETTINGS_PROFILE_KEYS = new Set(["mobile", "desktop"]);
 const HIDE_PIN_SETTINGS_KEYS = ["hidePasswordEnabled", "hidePasswordType", "hidePasswordValue"];
+const SHARED_REMINDER_SETTINGS_KEYS = ["reminderLeadDays", "backgroundNotificationsEnabled"];
 const SETTINGS_KEYS = new Set([
   "reminderLeadDays",
   "defaultTheme",
@@ -675,6 +676,11 @@ app.get("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
     const profileSettings = user.settingsProfiles?.[profile] || {};
     const alternateProfile = profile === "mobile" ? "desktop" : "mobile";
     const alternateSettings = user.settingsProfiles?.[alternateProfile] || {};
+    const sharedReminderSettings = Object.fromEntries(
+      SHARED_REMINDER_SETTINGS_KEYS
+        .map((key)=>[key, profileSettings[key] ?? alternateSettings[key]])
+        .filter(([, value])=>value !== undefined)
+    );
     const sharedHidePin = profileSettings.hidePasswordValue || alternateSettings.hidePasswordValue || "";
     const sharedHideSettings = sharedHidePin
       ? {
@@ -692,6 +698,7 @@ app.get("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
       profile,
       settings:{
         ...profileSettings,
+        ...sharedReminderSettings,
         ...sharedHideSettings
       }
     });
@@ -739,6 +746,9 @@ app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
     const hasHideSettingsUpdate = HIDE_PIN_SETTINGS_KEYS.some((key)=>
       Object.prototype.hasOwnProperty.call(settings, key)
     );
+    const hasSharedReminderSettingsUpdate = SHARED_REMINDER_SETTINGS_KEYS.some((key)=>
+      Object.prototype.hasOwnProperty.call(settings, key)
+    );
 
     if(hiddenPinChanged){
       const currentPassword = req.body?.currentPassword;
@@ -775,6 +785,20 @@ app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
         };
 
         HIDE_PIN_SETTINGS_KEYS.forEach((key)=>{
+          if(Object.prototype.hasOwnProperty.call(settings, key)){
+            nextProfiles[profileKey][key] = settings[key];
+          }
+        });
+      });
+    }
+
+    if(hasSharedReminderSettingsUpdate){
+      SETTINGS_PROFILE_KEYS.forEach((profileKey)=>{
+        nextProfiles[profileKey] = {
+          ...(nextProfiles[profileKey] || {})
+        };
+
+        SHARED_REMINDER_SETTINGS_KEYS.forEach((key)=>{
           if(Object.prototype.hasOwnProperty.call(settings, key)){
             nextProfiles[profileKey][key] = settings[key];
           }

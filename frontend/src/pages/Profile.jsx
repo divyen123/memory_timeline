@@ -895,7 +895,7 @@ function Profile() {
           <div className="profile-card settings-card">
             <h2>Settings</h2>
             <p className="settings-device-note">
-              Editing the <strong>{deviceProfile}</strong> profile. It syncs across your {deviceProfile} devices only.
+              Editing the <strong>{deviceProfile}</strong> profile. Reminder starts and Email reminders sync across mobile and desktop; appearance settings stay device-specific.
             </p>
             <form onSubmit={handleSettingsUpdate}>
               <label className="settings-field">

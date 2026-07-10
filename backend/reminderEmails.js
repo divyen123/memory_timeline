@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const net = require("net");
 const dns = require("dns");
 const mongoose = require("mongoose");
 const Memory = require("./models/Memory");
@@ -67,6 +68,31 @@ const getReminderEmailKey = (memory) => {
 
 const getFromAddress = () => process.env.SMTP_FROM || process.env.SMTP_USER;
 
+const createIpv4SmtpSocket = (host, port, timeoutMs = 30 * 1000) => (options, callback) => {
+  const socket = net.connect({
+    host,
+    port,
+    family:4,
+    timeout:timeoutMs
+  });
+  let settled = false;
+
+  const finish = (error, socketOptions) => {
+    if(settled){
+      return;
+    }
+    settled = true;
+    callback(error, socketOptions);
+  };
+
+  socket.once("connect", () => finish(null, {connection:socket}));
+  socket.once("timeout", () => {
+    socket.destroy();
+    finish(new Error("SMTP IPv4 connection timeout"));
+  });
+  socket.once("error", finish);
+};
+
 const configureReminderEmail = () => {
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT || 587);
@@ -89,6 +115,7 @@ const configureReminderEmail = () => {
     connectionTimeout:30 * 1000,
     greetingTimeout:30 * 1000,
     socketTimeout:60 * 1000,
+    getSocket:createIpv4SmtpSocket(host, Number.isFinite(port) ? port : 587),
     auth:{user, pass}
   });
   emailConfigured = true;

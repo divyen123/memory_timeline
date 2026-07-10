@@ -257,6 +257,8 @@ function Profile() {
   const [hidePinAppPassword,setHidePinAppPassword] = useState("");
   const [isHidePinConfirming,setIsHidePinConfirming] = useState(false);
   const [hidePinPasswordAttempts,setHidePinPasswordAttempts] = useState({count:0, lockedUntil:0});
+  const [showSettingsResetConfirm,setShowSettingsResetConfirm] = useState(false);
+  const [isSettingsResetting,setIsSettingsResetting] = useState(false);
   const deviceProfile = getDeviceProfile();
   const isMobileProfile = deviceProfile === "mobile";
   const [appSettings,setAppSettings] = useState(
@@ -634,7 +636,18 @@ function Profile() {
     }
   };
 
+  const closeSettingsResetConfirm = () => {
+    if(!isSettingsResetting){
+      setShowSettingsResetConfirm(false);
+    }
+  };
+
   const handleSettingsReset = async() => {
+    if(isSettingsResetting){
+      return;
+    }
+
+    setIsSettingsResetting(true);
     const resetSettings = saveSettings(
       collapseDesktopBackgroundColors(defaultSettings, deviceProfile),
       deviceProfile
@@ -648,6 +661,8 @@ function Profile() {
     }
 
     setAppSettings(resetSettings);
+    setIsSettingsResetting(false);
+    setShowSettingsResetConfirm(false);
   };
 
   const updateSetting = (key, value) => {
@@ -1376,7 +1391,7 @@ function Profile() {
 
               <div className="settings-save-actions">
                 <button type="submit">Save Settings</button>
-                <button type="button" className="settings-reset-btn" onClick={handleSettingsReset}>
+                <button type="button" className="settings-reset-btn" onClick={()=>setShowSettingsResetConfirm(true)}>
                   Reset
                 </button>
               </div>
@@ -1530,6 +1545,31 @@ function Profile() {
           Back to Timeline
         </button>
 
+        {showSettingsResetConfirm && (
+          <div className="confirm-overlay settings-reset-confirm-overlay" onClick={closeSettingsResetConfirm}>
+            <div
+              className="confirm-dialog settings-reset-confirm"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="settings-reset-confirm-title"
+              aria-describedby="settings-reset-confirm-description"
+              onClick={(event)=>event.stopPropagation()}
+            >
+              <h3 id="settings-reset-confirm-title">Reset settings?</h3>
+              <p id="settings-reset-confirm-description">
+                This will restore your {deviceProfile === "mobile" ? "mobile" : "desktop"} settings to the default values.
+              </p>
+              <div className="confirm-actions settings-reset-confirm-actions">
+                <button type="button" className="cancel-delete-btn" onClick={closeSettingsResetConfirm} disabled={isSettingsResetting}>
+                  Cancel
+                </button>
+                <button type="button" className="settings-reset-confirm-btn" onClick={handleSettingsReset} disabled={isSettingsResetting}>
+                  {isSettingsResetting ? "Resetting..." : "Reset settings"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {pendingHidePin && (
           <div className="confirm-overlay hide-pin-password-overlay" onClick={closeHidePinPasswordConfirm}>

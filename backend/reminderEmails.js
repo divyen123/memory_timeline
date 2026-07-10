@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const mongoose = require("mongoose");
 const Memory = require("./models/Memory");
 const User = require("./models/User");
 const { securityInfo, securityWarn, securityError } = require("./securityLogger");
@@ -160,7 +161,8 @@ const sendDueReminderEmails = async () => {
       today:getTodayKey(today)
     });
 
-    const users = await User.find({email:{$exists:true, $ne:""}}).select("email name settingsProfiles").lean();
+    const users = (await User.find({}).select("email name settingsProfiles").lean())
+      .filter((user)=>String(user.email || "").trim());
     securityInfo("reminder_email_users_loaded", {userCount:users.length});
 
     for(const user of users){
@@ -184,11 +186,11 @@ const sendDueReminderEmails = async () => {
         userId:user._id,
         deletedAt:null,
         hiddenAt:null,
-        title:{$ne:HIDDEN_IMAGE_MEMORY_TITLE},
-        reminderDate:{
+        title:mongoose.trusted({$ne:HIDDEN_IMAGE_MEMORY_TITLE}),
+        reminderDate:mongoose.trusted({
           $gte:today,
           $lte:reminderWindowEnd
-        }
+        })
       }).sort({reminderDate:1}).limit(MAX_BATCH_EMAILS - sentCount);
 
       securityInfo("reminder_email_due_memories_checked", {

@@ -15,6 +15,7 @@ let schedulerId = null;
 let scanInProgress = false;
 let transporter = null;
 let emailConfigured = false;
+let emailProvider = null;
 
 try {
   dns.setDefaultResultOrder("ipv4first");
@@ -66,7 +67,11 @@ const getReminderEmailKey = (memory) => {
   return `${memory._id}:${getTodayKey(new Date(memory.reminderDate))}`;
 };
 
-const getFromAddress = () => process.env.SMTP_FROM || process.env.SMTP_USER;
+const DEFAULT_RESEND_FROM = "Memory Timeline <onboarding@resend.dev>";
+
+const getSmtpFromAddress = () => process.env.SMTP_FROM || process.env.SMTP_USER;
+const getResendFromAddress = () => process.env.RESEND_FROM || DEFAULT_RESEND_FROM;
+const getFromAddress = () => emailProvider === "resend" ? getResendFromAddress() : getSmtpFromAddress();
 
 const createIpv4SmtpSocket = (host, port, timeoutMs = 30 * 1000) => (options, callback) => {
   const socket = net.connect({
@@ -94,14 +99,29 @@ const createIpv4SmtpSocket = (host, port, timeoutMs = 30 * 1000) => (options, ca
 };
 
 const configureReminderEmail = () => {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const resendFrom = getResendFromAddress();
+
+  if(resendApiKey && resendFrom){
+    emailConfigured = true;
+    emailProvider = "resend";
+    transporter = null;
+    securityInfo("reminder_email_configured", {
+      provider:"resend",
+      from:resendFrom
+    });
+    return true;
+  }
+
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT || 587);
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  const from = getFromAddress();
+  const from = getSmtpFromAddress();
 
   if(!host || !user || !pass || !from){
     emailConfigured = false;
+    emailProvider = null;
     transporter = null;
     securityWarn("reminder_email_disabled", {reason:"missing_smtp_config"});
     return false;
@@ -119,7 +139,9 @@ const configureReminderEmail = () => {
     auth:{user, pass}
   });
   emailConfigured = true;
+  emailProvider = "smtp";
   securityInfo("reminder_email_configured", {
+    provider:"smtp",
     host,
     port:Number.isFinite(port) ? port : 587,
     secure:process.env.SMTP_SECURE === "true" || port === 465,
@@ -170,15 +192,59 @@ const buildReminderEmail = (user, memory, leadDays) => {
   };
 };
 
+const sendWithResend = async (email) => {
+  const response = await fetch("https://api.resend.com/emails", {
+    method:"POST",
+    headers:{
+      Authorization:`Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      from:email.from,
+      to:[email.to],
+      subject:email.subject,
+      text:email.text,
+      html:email.html
+    })
+  });
+
+  if(response.ok){
+    return response.json();
+  }
+
+  let errorBody = "";
+  try{
+    errorBody = await response.text();
+  }catch(error){
+    errorBody = "Unable to read Resend error response";
+  }
+
+  const error = new Error(`Resend API failed with status ${response.status}`);
+  error.code = `RESEND_${response.status}`;
+  error.response = errorBody;
+  throw error;
+};
 const sendReminderEmail = async (user, memory, leadDays) => {
-  if(!transporter || !user?.email || !memory?.reminderDate){
+  if(!emailConfigured || !user?.email || !memory?.reminderDate){
     return false;
   }
 
-  await transporter.sendMail(buildReminderEmail(user, memory, leadDays));
+  const email = buildReminderEmail(user, memory, leadDays);
+  if(emailProvider === "resend"){
+    await sendWithResend(email);
+  }else if(transporter){
+    await transporter.sendMail(email);
+  }else{
+    return false;
+  }
+
   memory.reminderEmailSentKey = getReminderEmailKey(memory);
   await memory.save();
-  securityInfo("reminder_email_sent", {userId:String(user._id), memoryId:String(memory._id)});
+  securityInfo("reminder_email_sent", {
+    provider:emailProvider,
+    userId:String(user._id),
+    memoryId:String(memory._id)
+  });
   return true;
 };
 
@@ -297,3 +363,4 @@ module.exports = {
   sendDueReminderEmails,
   startReminderEmailScheduler
 };
+

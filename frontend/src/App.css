@@ -14341,3 +14341,154 @@ body.pure-white-theme .first-profile-message{
 .login-pure-white .first-profile-message{
   color:#b31345;
 }
+/* Animated background theme integration */
+body.animated-background-theme{
+  background:#050615 !important;
+  animation:none !important;
+}
+
+.container{
+  position:relative;
+  isolation:isolate;
+  min-height:100vh;
+}
+
+.background-color-fieldset{
+  min-width:0;
+  margin:0;
+  padding:0;
+  border:0;
+}
+
+.background-color-fieldset:disabled{
+  opacity:0.48;
+}
+
+.background-color-fieldset:disabled .theme-palette-button,
+.background-color-fieldset:disabled input,
+.background-color-fieldset:disabled select{
+  cursor:not-allowed;
+}
+
+.animated-theme-field{
+  margin-bottom:4px;
+}
+
+/* Fixed SoftAurora login/register surface */
+.split-login-page.fixed-auth-theme{
+  width:100vw;
+  min-height:100vh;
+  grid-template-columns:1fr;
+  grid-template-rows:auto auto;
+  place-content:center;
+  justify-items:center;
+  gap:18px;
+  padding:clamp(22px,4vw,48px);
+  background:#080719;
+  overflow:hidden;
+}
+
+.split-login-page.fixed-auth-theme::before{
+  z-index:1;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.16), transparent 24%),
+    linear-gradient(180deg, rgba(6,7,20,0.08), rgba(6,7,20,0.42));
+}
+
+.fixed-auth-theme .login-brand-panel,
+.fixed-auth-theme .login-form-panel{
+  z-index:2;
+  width:min(430px,100%);
+  padding:0;
+}
+
+.fixed-auth-theme .login-brand-panel{
+  gap:12px;
+}
+
+.fixed-auth-theme .login-logo{
+  width:clamp(76px,9vw,116px);
+  filter:drop-shadow(0 18px 34px rgba(5,6,22,0.34));
+}
+
+.fixed-auth-theme .login-brand .main-title{
+  margin:0;
+  color:#ffffff;
+  font-size:clamp(30px,4vw,46px);
+  line-height:1.02;
+  text-shadow:0 16px 34px rgba(4,5,18,0.42);
+}
+
+.fixed-auth-theme .login-form-panel{
+  align-items:center;
+  justify-content:center;
+}
+
+.fixed-auth-theme .login-live-layer{
+  width:min(390px,100%);
+}
+
+.fixed-auth-theme .animated-login-card{
+  width:100%;
+  margin:0;
+  padding:28px 26px;
+  border-radius:20px;
+  color:#ffffff;
+  background:rgba(255,255,255,0.13);
+  border:1px solid rgba(255,255,255,0.28);
+  box-shadow:0 26px 70px rgba(5,6,22,0.34), inset 0 1px 0 rgba(255,255,255,0.18);
+  backdrop-filter:blur(28px) saturate(1.18);
+  -webkit-backdrop-filter:blur(28px) saturate(1.18);
+}
+
+.fixed-auth-theme .animated-login-card h2{
+  margin-bottom:18px;
+  font-size:clamp(26px,3vw,34px);
+  color:#ffffff;
+}
+
+.fixed-auth-theme .login-field-shell{
+  border-color:rgba(255,255,255,0.38);
+  background:rgba(255,255,255,0.04);
+  color:#ffffff;
+}
+
+.fixed-auth-theme .login-motion-input,
+.fixed-auth-theme .login-motion-input:-webkit-autofill{
+  color:#ffffff;
+  -webkit-text-fill-color:#ffffff;
+}
+
+.fixed-auth-theme .login-actions{
+  gap:10px;
+}
+
+.fixed-auth-theme .login-submit-btn,
+.fixed-auth-theme .login-register-btn,
+.fixed-auth-theme .login-forgot-btn{
+  min-height:46px;
+  border-radius:14px;
+}
+
+@media (max-width:767px){
+  .split-login-page.fixed-auth-theme{
+    grid-template-rows:auto auto;
+    place-content:center;
+    gap:14px;
+    padding:calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
+    overflow:auto;
+  }
+
+  .fixed-auth-theme .login-logo{
+    width:72px;
+  }
+
+  .fixed-auth-theme .login-brand .main-title{
+    font-size:clamp(28px,9vw,36px);
+  }
+
+  .fixed-auth-theme .animated-login-card{
+    padding:22px 18px;
+    border-radius:18px;
+  }
+}

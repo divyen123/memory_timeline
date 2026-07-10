@@ -14,6 +14,7 @@ export const DEFAULT_BACKGROUND_PREFERENCE = {
 export const defaultSettings = {
   reminderLeadDays:2,
   defaultTheme:"light",
+  animationBackgroundTheme:"static",
   cardSize:"medium",
   tileCardShape:"square",
   defaultMemoryView:"timeline",
@@ -121,6 +122,9 @@ export const getSettingsStorageKey = (profile = getDeviceProfile()) => (
 export const normalizeSettings = (settings = {}) => ({
   ...defaultSettings,
   ...settings,
+  animationBackgroundTheme:["static", "liquidAther", "ferrofluid", "darkveil", "ballpit"].includes(settings.animationBackgroundTheme)
+    ? settings.animationBackgroundTheme
+    : defaultSettings.animationBackgroundTheme,
   reminderLeadDays:Number(settings.reminderLeadDays) || defaultSettings.reminderLeadDays,
   defaultMemoryView:["timeline", "calendar", "compact"].includes(settings.defaultMemoryView)
     ? settings.defaultMemoryView

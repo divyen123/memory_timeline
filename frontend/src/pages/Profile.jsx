@@ -12,6 +12,7 @@ import {
 } from "../services/api";
 import { clearAuthenticatedUser } from "../auth";
 import PageTransition from "../components/PageTransition";
+import { ANIMATED_BACKGROUND_OPTIONS } from "../components/AnimatedBackground";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import {
   defaultSettings,
@@ -264,6 +265,7 @@ function Profile() {
   const [appSettings,setAppSettings] = useState(
     ()=>collapseDesktopBackgroundColors(loadSettings(deviceProfile), deviceProfile)
   );
+  const isStaticBackgroundTheme = (appSettings.animationBackgroundTheme || "static") === "static";
   const backupFileRef = useRef(null);
   const profilePhotoInputRef = useRef(null);
 
@@ -1169,6 +1171,19 @@ function Profile() {
               </label>
               <div className="settings-section-title">Background Colors</div>
 
+              <label className="settings-field animated-theme-field">
+                <span>Animating theme</span>
+                <select
+                  value={appSettings.animationBackgroundTheme || "static"}
+                  onChange={(e)=>updateSetting("animationBackgroundTheme", e.target.value)}
+                >
+                  {ANIMATED_BACKGROUND_OPTIONS.map((option)=>(
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
+
+              <fieldset className="background-color-fieldset" disabled={!isStaticBackgroundTheme}>
               {isMobileProfile ? (
                 <div className="settings-color-grid mobile-theme-colors">
                   <label>
@@ -1279,6 +1294,7 @@ function Profile() {
                   </label>
                 </div>
               )}
+              </fieldset>
 
               {!isMobileProfile && (
                 <>

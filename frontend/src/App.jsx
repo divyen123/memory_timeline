@@ -13,6 +13,7 @@ import PublicShare from "./pages/PublicShare";
 import About from "./pages/About";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReminderWidget from "./components/ReminderWidget";
+import AnimatedBackground from "./components/AnimatedBackground";
 import { getAppearanceSettings, logoutUser, updateAppearanceSettings } from "./services/api";
 import {
   AUTH_UPDATED_EVENT,
@@ -58,6 +59,8 @@ function App(){
   const [authenticatedUserId,setAuthenticatedUserId] = useState(()=>getAuthenticatedUserId());
   const logoutCancelRef = useRef(null);
   const darkMode = settings.defaultTheme === "dark";
+  const animationBackgroundTheme = settings.animationBackgroundTheme || "static";
+  const isStaticBackgroundTheme = animationBackgroundTheme === "static";
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -94,7 +97,8 @@ function App(){
     document.body.classList.toggle("glass-containers-off", !settings.containerGlass);
     document.body.classList.toggle("button-glass-on", Boolean(settings.buttonGlass));
     document.body.classList.toggle("memory-hover-off", !settings.hoverEnabled);
-    document.body.classList.toggle("pure-white-theme", !darkMode && isPureWhiteColor(settings.lightGradientStart) && isPureWhiteColor(settings.lightGradientMiddle) && isPureWhiteColor(settings.lightGradientEnd));
+    document.body.classList.toggle("pure-white-theme", isStaticBackgroundTheme && !darkMode && isPureWhiteColor(settings.lightGradientStart) && isPureWhiteColor(settings.lightGradientMiddle) && isPureWhiteColor(settings.lightGradientEnd));
+    document.body.classList.toggle("animated-background-theme", !isStaticBackgroundTheme && !isAuthPage);
     document.body.classList.toggle("top-actions-left", settings.topButtonsPosition === "left");
     document.body.classList.remove("top-icons-box", "top-icons-circle", "top-icons-soft", "top-icons-minimal");
     document.body.classList.add(`top-icons-${settings.topButtonsIconStyle || "circle"}`);
@@ -151,7 +155,7 @@ function App(){
         : `color-mix(in srgb, ${activeGradientEnd} 82%, #1a1a2e)`
     );
 
-  },[darkMode, settings]);
+  },[darkMode, settings, isStaticBackgroundTheme, isAuthPage]);
 
   useEffect(()=>{
     const handleAuthUpdated = (event) => {
@@ -323,20 +327,23 @@ function App(){
   return(
 
     <div className={`container ${isPublicSharePage ? "public-route-container" : ""}`}>
+      {!isAuthPage && <AnimatedBackground theme={animationBackgroundTheme} />}
 
       {/* BUTTON GROUP */}
 
   {showTopButtons && (
   <div className="top-buttons">
 
+  {isStaticBackgroundTheme && (
   <button
     className="toggle-btn"
     onClick={toggleTheme}
     title={darkMode ? "Use light theme" : "Use dark theme"}
     aria-label={darkMode ? "Use light theme" : "Use dark theme"}
   >
-    {darkMode ? "☀️" : "🌙"}
+    {darkMode ? "\u2600" : "\u263E"}
   </button>
+  )}
 
   {showLogout && (
     <button
@@ -345,7 +352,7 @@ function App(){
       title="Log out"
       aria-label="Log out"
     >
-      🔓
+      {"\uD83D\uDD13"}
     </button>
   )}
 
@@ -369,7 +376,7 @@ function App(){
             aria-labelledby="logout-confirm-title"
             aria-describedby="logout-confirm-description"
           >
-            <div className="logout-confirm-icon" aria-hidden="true">🔓</div>
+            <div className="logout-confirm-icon" aria-hidden="true">{"\uD83D\uDD13"}</div>
             <div className="logout-confirm-copy">
               <p>Session</p>
               <h2 id="logout-confirm-title">Log out of Memory Timeline?</h2>

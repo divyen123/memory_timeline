@@ -1121,8 +1121,8 @@ function Profile() {
                 <span>Container transparency</span>
                 <input
                   type="range"
-                  min="0.04"
-                  max="0.45"
+                  min="0"
+                  max="1"
                   step="0.01"
                   value={appSettings.containerGlassAlpha}
                   onChange={(e)=>updateSetting("containerGlassAlpha", Number(e.target.value))}
@@ -1217,7 +1217,6 @@ function Profile() {
                     <span className="theme-color-heading">
                       <span>Light background</span>
                       <span className="theme-color-heading-actions">
-                        <output>{appSettings.lightGradientStart.toUpperCase()}</output>
                         <span className="theme-palette-buttons" aria-label="Light background presets">
                           {LIGHT_BACKGROUND_PRESETS.map((preset)=>(
                             <button
@@ -1257,7 +1256,6 @@ function Profile() {
                     <span className="theme-color-heading">
                       <span>Dark background</span>
                       <span className="theme-color-heading-actions">
-                        <output>{appSettings.darkGradientStart.toUpperCase()}</output>
                         <span className="theme-palette-buttons" aria-label="Dark background presets">
                           {DARK_BACKGROUND_PRESETS.map((preset)=>(
                             <button

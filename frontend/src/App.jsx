@@ -50,6 +50,21 @@ const FONT_FAMILY_MAP = {
 
 const isPureWhiteColor = (color) => String(color || "").trim().toLowerCase() === "#ffffff";
 
+const hexToRgbString = (color, fallback = "22, 23, 42") => {
+  const value = String(color || "").replace("#", "").trim();
+  const normalized = /^[0-9a-f]{3}$/i.test(value)
+    ? value.split("").map((character)=>character + character).join("")
+    : value;
+
+  if(!/^[0-9a-f]{6}$/i.test(normalized)){
+    return fallback;
+  }
+
+  return [0, 2, 4]
+    .map((start)=>parseInt(normalized.slice(start, start + 2), 16))
+    .join(", ");
+};
+
 function App(){
 
   const [deviceProfile,setDeviceProfile] = useState(()=>getDeviceProfile());
@@ -142,6 +157,10 @@ function App(){
     const activeGradientEnd = darkMode
       ? (settings.darkGradientStart || "#0f172a")
       : (settings.lightGradientEnd || "#7a8cff");
+    const containerGlassRgb = !isStaticBackgroundTheme && !isAuthPage
+      ? "22, 23, 42"
+      : hexToRgbString(activeGradientMiddle, darkMode ? "30, 27, 75" : "196, 92, 255");
+    document.documentElement.style.setProperty("--container-glass-rgb", containerGlassRgb);
     document.documentElement.style.setProperty(
       "--scrollbar-thumb-color",
       darkMode

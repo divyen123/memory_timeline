@@ -111,6 +111,7 @@ const SHARED_REMINDER_SETTINGS_KEYS = ["reminderLeadDays", "backgroundNotificati
 const SETTINGS_KEYS = new Set([
   "reminderLeadDays",
   "defaultTheme",
+  "animationBackgroundTheme",
   "cardSize",
   "tileCardShape",
   "defaultMemoryView",

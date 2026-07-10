@@ -14492,3 +14492,57 @@ body.animated-background-theme{
     border-radius:18px;
   }
 }
+
+/* Theme-colored container glass: transparent -> translucent -> opaque without white washout. */
+:root{
+  --container-glass-rgb:22, 23, 42;
+}
+
+.container:not(:has(.fixed-auth-theme)) .glass-card,
+.details-panel,
+.profile-card,
+.profile-summary-card,
+.calendar-month,
+.empty-state,
+.preview-dialog,
+.confirm-dialog,
+.reminder-alert-card,
+.trash-actions-menu{
+  background:rgba(var(--container-glass-rgb), var(--container-glass-alpha));
+  transition:
+    background 0.28s ease,
+    border-color 0.28s ease,
+    backdrop-filter 0.28s ease,
+    -webkit-backdrop-filter 0.28s ease;
+}
+
+body.animated-background-theme .settings-card,
+body.animated-background-theme .profile-card,
+body.animated-background-theme .profile-summary-card{
+  border-color:rgba(255,255,255,0.18);
+}
+
+/* Smoothly close the top action gap when the static light/dark toggle is hidden. */
+.top-buttons,
+.top-buttons .toggle-btn,
+.top-buttons .logout-btn,
+.reminder-menu,
+.reminder-icon-btn{
+  transition:
+    left 0.3s ease,
+    right 0.3s ease,
+    top 0.3s ease,
+    transform 0.22s ease,
+    background 0.28s ease,
+    border-color 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+body.animated-background-theme .reminder-menu{
+  right:calc(20px + var(--top-action-size) + 8px);
+}
+
+body.animated-background-theme.top-actions-left .reminder-menu{
+  left:calc(20px + var(--top-action-size) + 8px);
+  right:auto;
+}

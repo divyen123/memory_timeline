@@ -80,6 +80,12 @@ const configureReminderEmail = () => {
     auth:{user, pass}
   });
   emailConfigured = true;
+  securityInfo("reminder_email_configured", {
+    host,
+    port:Number.isFinite(port) ? port : 587,
+    secure:process.env.SMTP_SECURE === "true" || port === 465,
+    from
+  });
   return true;
 };
 
@@ -139,6 +145,9 @@ const sendReminderEmail = async (user, memory, leadDays) => {
 
 const sendDueReminderEmails = async () => {
   if(!emailConfigured || scanInProgress){
+    if(!emailConfigured){
+      securityWarn("reminder_email_scan_skipped", {reason:"email_not_configured"});
+    }
     return;
   }
 
@@ -148,6 +157,10 @@ const sendDueReminderEmails = async () => {
     const users = await User.find({email:{$exists:true, $ne:""}}).select("email name settingsProfiles").lean();
     const today = startOfDay();
     let sentCount = 0;
+    securityInfo("reminder_email_scan_started", {
+      userCount:users.length,
+      today:getTodayKey(today)
+    });
 
     for(const user of users){
       if(sentCount >= MAX_BATCH_EMAILS){
@@ -155,6 +168,10 @@ const sendDueReminderEmails = async () => {
       }
 
       if(!hasEmailRemindersEnabled(user)){
+        securityInfo("reminder_email_user_skipped", {
+          userId:String(user._id),
+          reason:"email_reminders_disabled"
+        });
         continue;
       }
 
@@ -173,8 +190,21 @@ const sendDueReminderEmails = async () => {
         }
       }).sort({reminderDate:1}).limit(MAX_BATCH_EMAILS - sentCount);
 
+      securityInfo("reminder_email_due_memories_checked", {
+        userId:String(user._id),
+        leadDays,
+        windowStart:getTodayKey(today),
+        windowEnd:getTodayKey(reminderWindowEnd),
+        memoryCount:memories.length
+      });
+
       for(const memory of memories){
         if(memory.reminderEmailSentKey === getReminderEmailKey(memory)){
+          securityInfo("reminder_email_memory_skipped", {
+            userId:String(user._id),
+            memoryId:String(memory._id),
+            reason:"already_sent_for_reminder_date"
+          });
           continue;
         }
 
@@ -182,12 +212,23 @@ const sendDueReminderEmails = async () => {
           await sendReminderEmail(user, memory, leadDays);
           sentCount += 1;
         }catch(error){
-          securityWarn("reminder_email_send_failed", {userId:String(user._id), memoryId:String(memory._id)});
+          securityWarn("reminder_email_send_failed", {
+            userId:String(user._id),
+            memoryId:String(memory._id),
+            errorCode:error?.code,
+            errorMessage:error?.message,
+            smtpResponse:error?.response
+          });
         }
       }
     }
+
+    securityInfo("reminder_email_scan_completed", {sentCount});
   }catch(error){
-    securityError("reminder_email_scan_failed");
+    securityError("reminder_email_scan_failed", {
+      errorCode:error?.code,
+      errorMessage:error?.message
+    });
   }finally{
     scanInProgress = false;
   }

@@ -154,13 +154,14 @@ const sendDueReminderEmails = async () => {
   scanInProgress = true;
 
   try{
-    const users = await User.find({email:{$exists:true, $ne:""}}).select("email name settingsProfiles").lean();
     const today = startOfDay();
     let sentCount = 0;
     securityInfo("reminder_email_scan_started", {
-      userCount:users.length,
       today:getTodayKey(today)
     });
+
+    const users = await User.find({email:{$exists:true, $ne:""}}).select("email name settingsProfiles").lean();
+    securityInfo("reminder_email_users_loaded", {userCount:users.length});
 
     for(const user of users){
       if(sentCount >= MAX_BATCH_EMAILS){
@@ -246,11 +247,8 @@ const startReminderEmailScheduler = () => {
     void sendDueReminderEmails();
   }, safeIntervalMs);
 
-  setTimeout(()=>{
-    void sendDueReminderEmails();
-  }, 10 * 1000);
-
   securityInfo("reminder_email_scheduler_started", {intervalMs:safeIntervalMs});
+  void sendDueReminderEmails();
 };
 
 module.exports = {

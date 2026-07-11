@@ -39,15 +39,11 @@ const ClickSpark = ({
       return undefined;
     }
 
-    const parent = canvas.parentElement;
-    if(!parent){
-      return undefined;
-    }
-
     let resizeTimeout;
 
     const resizeCanvas = () => {
-      const { width, height } = parent.getBoundingClientRect();
+      const width = window.innerWidth || document.documentElement.clientWidth || 1;
+      const height = window.innerHeight || document.documentElement.clientHeight || 1;
       const pixelRatio = window.devicePixelRatio || 1;
       const nextWidth = Math.max(1, Math.round(width * pixelRatio));
       const nextHeight = Math.max(1, Math.round(height * pixelRatio));
@@ -66,12 +62,13 @@ const ClickSpark = ({
       resizeTimeout = window.setTimeout(resizeCanvas, 100);
     };
 
-    const observer = new ResizeObserver(handleResize);
-    observer.observe(parent);
     resizeCanvas();
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
 
     return () => {
-      observer.disconnect();
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
       clearTimeout(resizeTimeout);
     };
   }, []);
@@ -154,10 +151,9 @@ const ClickSpark = ({
       return;
     }
 
-    const rect = canvas.getBoundingClientRect();
     const pixelRatio = window.devicePixelRatio || 1;
-    const x = (event.clientX - rect.left) * pixelRatio;
-    const y = (event.clientY - rect.top) * pixelRatio;
+    const x = event.clientX * pixelRatio;
+    const y = event.clientY * pixelRatio;
     const now = performance.now();
 
     const newSparks = Array.from({ length:sparkCount }, (_, index) => ({

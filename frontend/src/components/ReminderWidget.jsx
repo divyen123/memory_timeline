@@ -248,7 +248,7 @@ function ReminderWidget(){
                 {pagedReminders.map((memory)=>(
                   <button
                     type="button"
-                    className="reminder-popover-item"
+                    className={`reminder-popover-item ${getTodayKey(new Date(memory.reminderDate)) === getTodayKey() ? "due-today" : ""}`}
                     key={memory._id}
                     onClick={()=>setShowReminderPanel(false)}
                   >

@@ -1530,7 +1530,7 @@ function MemoryTimeline() {
                   {pagedReminders.map((memory)=>(
                     <button
                       type="button"
-                      className="reminder-popover-item"
+                      className={`reminder-popover-item ${getTodayKey(new Date(memory.reminderDate)) === getTodayKey() ? "due-today" : ""}`}
                       key={memory._id}
                       onClick={()=>{
                         openPreviewMemory(memory);

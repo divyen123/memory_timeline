@@ -14795,16 +14795,16 @@ body.dark.button-glass-on .preview-dialog .preview-actions .preview-hide-btn:hov
 .preview-image-expand-btn,
 body.button-glass-on .preview-image-expand-btn,
 body:not(.button-glass-on) .preview-image-expand-btn{
-  width:38px !important;
-  height:38px !important;
-  min-width:38px !important;
-  min-height:38px !important;
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  min-height:32px !important;
   border-radius:999px !important;
   border:1px solid rgba(255,255,255,0.3) !important;
   background:linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08)) !important;
   color:#ffffff !important;
-  box-shadow:0 16px 34px rgba(5,8,30,0.16), inset 0 1px 0 rgba(255,255,255,0.22) !important;
-  backdrop-filter:blur(16px) saturate(1.12) !important;
+  box-shadow:0 12px 24px rgba(5,8,30,0.14), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+  backdrop-filter:blur(14px) saturate(1.1) !important;
   -webkit-backdrop-filter:blur(16px) saturate(1.12) !important;
 }
 
@@ -14820,29 +14820,29 @@ body:not(.button-glass-on) .preview-image-expand-btn:hover{
 .preview-image-viewer .carousel-close,
 body.button-glass-on .preview-image-viewer .carousel-close,
 body:not(.button-glass-on) .preview-image-viewer .carousel-close{
-  width:44px !important;
-  height:44px !important;
-  min-width:44px !important;
-  min-height:44px !important;
+  width:36px !important;
+  height:36px !important;
+  min-width:36px !important;
+  min-height:36px !important;
   padding:0 !important;
   display:grid !important;
   place-items:center !important;
-  border-radius:12px !important;
-  border:1px solid rgba(255,255,255,0.42) !important;
-  background:linear-gradient(135deg,#ff1744,#c90021) !important;
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,0.34) !important;
+  background:linear-gradient(135deg,#e83d58,#b71932) !important;
   color:#ffffff !important;
-  box-shadow:0 18px 38px rgba(201,0,33,0.34), inset 0 1px 0 rgba(255,255,255,0.28) !important;
+  box-shadow:0 10px 22px rgba(183,25,50,0.22), inset 0 1px 0 rgba(255,255,255,0.22) !important;
   backdrop-filter:none !important;
   -webkit-backdrop-filter:none !important;
-  font-size:20px !important;
+  font-size:17px !important;
   line-height:1 !important;
 }
 
 .preview-image-viewer .carousel-close:hover,
 body.button-glass-on .preview-image-viewer .carousel-close:hover,
 body:not(.button-glass-on) .preview-image-viewer .carousel-close:hover{
-  background:linear-gradient(135deg,#ff4568,#e00027) !important;
-  border-color:rgba(255,255,255,0.72) !important;
+  background:linear-gradient(135deg,#f05a70,#c8233d) !important;
+  border-color:rgba(255,255,255,0.5) !important;
   color:#ffffff !important;
 }
 

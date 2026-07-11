@@ -943,9 +943,6 @@ function Profile() {
                     Dark
                   </button>
                 </div>
-                {isDefaultThemeLocked && (
-                  <small className="settings-lock-note">Animated backgrounds always use dark theme.</small>
-                )}
               </label>
 
               <div className="settings-row">

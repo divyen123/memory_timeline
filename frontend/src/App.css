@@ -14386,6 +14386,7 @@ body.animated-background-theme{
   padding:clamp(20px,3.5vw,40px);
   background:#080719;
   overflow:hidden;
+  transform:translateY(-18px);
 }
 
 .split-login-page.fixed-auth-theme::before{
@@ -14487,6 +14488,7 @@ body.animated-background-theme{
     gap:10px;
     padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
     overflow:auto;
+    transform:translateY(-10px);
   }
 
   .fixed-auth-theme .login-logo{

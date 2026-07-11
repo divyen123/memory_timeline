@@ -11,6 +11,27 @@ import AnimatedBackground from "../components/AnimatedBackground";
 
 const LoginIntroMotion = React.lazy(()=>import("../components/LoginIntroMotion"));
 const ACCOUNT_DELETE_MESSAGE_KEY = "memory-account-delete-message";
+const getApiErrorMessage = (error, fallback) => {
+  const data = error?.response?.data;
+
+  if(typeof data?.message === "string" && data.message.trim()){
+    return data.message;
+  }
+
+  if(typeof data?.error === "string" && data.error.trim()){
+    return data.error;
+  }
+
+  if(error?.response?.status){
+    return `${fallback} (HTTP ${error.response.status})`;
+  }
+
+  if(error?.request){
+    return "Unable to reach the server. Please check your connection and try again.";
+  }
+
+  return fallback;
+};
 
 const FIRST_PROFILE_PHOTO_MAX_SOURCE_SIZE = 8 * 1024 * 1024;
 const FIRST_PROFILE_PHOTO_SIZE = 360;
@@ -204,7 +225,7 @@ const handleLogin = async () => {
 
   } catch (err) {
 
-    setMessage(err.response?.data?.message || "Login failed");
+    setMessage(getApiErrorMessage(err, "Login failed"));
     setLoginStatus("idle");
 
   }
@@ -269,7 +290,7 @@ const handleRegisterSubmit = async () => {
     setMessage("Account created successfully. Please log in.");
   }
   catch(err){
-    setRegisterMessage(err.response?.data?.message || "Registration failed");
+    setRegisterMessage(getApiErrorMessage(err, "Registration failed"));
     setRegisterStatus("idle");
   }
 };

@@ -7,7 +7,7 @@
 .click-spark-canvas{
   position:fixed;
   inset:0;
-  z-index:10000;
+  z-index:2147483647;
   display:block;
   width:100vw;
   height:100vh;

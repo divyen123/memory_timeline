@@ -145,15 +145,15 @@ const ClickSpark = ({
     };
   }, [sparkColor, sparkSize, sparkRadius, duration, easeFunc, extraScale]);
 
-  const handleClick = (event) => {
+  const createSpark = useCallback((clientX, clientY) => {
     const canvas = canvasRef.current;
     if(!canvas || reduceMotionRef.current){
       return;
     }
 
     const pixelRatio = window.devicePixelRatio || 1;
-    const x = event.clientX * pixelRatio;
-    const y = event.clientY * pixelRatio;
+    const x = clientX * pixelRatio;
+    const y = clientY * pixelRatio;
     const now = performance.now();
 
     const newSparks = Array.from({ length:sparkCount }, (_, index) => ({
@@ -164,10 +164,30 @@ const ClickSpark = ({
     }));
 
     sparksRef.current.push(...newSparks);
-  };
+  }, [sparkCount]);
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if(event.button && event.button !== 0){
+        return;
+      }
+
+      if(event.pointerType && event.isPrimary === false){
+        return;
+      }
+
+      createSpark(event.clientX, event.clientY);
+    };
+
+    window.addEventListener("pointerdown", handlePointerDown, true);
+
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown, true);
+    };
+  }, [createSpark]);
 
   return (
-    <div className="click-spark" onClick={handleClick}>
+    <div className="click-spark">
       <canvas ref={canvasRef} className="click-spark-canvas" aria-hidden="true" />
       {children}
     </div>

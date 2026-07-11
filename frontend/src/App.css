@@ -14386,7 +14386,6 @@ body.animated-background-theme{
   padding:clamp(20px,3.5vw,40px);
   background:#080719;
   overflow:hidden;
-  transform:translateY(-18px);
 }
 
 .split-login-page.fixed-auth-theme::before{
@@ -14401,6 +14400,7 @@ body.animated-background-theme{
   z-index:2;
   width:min(400px,100%);
   padding:0;
+  transform:translateY(-18px);
 }
 
 .fixed-auth-theme .login-brand-panel{
@@ -14488,6 +14488,10 @@ body.animated-background-theme{
     gap:10px;
     padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
     overflow:auto;
+  }
+
+  .fixed-auth-theme .login-brand-panel,
+  .fixed-auth-theme .login-form-panel{
     transform:translateY(-10px);
   }
 

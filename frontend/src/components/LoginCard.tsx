@@ -40,17 +40,19 @@ function LoginCard({
   const cardVariants = {
     hidden: {
       opacity: 0,
-      y: prefersReducedMotion ? 0 : -18,
-      scale: prefersReducedMotion ? 1 : 1.12,
-      filter: prefersReducedMotion ? "none" : "blur(8px)"
+      y: prefersReducedMotion ? 0 : 12,
+      scale: prefersReducedMotion ? 1 : 0.96,
+      scaleY: prefersReducedMotion ? 1 : 0.9,
+      filter: prefersReducedMotion ? "none" : "blur(6px)"
     },
     show: {
       opacity: 1,
       y: 0,
       scale: 1,
+      scaleY: 1,
       filter: "blur(0px)",
       transition: {
-        duration: prefersReducedMotion ? 0.18 : 0.62,
+        duration: prefersReducedMotion ? 0.18 : 0.44,
         ease: memoryTheme.motion.easeOut,
         when: "beforeChildren",
         staggerChildren: prefersReducedMotion ? 0 : 0.07
@@ -59,7 +61,8 @@ function LoginCard({
     exit: {
       opacity: 0,
       y: prefersReducedMotion ? 0 : -8,
-      scale: prefersReducedMotion ? 1 : 0.96,
+      scale: prefersReducedMotion ? 1 : 0.98,
+      scaleY: prefersReducedMotion ? 1 : 0.94,
       transition: {duration: 0.24, ease: memoryTheme.motion.easeSoft}
     }
   };
@@ -93,7 +96,7 @@ function LoginCard({
   };
 
   return (
-    <motion.div className="login-live-layer" initial="hidden" animate="show" exit="exit">
+    <motion.div className="login-live-layer" layout initial="hidden" animate="show" exit="exit">
       {!prefersReducedMotion && ambientParticles.map((particle)=>(
         <motion.span
           key={`${particle.x}-${particle.delay}`}
@@ -117,6 +120,8 @@ function LoginCard({
       ))}
       <motion.section
         className="glass-card login-card animated-login-card"
+        layout
+        style={{ transformOrigin: "top center" }}
         variants={cardVariants}
         aria-label="Login form"
       >

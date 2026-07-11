@@ -14434,10 +14434,15 @@ body.animated-background-theme{
 
 .fixed-auth-theme .login-brand-panel{
   gap:10px;
+  padding-top:14px;
+  overflow:visible;
 }
 
 .fixed-auth-theme .login-logo{
   width:clamp(64px,7vw,94px);
+  border:0;
+  outline:0;
+  background:transparent;
   filter:drop-shadow(0 18px 34px rgba(5,6,22,0.34));
 }
 
@@ -14456,6 +14461,7 @@ body.animated-background-theme{
 
 .fixed-auth-theme .login-live-layer{
   width:min(360px,100%);
+  overflow:visible;
 }
 
 .fixed-auth-theme .animated-login-card{
@@ -14521,7 +14527,7 @@ body.animated-background-theme{
 
   .fixed-auth-theme .login-brand-panel,
   .fixed-auth-theme .login-form-panel{
-    transform:translateY(-10px);
+    transform:translateY(-8px);
   }
 
   .fixed-auth-theme .login-logo{

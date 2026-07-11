@@ -14722,3 +14722,148 @@ body.light .timeline-controls.toolbar-icons-soft .timeline-action-btn{
   border-color:color-mix(in srgb, var(--button-bg-color) 78%, white) !important;
   box-shadow:0 14px 30px color-mix(in srgb, var(--button-bg-color) 35%, transparent) !important;
 }
+/* Full-memory preview controls: keep special controls fixed and make action row compact. */
+.preview-dialog .preview-actions{
+  gap:7px;
+  padding-top:16px;
+}
+
+.preview-dialog .preview-actions button,
+.preview-dialog .preview-actions .preview-image-info-btn{
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+  min-height:34px !important;
+  flex:0 0 34px !important;
+  font-size:16px !important;
+}
+
+.preview-dialog .preview-actions .preview-image-info-btn{
+  font-size:18px !important;
+}
+
+.preview-dialog .preview-actions .preview-export-btn span.preview-download-icon{
+  font-size:16px !important;
+}
+
+.preview-dialog .preview-actions .preview-delete-btn span{
+  font-size:14px !important;
+}
+
+.preview-dialog .preview-actions .preview-hide-btn span{
+  font-size:17px !important;
+}
+
+body:not(.button-glass-on) .preview-dialog .preview-actions .preview-hide-btn,
+body.light:not(.button-glass-on) .preview-dialog .preview-actions .preview-hide-btn,
+body.dark:not(.button-glass-on) .preview-dialog .preview-actions .preview-hide-btn{
+  background:var(--button-bg-color) !important;
+  border-color:color-mix(in srgb, var(--button-bg-color) 68%, white) !important;
+  color:white !important;
+  box-shadow:0 12px 26px rgba(0,0,0,0.18) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+body:not(.button-glass-on) .preview-dialog .preview-actions .preview-hide-btn:hover,
+body.light:not(.button-glass-on) .preview-dialog .preview-actions .preview-hide-btn:hover,
+body.dark:not(.button-glass-on) .preview-dialog .preview-actions .preview-hide-btn:hover{
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white) !important;
+  border-color:color-mix(in srgb, var(--button-bg-color) 78%, white) !important;
+  color:white !important;
+}
+
+body.button-glass-on .preview-dialog .preview-actions .preview-hide-btn,
+body.light.button-glass-on .preview-dialog .preview-actions .preview-hide-btn,
+body.dark.button-glass-on .preview-dialog .preview-actions .preview-hide-btn{
+  background:color-mix(in srgb, var(--button-bg-color) calc(var(--button-glass-alpha) * 100%), transparent) !important;
+  border-color:rgba(255,255,255,0.22) !important;
+  color:white !important;
+  box-shadow:0 12px 30px rgba(0,0,0,0.18) !important;
+  backdrop-filter:blur(14px) !important;
+  -webkit-backdrop-filter:blur(14px) !important;
+}
+
+body.button-glass-on .preview-dialog .preview-actions .preview-hide-btn:hover,
+body.light.button-glass-on .preview-dialog .preview-actions .preview-hide-btn:hover,
+body.dark.button-glass-on .preview-dialog .preview-actions .preview-hide-btn:hover{
+  background:color-mix(in srgb, var(--button-bg-color) calc((var(--button-glass-alpha) + 0.1) * 100%), transparent) !important;
+  border-color:rgba(255,255,255,0.32) !important;
+  color:white !important;
+}
+
+.preview-image-expand-btn,
+body.button-glass-on .preview-image-expand-btn,
+body:not(.button-glass-on) .preview-image-expand-btn{
+  width:38px !important;
+  height:38px !important;
+  min-width:38px !important;
+  min-height:38px !important;
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,0.3) !important;
+  background:linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08)) !important;
+  color:#ffffff !important;
+  box-shadow:0 16px 34px rgba(5,8,30,0.16), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+  backdrop-filter:blur(16px) saturate(1.12) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(1.12) !important;
+}
+
+.preview-image-expand-btn:hover,
+body.button-glass-on .preview-image-expand-btn:hover,
+body:not(.button-glass-on) .preview-image-expand-btn:hover{
+  background:linear-gradient(145deg, rgba(255,255,255,0.28), rgba(255,255,255,0.12)) !important;
+  border-color:rgba(255,255,255,0.42) !important;
+  color:#ffffff !important;
+  box-shadow:0 18px 38px rgba(5,8,30,0.22), 0 0 24px rgba(255,75,125,0.18), inset 0 1px 0 rgba(255,255,255,0.28) !important;
+}
+
+.preview-image-viewer .carousel-close,
+body.button-glass-on .preview-image-viewer .carousel-close,
+body:not(.button-glass-on) .preview-image-viewer .carousel-close{
+  width:44px !important;
+  height:44px !important;
+  min-width:44px !important;
+  min-height:44px !important;
+  padding:0 !important;
+  display:grid !important;
+  place-items:center !important;
+  border-radius:12px !important;
+  border:1px solid rgba(255,255,255,0.42) !important;
+  background:linear-gradient(135deg,#ff1744,#c90021) !important;
+  color:#ffffff !important;
+  box-shadow:0 18px 38px rgba(201,0,33,0.34), inset 0 1px 0 rgba(255,255,255,0.28) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  font-size:20px !important;
+  line-height:1 !important;
+}
+
+.preview-image-viewer .carousel-close:hover,
+body.button-glass-on .preview-image-viewer .carousel-close:hover,
+body:not(.button-glass-on) .preview-image-viewer .carousel-close:hover{
+  background:linear-gradient(135deg,#ff4568,#e00027) !important;
+  border-color:rgba(255,255,255,0.72) !important;
+  color:#ffffff !important;
+}
+
+.preview-image-viewer .preview-image-zoom-btn,
+body.button-glass-on .preview-image-viewer .preview-image-zoom-btn,
+body:not(.button-glass-on) .preview-image-viewer .preview-image-zoom-btn{
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,0.3) !important;
+  background:linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08)) !important;
+  color:#ffffff !important;
+  box-shadow:0 16px 34px rgba(5,8,30,0.16), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+  backdrop-filter:blur(16px) saturate(1.12) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(1.12) !important;
+}
+
+.preview-image-viewer .preview-image-zoom-btn:hover:not(:disabled),
+.preview-image-viewer .preview-image-zoom-btn:focus-visible:not(:disabled),
+body.button-glass-on .preview-image-viewer .preview-image-zoom-btn:hover:not(:disabled),
+body:not(.button-glass-on) .preview-image-viewer .preview-image-zoom-btn:hover:not(:disabled){
+  background:linear-gradient(145deg, rgba(255,255,255,0.28), rgba(255,255,255,0.12)) !important;
+  border-color:rgba(255,255,255,0.42) !important;
+  color:#ffffff !important;
+  box-shadow:0 18px 38px rgba(5,8,30,0.22), 0 0 24px rgba(255,75,125,0.18), inset 0 1px 0 rgba(255,255,255,0.28) !important;
+}

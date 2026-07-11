@@ -1,6 +1,10 @@
+import http from "node:http";
+import https from "node:https";
+
 const HOP_BY_HOP_HEADERS = new Set([
   "connection",
   "content-length",
+  "host",
   "keep-alive",
   "proxy-authenticate",
   "proxy-authorization",
@@ -35,6 +39,58 @@ const getProxyPath = (request) => {
     .join("/");
 };
 
+const buildForwardHeaders = (request, target) => {
+  const headers = {};
+
+  Object.entries(request.headers).forEach(([key, value]) => {
+    const lowerKey = key.toLowerCase();
+
+    if(HOP_BY_HOP_HEADERS.has(lowerKey) || value === undefined){
+      return;
+    }
+
+    headers[key] = Array.isArray(value) ? value.join(", ") : value;
+  });
+
+  headers.host = target.host;
+  headers["x-forwarded-host"] = request.headers.host || "";
+  headers["x-forwarded-proto"] = "https";
+
+  return headers;
+};
+
+const requestUpstream = (targetUrl, request, body) => new Promise((resolve, reject) => {
+  const target = new URL(targetUrl);
+  const client = target.protocol === "http:" ? http : https;
+  const upstreamRequest = client.request({
+    protocol:target.protocol,
+    hostname:target.hostname,
+    port:target.port || undefined,
+    path:target.pathname + target.search,
+    method:request.method,
+    headers:buildForwardHeaders(request, target)
+  }, (upstreamResponse) => {
+    const chunks = [];
+
+    upstreamResponse.on("data", (chunk) => chunks.push(chunk));
+    upstreamResponse.on("end", () => {
+      resolve({
+        statusCode:upstreamResponse.statusCode || 502,
+        headers:upstreamResponse.headers,
+        body:Buffer.concat(chunks)
+      });
+    });
+  });
+
+  upstreamRequest.on("error", reject);
+
+  if(body?.length){
+    upstreamRequest.write(body);
+  }
+
+  upstreamRequest.end();
+});
+
 export default async function handler(request, response) {
   const apiBase = normalizeApiBase(process.env.API_PROXY_URL || process.env.VITE_API_URL);
 
@@ -48,49 +104,23 @@ export default async function handler(request, response) {
   incomingUrl.searchParams.delete("path");
   const query = incomingUrl.search || "";
   const targetUrl = apiBase + "/api/" + path + query;
-  const headers = new Headers();
-
-  Object.entries(request.headers).forEach(([key, value]) => {
-    const lowerKey = key.toLowerCase();
-
-    if(HOP_BY_HOP_HEADERS.has(lowerKey) || value === undefined){
-      return;
-    }
-
-    headers.set(key, Array.isArray(value) ? value.join(", ") : value);
-  });
-
-  headers.set("x-forwarded-host", request.headers.host || "");
-  headers.set("x-forwarded-proto", "https");
-
   const hasBody = !["GET", "HEAD"].includes(String(request.method || "GET").toUpperCase());
-  let upstreamResponse;
+  let upstream;
 
   try{
-    upstreamResponse = await fetch(targetUrl, {
-      method:request.method,
-      headers,
-      body:hasBody ? await getRequestBody(request) : undefined,
-      redirect:"manual"
-    });
+    upstream = await requestUpstream(targetUrl, request, hasBody ? await getRequestBody(request) : undefined);
   }catch{
     response.status(502).json({message:"API server is unreachable"});
     return;
   }
 
-  response.status(upstreamResponse.status);
+  response.status(upstream.statusCode);
 
-  upstreamResponse.headers.forEach((value, key) => {
-    if(!HOP_BY_HOP_HEADERS.has(key.toLowerCase())){
+  Object.entries(upstream.headers).forEach(([key, value]) => {
+    if(!HOP_BY_HOP_HEADERS.has(key.toLowerCase()) && value !== undefined){
       response.setHeader(key, value);
     }
   });
 
-  const setCookie = upstreamResponse.headers.getSetCookie?.() || [];
-  if(setCookie.length){
-    response.setHeader("set-cookie", setCookie);
-  }
-
-  const body = Buffer.from(await upstreamResponse.arrayBuffer());
-  response.send(body);
+  response.send(upstream.body);
 }

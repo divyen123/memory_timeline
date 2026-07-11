@@ -134,6 +134,10 @@ const formatImageAddedDate = (value) => {
   });
 };
 
+const getMemoryListPayload = (data) => (
+  Array.isArray(data?.memories) ? data.memories : []
+);
+
 function MemoryTimeline() {
 
   const [memories, setMemories] = useState([]);
@@ -216,11 +220,19 @@ function MemoryTimeline() {
         favorite:showFavorites ? "true" : undefined
       });
 
+      const nextMemories = getMemoryListPayload(res.data);
+
       setMemories(prevMemories => replace
-        ? res.data.memories
-        : [...prevMemories, ...res.data.memories]);
-      setPage(res.data.page);
-      setHasMore(res.data.hasMore);
+        ? nextMemories
+        : [...(Array.isArray(prevMemories) ? prevMemories : []), ...nextMemories]);
+      setPage(Number(res.data?.page) || nextPage);
+      setHasMore(Boolean(res.data?.hasMore));
+    }catch{
+      if(replace){
+        setMemories([]);
+      }
+      setMessage("Unable to load memories right now. Please try again.");
+      setHasMore(false);
     }finally{
       setLoading(false);
     }

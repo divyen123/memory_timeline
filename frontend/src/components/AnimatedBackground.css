@@ -183,3 +183,12 @@
     animation-iteration-count:1 !important;
   }
 }
+@media (max-width:760px){
+  .animated-bg-effect,
+  .animated-bg-effect::before,
+  .animated-bg-effect::after,
+  .animated-bg-effect span{
+    animation-duration:1ms !important;
+    animation-iteration-count:1 !important;
+  }
+}

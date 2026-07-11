@@ -14,3 +14,8 @@
   pointer-events:none;
   user-select:none;
 }
+@media (max-width:820px), (pointer:coarse){
+  .click-spark-canvas{
+    display:none;
+  }
+}

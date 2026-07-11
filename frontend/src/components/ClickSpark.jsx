@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { getDeviceProfile } from "../settings";
 import "./ClickSpark.css";
 
 const ClickSpark = ({
@@ -15,8 +16,29 @@ const ClickSpark = ({
   const sparksRef = useRef([]);
   const startTimeRef = useRef(null);
   const reduceMotionRef = useRef(false);
+  const [sparkDisabled, setSparkDisabled] = useState(() => getDeviceProfile() === "mobile");
 
   useEffect(() => {
+    const updateDeviceProfile = () => {
+      setSparkDisabled(getDeviceProfile() === "mobile");
+    };
+
+    updateDeviceProfile();
+    window.addEventListener("resize", updateDeviceProfile);
+    window.addEventListener("orientationchange", updateDeviceProfile);
+
+    return () => {
+      window.removeEventListener("resize", updateDeviceProfile);
+      window.removeEventListener("orientationchange", updateDeviceProfile);
+    };
+  }, []);
+
+  useEffect(() => {
+    if(sparkDisabled){
+      sparksRef.current = [];
+      return undefined;
+    }
+
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const updateMotionPreference = () => {
       reduceMotionRef.current = mediaQuery.matches;
@@ -31,9 +53,13 @@ const ClickSpark = ({
     return () => {
       mediaQuery.removeEventListener("change", updateMotionPreference);
     };
-  }, []);
+  }, [sparkDisabled]);
 
   useEffect(() => {
+    if(sparkDisabled){
+      return undefined;
+    }
+
     const canvas = canvasRef.current;
     if(!canvas){
       return undefined;
@@ -71,7 +97,7 @@ const ClickSpark = ({
       window.removeEventListener("orientationchange", handleResize);
       clearTimeout(resizeTimeout);
     };
-  }, []);
+  }, [sparkDisabled]);
 
   const easeFunc = useCallback(
     (time) => {
@@ -90,6 +116,10 @@ const ClickSpark = ({
   );
 
   useEffect(() => {
+    if(sparkDisabled){
+      return undefined;
+    }
+
     const canvas = canvasRef.current;
     if(!canvas){
       return undefined;
@@ -143,11 +173,11 @@ const ClickSpark = ({
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [sparkColor, sparkSize, sparkRadius, duration, easeFunc, extraScale]);
+  }, [sparkDisabled, sparkColor, sparkSize, sparkRadius, duration, easeFunc, extraScale]);
 
   const createSpark = useCallback((clientX, clientY) => {
     const canvas = canvasRef.current;
-    if(!canvas || reduceMotionRef.current){
+    if(sparkDisabled || !canvas || reduceMotionRef.current){
       return;
     }
 
@@ -164,9 +194,13 @@ const ClickSpark = ({
     }));
 
     sparksRef.current.push(...newSparks);
-  }, [sparkCount]);
+  }, [sparkDisabled, sparkCount]);
 
   useEffect(() => {
+    if(sparkDisabled){
+      return undefined;
+    }
+
     const handlePointerDown = (event) => {
       if(event.button && event.button !== 0){
         return;
@@ -184,7 +218,11 @@ const ClickSpark = ({
     return () => {
       window.removeEventListener("pointerdown", handlePointerDown, true);
     };
-  }, [createSpark]);
+  }, [sparkDisabled, createSpark]);
+
+  if(sparkDisabled){
+    return children;
+  }
 
   return (
     <div className="click-spark">

@@ -14546,6 +14546,36 @@ body.animated-background-theme.top-actions-left .reminder-menu{
   left:calc(20px + var(--top-action-size) + 8px);
   right:auto;
 }
+@media (max-width:760px){
+  body.animated-background-theme .reminder-menu{
+    right:calc(20px + var(--top-action-size) + 4px) !important;
+  }
+
+  body.animated-background-theme.top-actions-left .reminder-menu{
+    left:calc(20px + var(--top-action-size) + 4px) !important;
+    right:auto !important;
+  }
+
+  .top-buttons,
+  .top-buttons .toggle-btn,
+  .top-buttons .logout-btn,
+  .reminder-menu,
+  .reminder-icon-btn,
+  .timeline-toolbar button,
+  .timeline-controls button,
+  .memory-card,
+  .memory-photo-wrap,
+  .memory-card-overlay{
+    transition-duration:0.01ms !important;
+  }
+
+  .toggle-btn:hover,
+  .logout-btn:hover,
+  .reminder-icon-btn:hover,
+  .memory-card:hover{
+    transform:none !important;
+  }
+}
 
 /* About feature cards are content cards, not action buttons. */
 .about-hero,

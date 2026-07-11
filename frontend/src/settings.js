@@ -119,36 +119,44 @@ export const getSettingsStorageKey = (profile = getDeviceProfile()) => (
   `${SETTINGS_STORAGE_KEY}:${getStoredUserId()}:${profile}`
 );
 
-export const normalizeSettings = (settings = {}) => ({
-  ...defaultSettings,
-  ...settings,
-  animationBackgroundTheme:["static", "liquidAther", "ferrofluid", "darkveil", "ballpit"].includes(settings.animationBackgroundTheme)
+const ANIMATION_BACKGROUND_THEMES = ["static", "liquidAther", "ferrofluid", "darkveil", "ballpit"];
+
+export const normalizeSettings = (settings = {}) => {
+  const animationBackgroundTheme = ANIMATION_BACKGROUND_THEMES.includes(settings.animationBackgroundTheme)
     ? settings.animationBackgroundTheme
-    : defaultSettings.animationBackgroundTheme,
-  reminderLeadDays:Number(settings.reminderLeadDays) || defaultSettings.reminderLeadDays,
-  defaultMemoryView:["timeline", "calendar", "compact"].includes(settings.defaultMemoryView)
-    ? settings.defaultMemoryView
-    : defaultSettings.defaultMemoryView,
-  tileCardShape:["square", "circle"].includes(settings.tileCardShape)
-    ? settings.tileCardShape
-    : defaultSettings.tileCardShape,
-  cardBorderRadius:Math.min(
-    36,
-    Math.max(0, numberOrDefault(settings.cardBorderRadius, defaultSettings.cardBorderRadius))
-  ),
-  topButtonsSize:numberOrDefault(settings.topButtonsSize, defaultSettings.topButtonsSize),
-  toolbarIconSize:Math.min(
-    34,
-    Math.max(16, numberOrDefault(settings.toolbarIconSize, defaultSettings.toolbarIconSize))
-  ),
-  toolbarButtonStretch:Math.min(
-    1.8,
-    Math.max(0.75, numberOrDefault(settings.toolbarButtonStretch, defaultSettings.toolbarButtonStretch))
-  ),
-  containerGlassAlpha:numberOrDefault(settings.containerGlassAlpha, defaultSettings.containerGlassAlpha),
-  buttonGlassAlpha:numberOrDefault(settings.buttonGlassAlpha, defaultSettings.buttonGlassAlpha),
-  hoverScale:numberOrDefault(settings.hoverScale, defaultSettings.hoverScale)
-});
+    : defaultSettings.animationBackgroundTheme;
+  const isStaticBackgroundTheme = animationBackgroundTheme === "static";
+
+  return {
+    ...defaultSettings,
+    ...settings,
+    animationBackgroundTheme,
+    defaultTheme:isStaticBackgroundTheme ? (settings.defaultTheme || defaultSettings.defaultTheme) : "dark",
+    reminderLeadDays:Number(settings.reminderLeadDays) || defaultSettings.reminderLeadDays,
+    defaultMemoryView:["timeline", "calendar", "compact"].includes(settings.defaultMemoryView)
+      ? settings.defaultMemoryView
+      : defaultSettings.defaultMemoryView,
+    tileCardShape:["square", "circle"].includes(settings.tileCardShape)
+      ? settings.tileCardShape
+      : defaultSettings.tileCardShape,
+    cardBorderRadius:Math.min(
+      36,
+      Math.max(0, numberOrDefault(settings.cardBorderRadius, defaultSettings.cardBorderRadius))
+    ),
+    topButtonsSize:numberOrDefault(settings.topButtonsSize, defaultSettings.topButtonsSize),
+    toolbarIconSize:Math.min(
+      34,
+      Math.max(16, numberOrDefault(settings.toolbarIconSize, defaultSettings.toolbarIconSize))
+    ),
+    toolbarButtonStretch:Math.min(
+      1.8,
+      Math.max(0.75, numberOrDefault(settings.toolbarButtonStretch, defaultSettings.toolbarButtonStretch))
+    ),
+    containerGlassAlpha:numberOrDefault(settings.containerGlassAlpha, defaultSettings.containerGlassAlpha),
+    buttonGlassAlpha:numberOrDefault(settings.buttonGlassAlpha, defaultSettings.buttonGlassAlpha),
+    hoverScale:numberOrDefault(settings.hoverScale, defaultSettings.hoverScale)
+  };
+};
 
 export const loadSettings = (profile = getDeviceProfile()) => {
   try{

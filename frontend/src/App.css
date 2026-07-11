@@ -15067,3 +15067,33 @@ body:not(.button-glass-on) .preview-image-viewer .preview-image-zoom-btn:hover:n
   }
 }
 
+
+
+.default-theme-field.locked .segmented-setting{
+  opacity:0.58;
+}
+
+.default-theme-field.locked .segmented-setting button{
+  cursor:not-allowed;
+  transform:none !important;
+}
+
+.default-theme-field.locked .segmented-setting button.active{
+  background:linear-gradient(135deg, #172554, #1d4ed8);
+  border-color:rgba(255,255,255,0.22);
+  color:#ffffff;
+}
+
+.settings-lock-note{
+  display:block;
+  margin:-6px 0 14px;
+  color:rgba(255,255,255,0.68);
+  font-size:12px;
+  font-weight:700;
+  line-height:1.35;
+}
+
+body.light .settings-lock-note,
+body.pure-white-theme .settings-lock-note{
+  color:rgba(31,31,51,0.62);
+}

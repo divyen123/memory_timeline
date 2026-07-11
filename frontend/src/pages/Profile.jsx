@@ -266,6 +266,7 @@ function Profile() {
     ()=>collapseDesktopBackgroundColors(loadSettings(deviceProfile), deviceProfile)
   );
   const isStaticBackgroundTheme = (appSettings.animationBackgroundTheme || "static") === "static";
+  const isDefaultThemeLocked = !isStaticBackgroundTheme;
   const backupFileRef = useRef(null);
   const profilePhotoInputRef = useRef(null);
 
@@ -669,9 +670,15 @@ function Profile() {
 
   const updateSetting = (key, value) => {
     setAppSettings(currentSettings => {
+      const updates = {[key]:value};
+
+      if(key === "animationBackgroundTheme" && value !== "static"){
+        updates.defaultTheme = "dark";
+      }
+
       const previewedSettings = previewSettings({
         ...currentSettings,
-        [key]:value
+        ...updates
       });
 
       return previewedSettings;
@@ -914,13 +921,15 @@ function Profile() {
                 </select>
               </label>
 
-              <label className="settings-field">
+              <label className={`settings-field default-theme-field ${isDefaultThemeLocked ? "locked" : ""}`}>
                 <span>Default theme</span>
-                <div className="segmented-setting">
+                <div className="segmented-setting" aria-disabled={isDefaultThemeLocked}>
                   <button
                     type="button"
                     className={appSettings.defaultTheme === "light" ? "active" : ""}
                     onClick={()=>updateSetting("defaultTheme", "light")}
+                    disabled={isDefaultThemeLocked}
+                    title={isDefaultThemeLocked ? "Animated backgrounds always use dark theme" : "Use light theme"}
                   >
                     Light
                   </button>
@@ -928,10 +937,15 @@ function Profile() {
                     type="button"
                     className={appSettings.defaultTheme === "dark" ? "active" : ""}
                     onClick={()=>updateSetting("defaultTheme", "dark")}
+                    disabled={isDefaultThemeLocked}
+                    title={isDefaultThemeLocked ? "Animated backgrounds always use dark theme" : "Use dark theme"}
                   >
                     Dark
                   </button>
                 </div>
+                {isDefaultThemeLocked && (
+                  <small className="settings-lock-note">Animated backgrounds always use dark theme.</small>
+                )}
               </label>
 
               <div className="settings-row">

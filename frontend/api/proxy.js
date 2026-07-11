@@ -23,21 +23,31 @@ const getRequestBody = (request) => new Promise((resolve, reject) => {
   request.on("error", reject);
 });
 
+const getProxyPath = (request) => {
+  const rawPath = Array.isArray(request.query?.path)
+    ? request.query.path.join("/")
+    : String(request.query?.path || "");
+
+  return rawPath
+    .split("/")
+    .filter(Boolean)
+    .map((part) => encodeURIComponent(decodeURIComponent(part)))
+    .join("/");
+};
+
 export default async function handler(request, response) {
   const apiBase = normalizeApiBase(process.env.API_PROXY_URL || process.env.VITE_API_URL);
 
-  if(!apiBase){
+  if(!apiBase || apiBase.startsWith("/")){
     response.status(500).json({message:"API proxy URL is not configured"});
     return;
   }
 
-  const pathParts = Array.isArray(request.query.path)
-    ? request.query.path
-    : [request.query.path].filter(Boolean);
-  const path = pathParts.map((part)=>encodeURIComponent(part)).join("/");
-  const queryIndex = request.url.indexOf("?");
-  const query = queryIndex >= 0 ? request.url.slice(queryIndex) : "";
-  const targetUrl = `${apiBase}/api/${path}${query}`;
+  const path = getProxyPath(request);
+  const incomingUrl = new URL(request.url, "https://memory-timeline.local");
+  incomingUrl.searchParams.delete("path");
+  const query = incomingUrl.search || "";
+  const targetUrl = apiBase + "/api/" + path + query;
   const headers = new Headers();
 
   Object.entries(request.headers).forEach(([key, value]) => {

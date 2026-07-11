@@ -14,6 +14,7 @@ import About from "./pages/About";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReminderWidget from "./components/ReminderWidget";
 import AnimatedBackground from "./components/AnimatedBackground";
+import ClickSpark from "./components/ClickSpark";
 import { getAppearanceSettings, logoutUser, updateAppearanceSettings } from "./services/api";
 import {
   AUTH_UPDATED_EVENT,
@@ -93,6 +94,7 @@ function App(){
   const isHiddenImagesPage = location.pathname === "/hide-image";
   const showTopButtons = !isAuthPage && !isPublicSharePage && !isHiddenImagesPage;
   const showSharedReminder = !isAuthPage && !isPublicSharePage && !isHiddenImagesPage && !["/timeline", "/about"].includes(location.pathname);
+  const sparkColor = darkMode ? "#fff7fb" : (settings.buttonBackgroundColor || "#ff4b7d");
 
   useEffect(()=>{
 
@@ -345,6 +347,15 @@ function App(){
 
   return(
 
+    <ClickSpark
+      sparkColor={sparkColor}
+      sparkSize={12}
+      sparkRadius={28}
+      sparkCount={8}
+      duration={360}
+      easing="ease-out"
+      extraScale={1.1}
+    >
     <div className={`container ${isPublicSharePage ? "public-route-container" : ""}`}>
       {!isAuthPage && <AnimatedBackground theme={animationBackgroundTheme} />}
 
@@ -484,7 +495,9 @@ function App(){
       </Routes>
 
     </div>
+    </ClickSpark>
   );
 }
 
 export default App;
+

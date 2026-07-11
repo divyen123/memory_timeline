@@ -14626,3 +14626,99 @@ body.light .timeline-controls.toolbar-icons-soft .timeline-action-btn{
   border-color:rgba(31,31,51,0.13) !important;
   box-shadow:0 14px 30px rgba(31,31,51,0.12), inset 0 1px 0 rgba(255,255,255,0.72) !important;
 }
+/* Keep the selected timeline icon style stronger than the slim transparent navbar defaults. */
+.timeline-controls.toolbar-icons-box .timeline-search-shell:not(.open),
+.timeline-controls.toolbar-icons-box .timeline-icon-control,
+.timeline-controls.toolbar-icons-box .filter-toggle,
+.timeline-controls.toolbar-icons-box .timeline-action-btn{
+  border-radius:16px !important;
+  background:var(--button-bg-color) !important;
+  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white) !important;
+  color:#ffffff !important;
+  box-shadow:0 12px 30px color-mix(in srgb, var(--button-bg-color) 24%, transparent) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.timeline-controls.toolbar-icons-circle .timeline-search-shell:not(.open),
+.timeline-controls.toolbar-icons-circle .timeline-icon-control,
+.timeline-controls.toolbar-icons-circle .filter-toggle,
+.timeline-controls.toolbar-icons-circle .timeline-action-btn{
+  border-radius:999px !important;
+  background:var(--button-bg-color) !important;
+  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white) !important;
+  color:#ffffff !important;
+  box-shadow:0 12px 30px color-mix(in srgb, var(--button-bg-color) 24%, transparent) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.timeline-controls.toolbar-icons-pill{
+  --toolbar-button-width:calc(var(--toolbar-button-size) * var(--toolbar-button-stretch, 1));
+}
+
+.timeline-controls.toolbar-icons-pill .timeline-search-shell:not(.open),
+.timeline-controls.toolbar-icons-pill .timeline-icon-control,
+.timeline-controls.toolbar-icons-pill .filter-toggle,
+.timeline-controls.toolbar-icons-pill .timeline-action-btn{
+  border-radius:999px !important;
+  background:var(--button-bg-color) !important;
+  border:1px solid color-mix(in srgb, var(--button-bg-color) 68%, white) !important;
+  color:#ffffff !important;
+  box-shadow:0 12px 30px color-mix(in srgb, var(--button-bg-color) 24%, transparent) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.timeline-controls.toolbar-icons-minimal{
+  --toolbar-button-width:calc(var(--toolbar-button-size) * var(--toolbar-button-stretch, 1));
+  --toolbar-control-gap:var(--toolbar-wide-control-gap);
+}
+
+.timeline-controls.toolbar-icons-minimal .timeline-search-shell:not(.open),
+.timeline-controls.toolbar-icons-minimal .timeline-icon-control,
+.timeline-controls.toolbar-icons-minimal .filter-toggle,
+.timeline-controls.toolbar-icons-minimal .timeline-action-btn{
+  border-radius:12px !important;
+  background:rgba(255,255,255,0.05) !important;
+  border:1px solid rgba(255,255,255,0.12) !important;
+  color:var(--adaptive-icon-color) !important;
+  box-shadow:0 8px 24px rgba(0,0,0,0.1) !important;
+  backdrop-filter:blur(10px) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+}
+
+.timeline-controls.toolbar-icons-separate .timeline-search-shell:not(.open),
+.timeline-controls.toolbar-icons-separate .timeline-icon-control,
+.timeline-controls.toolbar-icons-separate .filter-toggle,
+.timeline-controls.toolbar-icons-separate .timeline-action-btn{
+  background:transparent !important;
+  border-color:transparent !important;
+  color:var(--adaptive-icon-color) !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.timeline-controls.toolbar-icons-box .timeline-icon-control:hover,
+.timeline-controls.toolbar-icons-box .timeline-icon-control.active,
+.timeline-controls.toolbar-icons-box .filter-toggle:hover,
+.timeline-controls.toolbar-icons-box .filter-toggle.active,
+.timeline-controls.toolbar-icons-box .timeline-action-btn:hover,
+.timeline-controls.toolbar-icons-box .timeline-action-btn.active,
+.timeline-controls.toolbar-icons-circle .timeline-icon-control:hover,
+.timeline-controls.toolbar-icons-circle .timeline-icon-control.active,
+.timeline-controls.toolbar-icons-circle .filter-toggle:hover,
+.timeline-controls.toolbar-icons-circle .filter-toggle.active,
+.timeline-controls.toolbar-icons-circle .timeline-action-btn:hover,
+.timeline-controls.toolbar-icons-circle .timeline-action-btn.active,
+.timeline-controls.toolbar-icons-pill .timeline-icon-control:hover,
+.timeline-controls.toolbar-icons-pill .timeline-icon-control.active,
+.timeline-controls.toolbar-icons-pill .filter-toggle:hover,
+.timeline-controls.toolbar-icons-pill .filter-toggle.active,
+.timeline-controls.toolbar-icons-pill .timeline-action-btn:hover,
+.timeline-controls.toolbar-icons-pill .timeline-action-btn.active{
+  background:color-mix(in srgb, var(--button-bg-color) 86%, white) !important;
+  border-color:color-mix(in srgb, var(--button-bg-color) 78%, white) !important;
+  box-shadow:0 14px 30px color-mix(in srgb, var(--button-bg-color) 35%, transparent) !important;
+}

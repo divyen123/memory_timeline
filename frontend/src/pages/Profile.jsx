@@ -238,6 +238,9 @@ function Profile() {
   const [name,setName] = useState("");
   const [age,setAge] = useState("");
   const [email,setEmail] = useState("");
+  const [draftName,setDraftName] = useState("");
+  const [draftAge,setDraftAge] = useState("");
+  const [draftEmail,setDraftEmail] = useState("");
   const [profilePhoto,setProfilePhoto] = useState("");
   const [isAvatarBusy,setIsAvatarBusy] = useState(false);
   const [memoryCount,setMemoryCount] = useState(0);
@@ -275,9 +278,15 @@ function Profile() {
   useEffect(()=>{
     const fetchProfile = async () => {
       const res = await getProfile();
-      setName(res.data.name || "");
-      setAge(res.data.age ?? "");
-      setEmail(res.data.email);
+      const fetchedName = res.data.name || "";
+      const fetchedAge = res.data.age ?? "";
+      const fetchedEmail = res.data.email || "";
+      setName(fetchedName);
+      setAge(fetchedAge);
+      setEmail(fetchedEmail);
+      setDraftName(fetchedName);
+      setDraftAge(fetchedAge);
+      setDraftEmail(fetchedEmail);
       setProfilePhoto(res.data.profilePhoto || "");
       setMemoryCount(res.data.memoryCount);
       setFavoriteCount(res.data.favoriteCount);
@@ -357,14 +366,20 @@ function Profile() {
     e.preventDefault();
     try{
       const submittedProfile = {
-        name:name.trim(),
-        age,
-        email
+        name:draftName.trim(),
+        age:draftAge,
+        email:draftEmail
       };
       const res = await updateProfile(submittedProfile);
-      setName(Object.hasOwn(res.data, "name") ? res.data.name : submittedProfile.name);
-      setAge(Object.hasOwn(res.data, "age") ? res.data.age ?? "" : submittedProfile.age);
-      setEmail(res.data.email || submittedProfile.email);
+      const updatedName = Object.hasOwn(res.data, "name") ? res.data.name : submittedProfile.name;
+      const updatedAge = Object.hasOwn(res.data, "age") ? res.data.age ?? "" : submittedProfile.age;
+      const updatedEmail = res.data.email || submittedProfile.email;
+      setName(updatedName);
+      setAge(updatedAge);
+      setEmail(updatedEmail);
+      setDraftName(updatedName);
+      setDraftAge(updatedAge);
+      setDraftEmail(updatedEmail);
       setMessage("Profile updated");
     }catch(err){
       setMessage(err.response?.data?.message || "Profile update failed");
@@ -1436,22 +1451,22 @@ function Profile() {
               <input
                 type="text"
                 placeholder="Name"
-                value={name}
-                onChange={(e)=>setName(e.target.value)}
+                value={draftName}
+                onChange={(e)=>setDraftName(e.target.value)}
               />
               <input
                 type="number"
                 min="0"
                 step="1"
                 placeholder="Age"
-                value={age}
-                onChange={(e)=>setAge(e.target.value)}
+                value={draftAge}
+                onChange={(e)=>setDraftAge(e.target.value)}
               />
               <input
                 type="email"
                 placeholder="Email"
-                value={email}
-                onChange={(e)=>setEmail(e.target.value)}
+                value={draftEmail}
+                onChange={(e)=>setDraftEmail(e.target.value)}
                 required
               />
               <button type="submit">Update Profile</button>

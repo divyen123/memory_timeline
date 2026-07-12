@@ -14598,11 +14598,11 @@ body.animated-background-theme.top-actions-left .reminder-menu{
 }
 @media (max-width:760px){
   body.animated-background-theme .reminder-menu{
-    right:calc(20px + var(--top-action-size) + 4px) !important;
+    right:calc(12px + var(--mobile-action-size) + 2px) !important;
   }
 
   body.animated-background-theme.top-actions-left .reminder-menu{
-    left:calc(20px + var(--top-action-size) + 4px) !important;
+    left:calc(12px + var(--mobile-action-size) + 2px) !important;
     right:auto !important;
   }
 

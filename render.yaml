@@ -31,20 +31,16 @@ services:
         generateValue: true
       - key: ALLOWED_ORIGINS
         sync: false
-      - key: SMTP_HOST
+      - key: VAPID_PUBLIC_KEY
         sync: false
-      - key: SMTP_PORT
+      - key: VAPID_PRIVATE_KEY
         sync: false
-      - key: SMTP_USER
+      - key: VAPID_SUBJECT
         sync: false
-      - key: SMTP_PASS
-        sync: false
-      - key: SMTP_FROM
-        sync: false
-      - key: SMTP_SECURE
-        value: "false"
-      - key: REMINDER_EMAIL_SCAN_INTERVAL_MS
+      - key: REMINDER_PUSH_SCAN_INTERVAL_MS
         value: "900000"
+      - key: PUSH_ENDPOINT_ALLOWED_HOSTS
+        value: fcm.googleapis.com,android.googleapis.com,updates.push.services.mozilla.com,web.push.apple.com,*.push.apple.com,*.notify.windows.com,*.notify.live.net
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY

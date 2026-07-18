@@ -53,10 +53,6 @@ const memorySchema = new mongoose.Schema({
     type: Date
   },
 
-  reminderEmailSentKey: {
-    type: String,
-    default: ""
-  },
 
   favorite: {
     type: Boolean,
@@ -103,7 +99,7 @@ memorySchema.index({userId:1, category:1, date:-1});
 memorySchema.index({userId:1, favorite:1, date:-1});
 memorySchema.index({userId:1, deletedAt:1, trashExpiresAt:1});
 memorySchema.index({userId:1, hiddenAt:1, date:-1});
-memorySchema.index({userId:1, reminderDate:1, reminderEmailSentKey:1});
+memorySchema.index({userId:1, deletedAt:1, hiddenAt:1, reminderDate:1});
 memorySchema.index({publicToken:1}, {sparse:true});
 memorySchema.index({publicToken:1, publicShareExpiresAt:1}, {sparse:true});
 

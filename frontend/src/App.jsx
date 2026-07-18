@@ -16,6 +16,7 @@ import ReminderWidget from "./components/ReminderWidget";
 import AnimatedBackground from "./components/AnimatedBackground";
 import ClickSpark from "./components/ClickSpark";
 import { getAppearanceSettings, logoutUser, updateAppearanceSettings } from "./services/api";
+import { reconcilePushSubscription, unsubscribeFromPushNotifications } from "./pushNotifications";
 import {
   AUTH_UPDATED_EVENT,
   clearAuthenticatedUser,
@@ -74,6 +75,7 @@ function App(){
   const [loggingOut,setLoggingOut] = useState(false);
   const [authenticatedUserId,setAuthenticatedUserId] = useState(()=>getAuthenticatedUserId());
   const logoutCancelRef = useRef(null);
+  const previousAuthenticatedUserIdRef = useRef(authenticatedUserId);
   const darkMode = settings.defaultTheme === "dark";
   const animationBackgroundTheme = settings.animationBackgroundTheme || "static";
   const isStaticBackgroundTheme = animationBackgroundTheme === "static";
@@ -189,6 +191,17 @@ function App(){
       window.removeEventListener(AUTH_UPDATED_EVENT, handleAuthUpdated);
     };
   },[]);
+
+  useEffect(()=>{
+    const previousUserId = previousAuthenticatedUserIdRef.current;
+    previousAuthenticatedUserIdRef.current = authenticatedUserId;
+
+    if(authenticatedUserId){
+      void reconcilePushSubscription().catch(()=>{});
+    }else if(previousUserId){
+      void unsubscribeFromPushNotifications({notifyServer:false}).catch(()=>{});
+    }
+  },[authenticatedUserId]);
 
 
   useEffect(()=>{
@@ -308,6 +321,12 @@ function App(){
     setLoggingOut(true);
 
     window.setTimeout(async() => {
+      try{
+        await unsubscribeFromPushNotifications();
+      }catch{
+        // Logout must continue if browser subscription cleanup fails.
+      }
+
       try{
         await logoutUser();
       }catch{

@@ -1,10 +1,10 @@
 # Memory Timeline
 
-Memory Timeline is a full-stack web application built to store, organize, protect, and revisit personal memories through a rich visual timeline. It supports image-based memories, reminders, favorites, hidden memories, sharing, exporting, and highly customizable viewing styles across desktop and mobile.
+Memory Timeline is a full-stack web application built to store, organize, protect, and revisit personal memories through a rich visual timeline. It supports image-based memories, push reminders, favorites, hidden memories, sharing, exporting, and highly customizable viewing styles across desktop and mobile.
 
 ## Project Overview
 
-The application is designed as a private digital memory space where users can create memories with images, dates, categories, descriptions, and reminders. Memories can be explored in multiple layouts such as timeline view, calendar view, and tile view, with user-controlled card size, border radius, themes, icon styles, sounds, and appearance settings.
+The application is designed as a private digital memory space where users can create memories with images, dates, categories, descriptions, and reminders. Memories can be explored in multiple layouts such as timeline view, calendar view, and tile view, with user-controlled card size, border radius, themes, icon styles, sounds, appearance settings, and opt-in browser push notifications.
 
 Memory Timeline also includes a protected hidden-images section, trash recovery flow, account management, image export, and secure media handling through backend ownership checks.
 
@@ -17,7 +17,7 @@ Memory Timeline also includes a protected hidden-images section, trash recovery 
 - Timeline view, calendar view, and tile view modes
 - Default memory view selection from settings
 - Search, sorting, category filtering, and favorite memories
-- Reminder support with notification sounds, reminder popups, and registered-email reminder messages
+- Reminder support with in-app sounds, reminder popups, and opt-in browser push notifications
 - Hidden images page protected by a mandatory 4-digit PIN
 - Application password confirmation before saving or updating sensitive PIN settings
 - Trash page with restore, select, empty bin, and permanent deletion flows
@@ -37,6 +37,7 @@ Memory Timeline also includes a protected hidden-images section, trash recovery 
 - Sanitized memory descriptions before storage and response
 - File upload validation by type, extension, size, and image metadata
 - Permanent deletion flow designed to remove memory records and associated media
+- Per-device push subscriptions with validated provider endpoints and delivery records
 
 ## Tech Stack
 
@@ -48,7 +49,7 @@ Memory Timeline also includes a protected hidden-images section, trash recovery 
 | Media Storage | Cloudinary |
 | Authentication | JWT, httpOnly cookies, bcryptjs |
 | Image Processing | Sharp, Multer |
-| Notifications | Email reminders over SMTP |
+| Notifications | Web Push, VAPID, Service Workers, Notifications API |
 | Export Handling | JSZip |
 | Security Utilities | Helmet, CORS, Express Rate Limit, sanitize-html |
 | Deployment | Vercel for frontend, Render for backend |
@@ -61,7 +62,7 @@ The interface supports both desktop and mobile layouts with separate responsive 
 
 ## Backend
 
-The backend is built with Node.js and Express.js. It handles authentication, user profiles, memories, image uploads, reminders, hidden image access, trash operations, sharing, exporting, and protected media delivery.
+The backend is built with Node.js and Express.js. It handles authentication, user profiles, memories, image uploads, reminder scheduling, push subscriptions and delivery records, hidden image access, trash operations, sharing, exporting, and protected media delivery.
 
 Backend routes are structured to ensure each user can access only their own memories and media. Sensitive operations such as hidden PIN updates and account deletion include additional password confirmation.
 
@@ -87,6 +88,17 @@ Encrypted media storage is used to reduce direct visibility of private user uplo
 | Media Storage | Cloudinary |
 
 The frontend is deployed on Vercel, the backend service is deployed on Render, MongoDB Atlas stores application data, and Cloudinary manages image storage.
+
+## Push Notification Setup
+
+Reminder delivery uses browser Web Push only; reminder emails are not sent.
+
+1. In `backend`, run `npm run generate:vapid` once and store the generated key pair securely.
+2. Set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_SUBJECT` in the backend environment. Keep the private key secret and keep the same key pair across deployments.
+3. Serve the app over HTTPS (or use localhost during development), then enable push notifications in Profile on each browser or device that should receive reminders.
+4. On iPhone or iPad, install Memory Timeline to the Home Screen and open that installed app before enabling push notifications.
+
+Push subscriptions are device-specific. Reminder lead time still synchronizes through the user's settings profile.
 
 ## Advantages
 

@@ -1,0 +1,48 @@
+name: Wake Memory Reminder Scheduler
+
+on:
+  schedule:
+    # Reminder dates use day-level windows, so one wake-up per hour is sufficient.
+    # GitHub cron schedules use UTC.
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: memory-reminder-scheduler
+  cancel-in-progress: true
+
+jobs:
+  wake-backend:
+    name: Wake Render backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Call backend health endpoint
+        env:
+          RENDER_HEALTH_URL: ${{ vars.RENDER_HEALTH_URL }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${RENDER_HEALTH_URL:-}" ]; then
+            echo "RENDER_HEALTH_URL is not configured in repository Actions variables."
+            exit 1
+          fi
+
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --location \
+            --retry 5 \
+            --retry-all-errors \
+            --retry-delay 15 \
+            --connect-timeout 30 \
+            --max-time 240 \
+            "$RENDER_HEALTH_URL"
+
+          echo
+          echo "Render backend is awake and healthy."

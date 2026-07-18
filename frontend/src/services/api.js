@@ -206,6 +206,14 @@ export const refreshSession = (config = {})=>API.post("/auth/refresh", {}, confi
 export const logoutUser = ()=>API.post("/logout");
 export const logoutAllSessions = ()=>API.post("/logout-all");
 export const completeOnboarding = ()=>API.patch("/onboarding/complete");
+export const getPushConfig = ()=>API.get("/push/config");
+export const createPushSubscription = (subscription,timeZone)=>API.post("/push/subscriptions", {
+  subscription,
+  timeZone
+});
+export const deletePushSubscription = (endpoint)=>API.delete("/push/subscriptions", {
+  data:{endpoint}
+});
 export const requestResetCode = (data)=>API.post("/request-reset-code",data);
 export const resetPassword = (data)=>API.post("/reset-password",data);
 export const getProfile = ()=>API.get("/profile");

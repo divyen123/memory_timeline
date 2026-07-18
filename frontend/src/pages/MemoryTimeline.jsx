@@ -1957,7 +1957,7 @@ function MemoryTimeline() {
                 year:"numeric"
               })}
             </strong>
-            . Reminder messages start {settings.reminderLeadDays} day{Number(settings.reminderLeadDays) === 1 ? "" : "s"} before.
+            . In-app reminder popups start {settings.reminderLeadDays} day{Number(settings.reminderLeadDays) === 1 ? "" : "s"} before.
           </p>
           <div className="reminder-alert-actions">
             <button type="button" className="reminder-ignore-btn" onClick={dismissReminderToday}>

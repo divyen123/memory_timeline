@@ -42,7 +42,6 @@ export const defaultSettings = {
   hoverEnabled:true,
   hoverScale:1.05,
   soundEnabled:true,
-  backgroundNotificationsEnabled:true,
   createSound:"sparkle",
   updateSound:"chime",
   reminderSound:"bell",
@@ -122,39 +121,42 @@ export const getSettingsStorageKey = (profile = getDeviceProfile()) => (
 const ANIMATION_BACKGROUND_THEMES = ["static", "liquidAther", "ferrofluid", "darkveil", "ballpit"];
 
 export const normalizeSettings = (settings = {}) => {
-  const animationBackgroundTheme = ANIMATION_BACKGROUND_THEMES.includes(settings.animationBackgroundTheme)
-    ? settings.animationBackgroundTheme
+  const normalizedInput = {...settings};
+  delete normalizedInput.backgroundNotificationsEnabled;
+
+  const animationBackgroundTheme = ANIMATION_BACKGROUND_THEMES.includes(normalizedInput.animationBackgroundTheme)
+    ? normalizedInput.animationBackgroundTheme
     : defaultSettings.animationBackgroundTheme;
   const isStaticBackgroundTheme = animationBackgroundTheme === "static";
 
   return {
     ...defaultSettings,
-    ...settings,
+    ...normalizedInput,
     animationBackgroundTheme,
-    defaultTheme:isStaticBackgroundTheme ? (settings.defaultTheme || defaultSettings.defaultTheme) : "dark",
-    reminderLeadDays:Number(settings.reminderLeadDays) || defaultSettings.reminderLeadDays,
-    defaultMemoryView:["timeline", "calendar", "compact"].includes(settings.defaultMemoryView)
-      ? settings.defaultMemoryView
+    defaultTheme:isStaticBackgroundTheme ? (normalizedInput.defaultTheme || defaultSettings.defaultTheme) : "dark",
+    reminderLeadDays:Number(normalizedInput.reminderLeadDays) || defaultSettings.reminderLeadDays,
+    defaultMemoryView:["timeline", "calendar", "compact"].includes(normalizedInput.defaultMemoryView)
+      ? normalizedInput.defaultMemoryView
       : defaultSettings.defaultMemoryView,
-    tileCardShape:["square", "circle"].includes(settings.tileCardShape)
-      ? settings.tileCardShape
+    tileCardShape:["square", "circle"].includes(normalizedInput.tileCardShape)
+      ? normalizedInput.tileCardShape
       : defaultSettings.tileCardShape,
     cardBorderRadius:Math.min(
       36,
-      Math.max(0, numberOrDefault(settings.cardBorderRadius, defaultSettings.cardBorderRadius))
+      Math.max(0, numberOrDefault(normalizedInput.cardBorderRadius, defaultSettings.cardBorderRadius))
     ),
-    topButtonsSize:numberOrDefault(settings.topButtonsSize, defaultSettings.topButtonsSize),
+    topButtonsSize:numberOrDefault(normalizedInput.topButtonsSize, defaultSettings.topButtonsSize),
     toolbarIconSize:Math.min(
       34,
-      Math.max(16, numberOrDefault(settings.toolbarIconSize, defaultSettings.toolbarIconSize))
+      Math.max(16, numberOrDefault(normalizedInput.toolbarIconSize, defaultSettings.toolbarIconSize))
     ),
     toolbarButtonStretch:Math.min(
       1.8,
-      Math.max(0.75, numberOrDefault(settings.toolbarButtonStretch, defaultSettings.toolbarButtonStretch))
+      Math.max(0.75, numberOrDefault(normalizedInput.toolbarButtonStretch, defaultSettings.toolbarButtonStretch))
     ),
-    containerGlassAlpha:numberOrDefault(settings.containerGlassAlpha, defaultSettings.containerGlassAlpha),
-    buttonGlassAlpha:numberOrDefault(settings.buttonGlassAlpha, defaultSettings.buttonGlassAlpha),
-    hoverScale:numberOrDefault(settings.hoverScale, defaultSettings.hoverScale)
+    containerGlassAlpha:numberOrDefault(normalizedInput.containerGlassAlpha, defaultSettings.containerGlassAlpha),
+    buttonGlassAlpha:numberOrDefault(normalizedInput.buttonGlassAlpha, defaultSettings.buttonGlassAlpha),
+    hoverScale:numberOrDefault(normalizedInput.hoverScale, defaultSettings.hoverScale)
   };
 };
 

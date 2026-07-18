@@ -11,3 +11,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+if("serviceWorker" in navigator && window.isSecureContext){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/memory-timeline-sw.js", {scope:"/"})
+      .catch((error)=>console.warn("Push service worker registration failed", error));
+  });
+}

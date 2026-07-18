@@ -5492,6 +5492,42 @@ body.pure-white-theme .settings-notification-row .settings-toggle small{
   color:rgba(31,31,51,0.58);
 }
 
+.push-notification-toggle{
+  align-items:flex-start;
+}
+
+.push-notification-toggle input{
+  flex:0 0 auto;
+  margin-top:2px;
+}
+
+.push-notification-toggle.is-busy{
+  opacity:0.72;
+}
+
+.push-notification-toggle.is-unavailable{
+  border-color:rgba(255,196,120,0.3);
+}
+
+.push-notification-status{
+  overflow-wrap:anywhere;
+}
+
+.push-notification-status[data-state="denied"],
+.push-notification-status[data-state="error"],
+.push-notification-status[data-state="unconfigured"]{
+  color:#ffd4dc !important;
+}
+
+body.light .push-notification-status[data-state="denied"],
+body.light .push-notification-status[data-state="error"],
+body.light .push-notification-status[data-state="unconfigured"],
+body.pure-white-theme .push-notification-status[data-state="denied"],
+body.pure-white-theme .push-notification-status[data-state="error"],
+body.pure-white-theme .push-notification-status[data-state="unconfigured"]{
+  color:#9f3150 !important;
+}
+
 .settings-field input[type="range"]{
   padding:0;
   margin-bottom:0;

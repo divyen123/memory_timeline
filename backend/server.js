@@ -12,6 +12,7 @@ const { rateLimit: expressRateLimit } = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
 
 const memoryRoutes = require("./routes/memoryRoutes");
+const pushRoutes = require("./routes/pushRoutes");
 const User = require("./models/User");
 const Memory = require("./models/Memory");
 const Session = require("./models/Session");
@@ -23,10 +24,10 @@ const {
   clearSessionCookies
 } = require("./authSessions");
 const {
-  configureReminderEmail,
-  isReminderEmailConfigured,
-  startReminderEmailScheduler
-} = require("./reminderEmails");
+  configurePushNotifications,
+  deletePushRecordsForUser
+} = require("./services/pushNotificationService");
+const { startReminderPushScheduler } = require("./jobs/reminderPushScheduler");
 const { securityInfo, securityWarn, securityError } = require("./securityLogger");
 
 const app = express();
@@ -107,7 +108,7 @@ const sanitizeProfilePhoto = (photo) => {
 };
 const SETTINGS_PROFILE_KEYS = new Set(["mobile", "desktop"]);
 const HIDE_PIN_SETTINGS_KEYS = ["hidePasswordEnabled", "hidePasswordType", "hidePasswordValue"];
-const SHARED_REMINDER_SETTINGS_KEYS = ["reminderLeadDays", "backgroundNotificationsEnabled"];
+const SHARED_REMINDER_SETTINGS_KEYS = ["reminderLeadDays"];
 const SETTINGS_KEYS = new Set([
   "reminderLeadDays",
   "defaultTheme",
@@ -139,7 +140,7 @@ const SETTINGS_KEYS = new Set([
   "hoverEnabled",
   "hoverScale",
   "soundEnabled",
-  "backgroundNotificationsEnabled",
+
   "createSound",
   "updateSound",
   "reminderSound",
@@ -209,7 +210,7 @@ const rateLimit = (store, key, limit, windowMs) => {
 };
 
 validateProductionConfig();
-configureReminderEmail();
+configurePushNotifications();
 
 /* MIDDLEWARE */
 app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
@@ -402,7 +403,10 @@ app.post("/api/reset-password", async(req,res)=>{
 
     user.password = await bcrypt.hash(password,10);
     await user.save();
-    await Session.deleteMany({userId:user._id});
+    await Promise.all([
+      Session.deleteMany({userId:user._id}),
+      deletePushRecordsForUser(user._id)
+    ]);
     resetCodes.delete(normalizedEmail);
     securityInfo("password_reset", {userId:String(user._id), ip:req.ip});
 
@@ -481,7 +485,10 @@ app.post("/api/logout", async(req,res)=>{
 });
 
 app.post("/api/logout-all", authMiddleware, async(req,res)=>{
-  await Session.deleteMany({userId:req.user.userId});
+  await Promise.all([
+    Session.deleteMany({userId:req.user.userId}),
+    deletePushRecordsForUser(req.user.userId)
+  ]);
   clearSessionCookies(res);
   securityInfo("logout_all", {userId:String(req.user.userId), ip:req.ip});
   res.json({message:"All sessions revoked"});
@@ -644,7 +651,10 @@ app.put("/api/profile/password", authMiddleware, async(req,res)=>{
 
     user.password = await bcrypt.hash(newPassword,10);
     await user.save();
-    await Session.deleteMany({userId:user._id});
+    await Promise.all([
+      Session.deleteMany({userId:user._id}),
+      deletePushRecordsForUser(user._id)
+    ]);
     clearSessionCookies(res);
     securityInfo("password_changed", {userId:String(user._id), ip:req.ip});
 
@@ -674,7 +684,8 @@ app.get("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
       return res.status(404).json({message:"User not found"});
     }
 
-    const profileSettings = user.settingsProfiles?.[profile] || {};
+    const profileSettings = {...(user.settingsProfiles?.[profile] || {})};
+    delete profileSettings.backgroundNotificationsEnabled;
     const alternateProfile = profile === "mobile" ? "desktop" : "mobile";
     const alternateSettings = user.settingsProfiles?.[alternateProfile] || {};
     const sharedReminderSettings = Object.fromEntries(
@@ -779,6 +790,11 @@ app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
       }
     };
 
+    SETTINGS_PROFILE_KEYS.forEach((profileKey)=>{
+      nextProfiles[profileKey] = {...(nextProfiles[profileKey] || {})};
+      delete nextProfiles[profileKey].backgroundNotificationsEnabled;
+    });
+
     if(hasHideSettingsUpdate){
       SETTINGS_PROFILE_KEYS.forEach((profileKey)=>{
         nextProfiles[profileKey] = {
@@ -824,9 +840,7 @@ app.put("/api/profile/settings/:profile", authMiddleware, async(req,res)=>{
 
 });
 
-app.get("/api/reminders/email-status", authMiddleware, async(req,res)=>{
-  res.json({enabled:isReminderEmailConfigured()});
-});
+app.use("/api/push", pushRoutes);
 /* MEMORY ROUTES */
 app.use("/api", memoryRoutes);
 
@@ -861,7 +875,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(()=>{
   securityInfo("database_connected");
-  startReminderEmailScheduler();
+  startReminderPushScheduler();
 })
 .catch(()=>securityError("database_connection_failed"));
 

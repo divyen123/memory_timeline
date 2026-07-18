@@ -1,0 +1,19 @@
+{
+  "name": "Memory Timeline",
+  "short_name": "Memory Timeline",
+  "description": "A private visual timeline for saving and revisiting personal memories.",
+  "id": "/",
+  "start_url": "/timeline",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#ff4b7d",
+  "icons": [
+    {
+      "src": "/memory-timeline-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -22,6 +22,11 @@ import {
   saveSettings
 } from "../settings";
 import { playAppSound } from "../sound";
+import {
+  getPushNotificationStatus,
+  subscribeToPushNotifications,
+  unsubscribeFromPushNotifications
+} from "../pushNotifications";
 
 import { createHidePinValue, hasStoredHidePin, isFourDigitHidePin } from "../pinPrivacy";
 
@@ -268,6 +273,13 @@ function Profile() {
   const [appSettings,setAppSettings] = useState(
     ()=>collapseDesktopBackgroundColors(loadSettings(deviceProfile), deviceProfile)
   );
+  const [pushStatus,setPushStatus] = useState({
+    state:"checking",
+    subscribed:false,
+    permission:"default",
+    publicKey:""
+  });
+  const [isPushBusy,setIsPushBusy] = useState(false);
   const isStaticBackgroundTheme = (appSettings.animationBackgroundTheme || "static") === "static";
   const isDefaultThemeLocked = !isStaticBackgroundTheme;
   const backupFileRef = useRef(null);
@@ -355,6 +367,44 @@ function Profile() {
       })
       .catch(()=>{});
   },[deviceProfile,isMobileProfile]);
+
+  useEffect(()=>{
+    let active = true;
+
+    const refreshPushStatus = async() => {
+      try{
+        const nextStatus = await getPushNotificationStatus();
+        if(active){
+          setPushStatus(nextStatus);
+        }
+      }catch(error){
+        if(active){
+          setPushStatus({
+            state:"error",
+            subscribed:false,
+            permission:"default",
+            publicKey:"",
+            error
+          });
+        }
+      }
+    };
+    const handleVisibilityChange = () => {
+      if(document.visibilityState === "visible"){
+        void refreshPushStatus();
+      }
+    };
+
+    void refreshPushStatus();
+    window.addEventListener("focus", refreshPushStatus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return ()=>{
+      active = false;
+      window.removeEventListener("focus", refreshPushStatus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  },[]);
 
   useEffect(()=>{
     return () => {
@@ -711,12 +761,72 @@ function Profile() {
     });
   };
 
-  const handleBackgroundNotificationsChange = (enabled) => {
-    updateSetting("backgroundNotificationsEnabled", enabled);
-    setMessage(enabled
-      ? "Reminder emails will be sent to your registered email address."
-      : "Reminder emails are disabled.");
+  const handlePushNotificationsChange = async(enabled) => {
+    if(isPushBusy){
+      return;
+    }
+
+    setIsPushBusy(true);
+    setPushStatus((current)=>({
+      ...current,
+      state:enabled ? "subscribing" : "unsubscribing"
+    }));
+
+    try{
+      if(enabled){
+        await subscribeToPushNotifications(pushStatus.publicKey);
+        setMessage("Push notifications enabled on this browser.");
+      }else{
+        const result = await unsubscribeFromPushNotifications();
+        setMessage(result.serverSynced
+          ? "Push notifications disabled on this browser."
+          : "Push notifications disabled on this browser. Server cleanup will retry automatically.");
+      }
+    }catch(error){
+      if(error.code === "PUSH_DENIED"){
+        setMessage("Notifications are blocked. Allow them for this site in browser settings, then try again.");
+      }else if(error.code === "PUSH_DISMISSED"){
+        setMessage("Notification permission was not granted.");
+      }else if(error.code === "PUSH_UNCONFIGURED"){
+        setMessage("Push notifications are not configured on the server.");
+      }else{
+        setMessage(error.response?.data?.message || error.message || "Push notification update failed");
+      }
+    }finally{
+      try{
+        setPushStatus(await getPushNotificationStatus());
+      }catch(error){
+        setPushStatus({
+          state:"error",
+          subscribed:false,
+          permission:"default",
+          publicKey:"",
+          error
+        });
+      }
+      setIsPushBusy(false);
+    }
   };
+
+  const getPushStatusText = () => ({
+    checking:"Checking push availability...",
+    subscribing:"Waiting for browser permission...",
+    unsubscribing:"Turning off push notifications...",
+    subscribed:"Enabled on this browser. Reminders can arrive when Memory Timeline is closed.",
+    available:pushStatus.permission === "granted"
+      ? "Ready to enable on this browser."
+      : "Turn on alerts for upcoming memories. Your browser will ask permission once.",
+    denied:"Blocked by the browser. Allow notifications for this site in browser settings, then return here.",
+    "install-required":"On iPhone or iPad, add Memory Timeline to the Home Screen, open it there, then enable push notifications.",
+    insecure:"Push notifications require HTTPS (localhost is supported for development).",
+    unsupported:"This browser does not support Web Push notifications.",
+    unconfigured:pushStatus.subscribed
+      ? "This browser is subscribed, but server push delivery is not configured."
+      : "Push delivery is not configured on the server.",
+    error:pushStatus.subscribed
+      ? "Subscribed in this browser, but server status is temporarily unavailable."
+      : "Could not check push availability. Check your connection and try again."
+  }[pushStatus.state] || "Push notifications are configured separately on each browser.");
 
   const updateBackgroundColor = (theme, color) => {
     const prefix = theme === "light" ? "lightGradient" : "darkGradient";
@@ -919,7 +1029,7 @@ function Profile() {
           <div className="profile-card settings-card">
             <h2>Settings</h2>
             <p className="settings-device-note">
-              Editing the <strong>{deviceProfile}</strong> profile. Reminder starts and Email reminders sync across mobile and desktop; appearance settings stay device-specific.
+              Editing the <strong>{deviceProfile}</strong> profile. Reminder lead time syncs across mobile and desktop. Push notifications are enabled separately in each browser/device; appearance settings stay device-specific.
             </p>
             <form onSubmit={handleSettingsUpdate}>
               <label className="settings-field">
@@ -1347,7 +1457,7 @@ function Profile() {
                 </>
               )}
 
-              <div className="settings-section-title">Backup & Sound</div>
+              <div className="settings-section-title">Backup, Sound & Notifications</div>
 
               <div className="settings-actions">
                 <button type="button" onClick={createSettingsBackup}>Backup Settings</button>
@@ -1368,18 +1478,26 @@ function Profile() {
                     checked={appSettings.soundEnabled}
                     onChange={(e)=>updateSetting("soundEnabled", e.target.checked)}
                   />
-                  <span>Reminder sounds</span>
+                  <span>In-app reminder sounds</span>
                 </label>
 
-                <label className="settings-toggle">
+                <label className={`settings-toggle push-notification-toggle ${isPushBusy ? "is-busy" : ""} ${pushStatus.state !== "available" && !pushStatus.subscribed ? "is-unavailable" : ""}`}>
                   <input
                     type="checkbox"
-                    checked={appSettings.backgroundNotificationsEnabled !== false}
-                    onChange={(e)=>void handleBackgroundNotificationsChange(e.target.checked)}
+                    checked={pushStatus.subscribed}
+                    disabled={isPushBusy || (!pushStatus.subscribed && pushStatus.state !== "available")}
+                    onChange={(e)=>void handlePushNotificationsChange(e.target.checked)}
+                    aria-describedby="push-notification-status"
                   />
                   <span>
-                    Email reminders
-                    <small>Sends due reminder messages to your registered email address.</small>
+                    Push notifications
+                    <small
+                      id="push-notification-status"
+                      className="push-notification-status"
+                      data-state={pushStatus.state}
+                    >
+                      {getPushStatusText()}
+                    </small>
                   </span>
                 </label>
               </div>
@@ -1414,7 +1532,7 @@ function Profile() {
                   </div>
                 </label>
                 <label className="settings-field">
-                  <span>Reminder popup</span>
+                  <span>In-app reminder</span>
                   <div className="settings-sound-control">
                     <select value={appSettings.reminderSound} onChange={(e)=>updateSetting("reminderSound", e.target.value)}>
                       <option value="bell">Bell</option>
@@ -1422,7 +1540,7 @@ function Profile() {
                       <option value="sparkle">Sparkle</option>
                       <option value="pop">Pop</option>
                     </select>
-                    <button type="button" onClick={()=>testSound("reminder")} aria-label="Test reminder popup sound">
+                    <button type="button" onClick={()=>testSound("reminder")} aria-label="Test in-app reminder sound">
                       &#9654;
                     </button>
                   </div>

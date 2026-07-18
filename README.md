@@ -89,17 +89,6 @@ Encrypted media storage is used to reduce direct visibility of private user uplo
 
 The frontend is deployed on Vercel, the backend service is deployed on Render, MongoDB Atlas stores application data, and Cloudinary manages image storage.
 
-## Push Notification Setup
-
-Reminder delivery uses browser Web Push only; reminder emails are not sent.
-
-1. In `backend`, run `npm run generate:vapid` once and store the generated key pair securely.
-2. Set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_SUBJECT` in the backend environment. Keep the private key secret and keep the same key pair across deployments.
-3. Serve the app over HTTPS (or use localhost during development), then enable push notifications in Profile on each browser or device that should receive reminders.
-4. On iPhone or iPad, install Memory Timeline to the Home Screen and open that installed app before enabling push notifications.
-
-Push subscriptions are device-specific. Reminder lead time still synchronizes through the user's settings profile.
-
 ## Advantages
 
 - Keeps personal memories organized in a visual and searchable format

@@ -2,14 +2,6 @@ import React from "react";
 
 import "./AnimatedBackground.css";
 
-export const ANIMATED_BACKGROUND_OPTIONS = [
-  {value:"static", label:"Static theme"},
-  {value:"liquidAther", label:"Liquid ather"},
-  {value:"ferrofluid", label:"Ferrofluid"},
-  {value:"darkveil", label:"Darkveil"},
-  {value:"ballpit", label:"Ballpit"}
-];
-
 const BALLS = Array.from({length:34}, (_, index) => ({
   id:index,
   size:18 + (index % 7) * 8,

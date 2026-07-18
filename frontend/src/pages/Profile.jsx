@@ -12,7 +12,7 @@ import {
 } from "../services/api";
 import { clearAuthenticatedUser } from "../auth";
 import PageTransition from "../components/PageTransition";
-import { ANIMATED_BACKGROUND_OPTIONS } from "../components/AnimatedBackground";
+import { ANIMATED_BACKGROUND_OPTIONS } from "../constants/animatedBackgroundOptions";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import {
   defaultSettings,

@@ -15553,3 +15553,49 @@ body.button-glass-on .small-memory-open-btn:hover{
   backdrop-filter:none !important;
   -webkit-backdrop-filter:none !important;
 }
+
+/* Mobile-only pin visibility and full-memory action row */
+@media (max-width:760px){
+  .preview-dialog .preview-actions{
+    width:100%;
+    min-width:0;
+    flex-wrap:nowrap !important;
+    justify-content:space-between;
+    gap:3px;
+  }
+
+  .preview-dialog .preview-actions button,
+  .preview-dialog .preview-actions .preview-image-info-btn{
+    width:29px !important;
+    height:29px !important;
+    min-width:29px !important;
+    min-height:29px !important;
+    flex:0 0 29px !important;
+    padding:0 !important;
+    font-size:14px !important;
+  }
+
+  .preview-dialog .preview-actions .preview-image-info-wrap{
+    min-width:29px;
+    flex:0 0 29px;
+  }
+
+  .preview-dialog .preview-actions .preview-image-info-btn{
+    font-size:15px !important;
+  }
+
+  .preview-dialog .preview-actions .preview-pin-btn{
+    display:flex !important;
+    visibility:visible !important;
+  }
+
+  .small-memory-pin-btn:not(.active){
+    display:none !important;
+  }
+
+  .small-memory-pin-btn.active{
+    display:flex !important;
+    opacity:1;
+    transform:none;
+  }
+}

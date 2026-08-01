@@ -30,6 +30,7 @@ const {
   emptyTrash,
   updateMemory,
   toggleFavorite,
+  togglePin,
   createMemoryShare,
   createCategoryShare,
   revokeMemoryShare,
@@ -203,6 +204,7 @@ router.post("/memories", authMiddleware, memoryImagesUpload, addMemory);
 router.delete("/memories", authMiddleware, clearAllMemories);
 router.put("/memories/:id", authMiddleware, memoryImagesUpload, updateMemory);
 router.patch("/memories/:id/favorite", authMiddleware, toggleFavorite);
+router.patch("/memories/:id/pin", authMiddleware, togglePin);
 router.patch("/memories/:id/hide", authMiddleware, hideMemory);
 router.patch("/memories/:id/unhide", authMiddleware, unhideMemory);
 router.patch("/memories/:id/restore", authMiddleware, restoreMemory);

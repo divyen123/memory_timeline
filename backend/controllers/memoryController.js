@@ -598,7 +598,7 @@ exports.getMemories = async (req, res) => {
 
     const [memories,total] = await Promise.all([
       Memory.find(query)
-        .sort({ date: sortOrder })
+        .sort({pinned:-1, date:sortOrder, _id:sortOrder})
         .skip((page - 1) * limit)
         .limit(limit)
         .lean(),
@@ -1040,6 +1040,38 @@ exports.toggleFavorite = async (req,res)=>{
   }
   catch(err){
     res.status(500).json(err);
+  }
+
+};
+
+// Set Pin State
+exports.togglePin = async (req,res)=>{
+
+  try{
+    const pinned = req.body?.pinned;
+
+    if(typeof pinned !== "boolean"){
+      return res.status(400).json({message:"Pinned state is required"});
+    }
+
+    const update = pinned
+      ? {$set:{pinned:true}}
+      : {$unset:{pinned:1}};
+    const memory = await Memory.findOneAndUpdate({
+      _id:req.params.id,
+      userId:req.user.userId,
+      deletedAt:null
+    }, update, {new:true});
+
+    if(!memory){
+      return res.status(404).json({message:"Memory not found"});
+    }
+
+    res.json(await withSignedImages(memory));
+
+  }
+  catch(err){
+    res.status(500).json({message:err.message || "Unable to update pin"});
   }
 
 };

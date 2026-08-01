@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { createMemoryShare, deleteMemory, getMemory, getMemoryImageUrl, toggleFavorite } from "../services/api";
+import { createMemoryShare, deleteMemory, getMemory, getMemoryImageUrl, toggleFavorite, togglePin } from "../services/api";
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
+import PinIcon from "../components/PinIcon";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { shareUrl } from "../share";
 
@@ -11,6 +12,7 @@ function MemoryDetails() {
   const navigate = useNavigate();
   const [memory,setMemory] = useState(null);
   const [message,setMessage] = useState("");
+  const [pinning,setPinning] = useState(false);
   const [showDeleteConfirm,setShowDeleteConfirm] = useState(false);
   const [carouselIndex,setCarouselIndex] = useState(null);
   const backGuardRef = useRef(false);
@@ -53,7 +55,29 @@ function MemoryDetails() {
 
   const handleFavorite = async () => {
     const res = await toggleFavorite(id);
-    setMemory(res.data);
+    setMemory(current => current
+      ? {...current, favorite:Boolean(res.data.favorite)}
+      : res.data);
+  };
+
+  const handlePin = async () => {
+    if(pinning){
+      return;
+    }
+
+    setPinning(true);
+
+    try{
+      const res = await togglePin(id, !memory?.pinned);
+      setMemory(current => current
+        ? {...current, pinned:Boolean(res.data.pinned)}
+        : res.data);
+      setMessage(res.data.pinned ? "Memory pinned to top" : "Memory unpinned");
+    }catch{
+      setMessage("Failed to update pin");
+    }finally{
+      setPinning(false);
+    }
   };
 
   const handleShare = async () => {
@@ -191,12 +215,30 @@ function MemoryDetails() {
               <div className="memory-photo-placeholder">{memory.title?.slice(0,1) || "M"}</div>
             )}
 
-            <button
-              className={`favorite-btn details-favorite ${memory.favorite ? "active" : ""}`}
-              onClick={handleFavorite}
-            >
-              <span aria-hidden="true">{memory.favorite ? "\u2605" : "\u2606"}</span>
-            </button>
+            <div className="details-hero-actions">
+              <button
+                type="button"
+                className={`details-pin-btn ${memory.pinned ? "active" : ""}`}
+                title={memory.pinned ? "Unpin memory" : "Pin memory"}
+                aria-label={memory.pinned ? "Unpin memory" : "Pin memory"}
+                aria-pressed={Boolean(memory.pinned)}
+                disabled={pinning}
+                onClick={handlePin}
+              >
+                <PinIcon filled={Boolean(memory.pinned)} />
+              </button>
+
+              <button
+                type="button"
+                className={`favorite-btn details-favorite ${memory.favorite ? "active" : ""}`}
+                title={memory.favorite ? "Remove from favorites" : "Add to favorites"}
+                aria-label={memory.favorite ? "Remove from favorites" : "Add to favorites"}
+                aria-pressed={Boolean(memory.favorite)}
+                onClick={handleFavorite}
+              >
+                <span aria-hidden="true">{memory.favorite ? "\u2605" : "\u2606"}</span>
+              </button>
+            </div>
 
             <div className="story-hero-content">
               <div className="details-meta-row">

@@ -15240,3 +15240,316 @@ body.pure-white-theme .default-theme-field.locked::after{
   color:#1f2937;
   box-shadow:0 12px 28px rgba(31,31,51,0.16);
 }
+
+/* ================= MEMORY PIN CONTROLS ================= */
+
+.pin-icon{
+  width:1em;
+  height:1em;
+  display:block;
+  overflow:visible;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.pin-icon .pin-icon-head{
+  fill:transparent;
+  transition:fill 0.18s ease;
+}
+
+.pin-icon.is-filled .pin-icon-head{
+  fill:currentColor;
+}
+
+.memory-actions .memory-pin-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(108,99,255,0.82);
+  border:1px solid rgba(255,255,255,0.24);
+  color:white;
+  font-size:15px;
+  line-height:1;
+}
+
+.memory-actions .memory-pin-btn .pin-icon{
+  width:15px;
+  height:15px;
+}
+
+.memory-actions .memory-pin-btn.active{
+  background:#6d5dfc;
+  border-color:rgba(218,214,255,0.84);
+  color:white;
+  box-shadow:0 8px 20px rgba(109,93,252,0.36);
+}
+
+.memory-actions .memory-pin-btn:disabled,
+.small-memory-pin-btn:disabled,
+.preview-pin-btn:disabled,
+.details-pin-btn:disabled{
+  cursor:wait;
+  opacity:0.58;
+}
+
+.calendar-memory.small-memory-card-shell{
+  padding:0;
+  overflow:visible;
+}
+
+.small-memory-open-btn{
+  position:relative;
+  width:100%;
+  height:100%;
+  min-width:0;
+  min-height:inherit;
+  margin:0;
+  padding:10px 38px 10px 10px;
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr);
+  align-items:center;
+  gap:11px;
+  overflow:hidden;
+  border:0;
+  border-radius:inherit;
+  background:transparent;
+  box-shadow:none;
+  color:inherit;
+  text-align:left;
+}
+
+.small-memory-open-btn:hover{
+  transform:none;
+  background:transparent;
+}
+
+.small-container-memory .small-memory-open-btn{
+  min-height:0;
+  padding:0;
+  display:block;
+}
+
+.small-memory-open-btn > i{
+  position:absolute;
+  top:6px;
+  right:6px;
+  z-index:3;
+  width:20px;
+  height:20px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,0.72);
+  border-radius:6px;
+  background:rgba(9,10,32,0.78);
+  color:white;
+  font-style:normal;
+  font-size:11px;
+}
+
+.small-memory-pin-btn{
+  position:absolute;
+  top:5px;
+  right:5px;
+  z-index:5;
+  width:25px;
+  height:25px;
+  min-height:25px;
+  margin:0;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:50%;
+  background:rgba(18,19,48,0.74);
+  color:white;
+  box-shadow:0 7px 18px rgba(0,0,0,0.28);
+  opacity:0;
+  transform:translateY(-4px) scale(0.92);
+  transition:opacity 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+.small-memory-pin-btn .pin-icon{
+  width:14px;
+  height:14px;
+}
+
+.small-memory-card-shell:hover .small-memory-pin-btn,
+.small-memory-card-shell:focus-within .small-memory-pin-btn,
+.small-memory-pin-btn.active{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+
+.small-memory-pin-btn:hover{
+  transform:translateY(0) scale(1.06);
+  background:rgba(109,93,252,0.94);
+}
+
+.small-memory-pin-btn.active{
+  background:#6d5dfc;
+  border-color:rgba(224,221,255,0.88);
+  color:white;
+}
+
+.small-memory-card-shell.pinned-memory .calendar-memory-thumbnail{
+  box-shadow:
+    0 0 0 2px rgba(167,157,255,0.82),
+    0 10px 24px rgba(4,5,22,0.24);
+}
+
+.calendar-pinned-group{
+  border-color:rgba(155,143,255,0.44);
+  background:
+    radial-gradient(circle at 8% 0%,rgba(109,93,252,0.2),transparent 34%),
+    rgba(255,255,255,var(--container-glass-alpha));
+}
+
+.calendar-pinned-group .calendar-month-kicker{
+  color:#c8c1ff;
+}
+
+.preview-actions .preview-pin-btn .pin-icon{
+  width:19px;
+  height:19px;
+}
+
+.preview-actions .preview-pin-btn.active,
+.details-pin-btn.active{
+  background:#6d5dfc;
+  border-color:rgba(224,221,255,0.82);
+  color:white;
+  box-shadow:0 12px 28px rgba(109,93,252,0.3);
+}
+
+.preview-actions .preview-pin-btn.active:hover,
+.details-pin-btn.active:hover{
+  background:#8173ff;
+  border-color:rgba(236,234,255,0.92);
+  color:white;
+}
+
+.story-panel .details-hero-actions{
+  position:absolute;
+  top:22px;
+  right:22px;
+  z-index:3;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.story-panel .details-hero-actions button{
+  position:static;
+  width:44px;
+  height:44px;
+  min-height:44px;
+  flex:0 0 44px;
+  margin:0;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,0.26);
+  border-radius:50%;
+  background:rgba(12,13,38,0.54);
+  color:white;
+  box-shadow:0 10px 26px rgba(0,0,0,0.24);
+  backdrop-filter:blur(14px);
+}
+
+.story-panel .details-hero-actions button:hover{
+  transform:translateY(-2px) scale(1.04);
+  background:rgba(255,255,255,0.22);
+}
+
+.story-panel .details-hero-actions .details-favorite{
+  position:static;
+  top:auto;
+  right:auto;
+  z-index:auto;
+}
+
+.details-pin-btn .pin-icon{
+  width:20px;
+  height:20px;
+}
+
+@media (max-width:760px){
+  .story-panel .details-hero-actions{
+    top:14px;
+    right:14px;
+    gap:8px;
+  }
+
+  .story-panel .details-hero-actions button{
+    width:40px;
+    height:40px;
+    min-height:40px;
+    flex-basis:40px;
+  }
+
+  .small-memory-pin-btn{
+    width:24px;
+    height:24px;
+    min-height:24px;
+  }
+}
+
+@media (hover:none){
+  .small-memory-pin-btn{
+    opacity:1;
+    transform:none;
+  }
+}
+
+.preview-dialog .preview-actions{
+  flex-wrap:wrap;
+}
+
+.story-panel .details-hero-actions .details-pin-btn.active{
+  background:#6d5dfc;
+  border-color:rgba(224,221,255,0.82);
+  color:white;
+  box-shadow:0 12px 28px rgba(109,93,252,0.3);
+}
+
+.story-panel .details-hero-actions .details-pin-btn.active:hover{
+  background:#8173ff;
+  border-color:rgba(236,234,255,0.92);
+  color:white;
+  box-shadow:0 12px 28px rgba(109,93,252,0.36);
+}
+
+@media (max-width:760px) and (hover:hover) and (pointer:fine){
+  .timeline-card .memory-actions{
+    display:flex;
+  }
+}
+
+body .preview-dialog .preview-actions .preview-pin-btn.active{
+  background:#6d5dfc !important;
+  border-color:rgba(224,221,255,0.82) !important;
+  color:white !important;
+  box-shadow:0 12px 28px rgba(109,93,252,0.3) !important;
+}
+
+body .preview-dialog .preview-actions .preview-pin-btn.active:hover{
+  background:#8173ff !important;
+  border-color:rgba(236,234,255,0.92) !important;
+  color:white !important;
+}
+
+body.button-glass-on .small-memory-open-btn,
+body.button-glass-on .small-memory-open-btn:hover{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  transform:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}

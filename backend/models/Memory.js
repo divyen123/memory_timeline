@@ -59,6 +59,10 @@ const memorySchema = new mongoose.Schema({
     default: false
   },
 
+  pinned: {
+    type: Boolean
+  },
+
   publicToken: {
     type: String
   },
@@ -95,6 +99,8 @@ const memorySchema = new mongoose.Schema({
 });
 
 memorySchema.index({userId:1, date:-1});
+memorySchema.index({userId:1, deletedAt:1, hiddenAt:1, pinned:-1, date:-1, _id:-1});
+memorySchema.index({userId:1, deletedAt:1, hiddenAt:1, pinned:-1, date:1, _id:1});
 memorySchema.index({userId:1, category:1, date:-1});
 memorySchema.index({userId:1, favorite:1, date:-1});
 memorySchema.index({userId:1, deletedAt:1, trashExpiresAt:1});

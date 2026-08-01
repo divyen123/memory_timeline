@@ -192,6 +192,7 @@ export const downloadMemoryImage = (id,index)=>API.get(`/memories/${id}/images/$
   responseType:"blob"
 });
 export const toggleFavorite = (id)=>API.patch(`/memories/${id}/favorite`);
+export const togglePin = (id,pinned)=>API.patch(`/memories/${id}/pin`, {pinned});
 export const createMemoryShare = (id)=>API.post(`/memories/${id}/share`);
 export const createCategoryShare = (data)=>API.post("/share/category",data);
 export const revokeMemoryShare = (id)=>API.delete(`/memories/${id}/share`);

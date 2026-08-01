@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import PinIcon from "./PinIcon";
 import { getMemoryImageUrl } from "../services/api";
 import SmartImage from "./SmartImage";
 import {
@@ -28,12 +29,14 @@ function MemoryCard({
   onFavorite,
   onUnhide,
   onPreview,
+  onPin,
   hiddenMode = false,
   selectionMode = false,
   selected = false,
   onSelect,
   isTransitionDimmed = false,
-  isTransitionSource = false
+  isTransitionSource = false,
+  pinning = false
 }) {
 
   const formattedDate = new Date(memory.date).toLocaleDateString("en-GB", {
@@ -94,6 +97,11 @@ function MemoryCard({
 
   const handleDelete = () => {
     onDelete(memory);
+  };
+
+  const handlePin = (e) => {
+    e.stopPropagation();
+    onPin?.(memory);
   };
 
   const handleFavorite = (e) => {
@@ -212,6 +220,18 @@ function MemoryCard({
               </>
             ) : (
               <>
+                <button
+                  type="button"
+                  className={`memory-pin-btn ${memory.pinned ? "active" : ""}`}
+                  title={memory.pinned ? "Unpin memory" : "Pin memory"}
+                  aria-label={memory.pinned ? "Unpin memory" : "Pin memory"}
+                  aria-pressed={Boolean(memory.pinned)}
+                  disabled={pinning}
+                  onClick={handlePin}
+                >
+                  <PinIcon filled={Boolean(memory.pinned)} />
+                </button>
+
                 <button
                   type="button"
                   className={`favorite-btn ${memory.favorite ? "active" : ""}`}

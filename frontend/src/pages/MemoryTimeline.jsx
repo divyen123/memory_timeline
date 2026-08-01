@@ -3,9 +3,10 @@ import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-m
 import JSZip from "jszip";
 import MemoryCard from "../components/MemoryCard";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createCategoryShare, createMemoryShare, downloadMemoryImage, getImageUrl, getMemories, getMemoryImageUrl, deleteMemory, hideMemory, toggleFavorite } from "../services/api";
+import { createCategoryShare, createMemoryShare, downloadMemoryImage, getImageUrl, getMemories, getMemoryImageUrl, deleteMemory, hideMemory, toggleFavorite, togglePin } from "../services/api";
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
+import PinIcon from "../components/PinIcon";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
 import { playAppSound } from "../sound";
@@ -138,6 +139,45 @@ const getMemoryListPayload = (data) => (
   Array.isArray(data?.memories) ? data.memories : []
 );
 
+const getMemoryTimestamp = (memory) => {
+  const timestamp = new Date(memory?.date).getTime();
+
+  return Number.isFinite(timestamp) ? timestamp : 0;
+};
+
+const compareMemories = (a, b, sortOrder) => {
+  const pinDifference = Number(Boolean(b?.pinned)) - Number(Boolean(a?.pinned));
+
+  if(pinDifference){
+    return pinDifference;
+  }
+
+  const requestedOrder = sortOrder === "oldest" ? 1 : -1;
+  const dateDifference = getMemoryTimestamp(a) - getMemoryTimestamp(b);
+
+  if(dateDifference){
+    return dateDifference * requestedOrder;
+  }
+
+  const firstId = String(a?._id || "");
+  const secondId = String(b?._id || "");
+  const idDifference = firstId === secondId ? 0 : (firstId < secondId ? -1 : 1);
+
+  return idDifference * requestedOrder;
+};
+
+const orderUniqueMemories = (items, sortOrder) => {
+  const memoriesById = new Map();
+
+  items.forEach((memory) => {
+    if(memory?._id){
+      memoriesById.set(memory._id, memory);
+    }
+  });
+
+  return [...memoriesById.values()].sort((a, b)=>compareMemories(a, b, sortOrder));
+};
+
 function MemoryTimeline() {
 
   const [memories, setMemories] = useState([]);
@@ -152,6 +192,7 @@ function MemoryTimeline() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pinningMemoryIds, setPinningMemoryIds] = useState([]);
   const [previewMemory, setPreviewMemory] = useState(null);
   const [showReminderPanel, setShowReminderPanel] = useState(false);
   const [reminderPage, setReminderPage] = useState(0);
@@ -199,15 +240,29 @@ function MemoryTimeline() {
   const previewReturnFocusRef = useRef(null);
   const memoriesRef = useRef([]);
   const handledReturnedPreviewRef = useRef("");
+  const pinReconcileVersionRef = useRef(0);
+  const listRequestVersionRef = useRef(0);
+  const listQueryKeyRef = useRef("");
   const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
   const location = useLocation();
   const categories = ["All","Personal","Family","Friends","Travel","School","Work","Other"];
   const memoryBatchSize = MEMORY_BATCH_SIZE_BY_CARD_SIZE[settings.cardSize] || MEMORY_BATCH_SIZE_BY_CARD_SIZE.medium;
+  const listQueryKey = JSON.stringify([
+    memoryBatchSize,
+    searchText,
+    sortOrder,
+    categoryFilter,
+    showFavorites
+  ]);
+  listQueryKeyRef.current = listQueryKey;
   const shouldVirtualizeTimeline = viewMode === "timeline" && memories.length > (isMobileTimeline ? 12 : 30);
   const isPreviewImageZoomed = previewImageZoom > PREVIEW_IMAGE_MIN_ZOOM;
 
   const loadMemories = useCallback(async (nextPage = 1, replace = false) => {
+    const requestVersion = ++listRequestVersionRef.current;
+    const requestQueryKey = listQueryKey;
+
     setLoading(true);
 
     try{
@@ -220,23 +275,70 @@ function MemoryTimeline() {
         favorite:showFavorites ? "true" : undefined
       });
 
+      if(
+        listRequestVersionRef.current !== requestVersion ||
+        listQueryKeyRef.current !== requestQueryKey
+      ){
+        return;
+      }
+
       const nextMemories = getMemoryListPayload(res.data);
 
-      setMemories(prevMemories => replace
-        ? nextMemories
-        : [...(Array.isArray(prevMemories) ? prevMemories : []), ...nextMemories]);
+      setMemories(prevMemories => orderUniqueMemories(
+        replace
+          ? nextMemories
+          : [...(Array.isArray(prevMemories) ? prevMemories : []), ...nextMemories],
+        sortOrder
+      ));
       setPage(Number(res.data?.page) || nextPage);
       setHasMore(Boolean(res.data?.hasMore));
     }catch{
+      if(
+        listRequestVersionRef.current !== requestVersion ||
+        listQueryKeyRef.current !== requestQueryKey
+      ){
+        return;
+      }
+
       if(replace){
         setMemories([]);
       }
       setMessage("Unable to load memories right now. Please try again.");
       setHasMore(false);
     }finally{
-      setLoading(false);
+      if(
+        listRequestVersionRef.current === requestVersion &&
+        listQueryKeyRef.current === requestQueryKey
+      ){
+        setLoading(false);
+      }
     }
+  }, [categoryFilter, listQueryKey, memoryBatchSize, searchText, showFavorites, sortOrder]);
+  const fetchLoadedMemoryPages = useCallback(async (loadedPageCount) => {
+    const pageNumbers = Array.from(
+      {length:Math.max(1, loadedPageCount)},
+      (_, index)=>index + 1
+    );
+    const responses = await Promise.all(pageNumbers.map((requestedPage)=>getMemories({
+      page:requestedPage,
+      limit:memoryBatchSize,
+      search:searchText || undefined,
+      sort:sortOrder,
+      category:categoryFilter,
+      favorite:showFavorites ? "true" : undefined
+    })));
+    const lastResponse = responses[responses.length - 1];
+
+    return {
+      memories:orderUniqueMemories(
+        responses.flatMap((response)=>getMemoryListPayload(response.data)),
+        sortOrder
+      ),
+      page:Number(lastResponse?.data?.page) || Math.max(1, loadedPageCount),
+      hasMore:Boolean(lastResponse?.data?.hasMore)
+    };
   }, [categoryFilter, memoryBatchSize, searchText, showFavorites, sortOrder]);
+
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 760px)");
@@ -372,7 +474,7 @@ function MemoryTimeline() {
     }
 
     const observer = new IntersectionObserver(([entry]) => {
-      if(entry.isIntersecting && hasMore && !loading){
+      if(entry.isIntersecting && hasMore && !loading && pinningMemoryIds.length === 0){
         loadMemories(page + 1);
       }
     }, {threshold:0.4});
@@ -380,10 +482,19 @@ function MemoryTimeline() {
     observer.observe(target);
 
     return () => observer.disconnect();
-  }, [hasMore, loading, loadMemories, page]);
+  }, [hasMore, loading, loadMemories, page, pinningMemoryIds.length]);
+
+  const pinnedMemories = useMemo(
+    ()=>memories.filter((memory)=>Boolean(memory.pinned)),
+    [memories]
+  );
 
   const memoriesByMonth = useMemo(() => {
     return memories.reduce((groups, memory) => {
+      if(memory.pinned){
+        return groups;
+      }
+
       const month = new Date(memory.date).toLocaleDateString("en-GB", {
         month:"long",
         year:"numeric"
@@ -424,9 +535,87 @@ function MemoryTimeline() {
 
   const handleFavorite = async (id) => {
     const res = await toggleFavorite(id);
-    setMemories(prevMemories => prevMemories.map(memory =>
-      memory._id === id ? res.data : memory
+    const favorite = Boolean(res.data.favorite);
+
+    setMemories(prevMemories => orderUniqueMemories(
+      prevMemories.map(memory => memory._id === id
+        ? {...memory, favorite}
+        : memory),
+      sortOrder
     ));
+    setPreviewMemory(current => current?._id === id
+      ? {...current, favorite}
+      : current);
+  };
+
+  const handlePin = async (memory) => {
+    const memoryId = memory?._id;
+
+    if(!memoryId || pinningMemoryIds.includes(memoryId)){
+      return;
+    }
+
+    const currentMemory = memoriesRef.current.find((item)=>item._id === memoryId) || memory;
+    const wasPinned = Boolean(currentMemory.pinned);
+    const targetPinned = !wasPinned;
+    const mutationVersion = ++pinReconcileVersionRef.current;
+    const pinQueryKey = listQueryKeyRef.current;
+    const applyPinnedState = (pinned) => {
+      setMemories(currentMemories => {
+        const updatedMemories = currentMemories.map((item)=>(
+          item._id === memoryId ? {...item, pinned} : item
+        ));
+
+        return listQueryKeyRef.current === pinQueryKey
+          ? orderUniqueMemories(updatedMemories, sortOrder)
+          : updatedMemories;
+      });
+      setPreviewMemory(current => current?._id === memoryId
+        ? {...current, pinned}
+        : current);
+    };
+
+    listRequestVersionRef.current += 1;
+    setLoading(false);
+    setPinningMemoryIds(current => current.includes(memoryId)
+      ? current
+      : [...current, memoryId]);
+    applyPinnedState(targetPinned);
+
+    try{
+      const response = await togglePin(memoryId, targetPinned);
+      const authoritativePinned = Boolean(response.data.pinned);
+
+      applyPinnedState(authoritativePinned);
+      setMessage(authoritativePinned ? "Memory pinned" : "Memory unpinned");
+
+      if(
+        pinReconcileVersionRef.current === mutationVersion &&
+        listQueryKeyRef.current === pinQueryKey
+      ){
+        const reconciliationVersion = ++listRequestVersionRef.current;
+
+        try{
+          const reconciled = await fetchLoadedMemoryPages(page);
+
+          if(
+            listRequestVersionRef.current === reconciliationVersion &&
+            listQueryKeyRef.current === pinQueryKey
+          ){
+            setMemories(reconciled.memories);
+            setPage(reconciled.page);
+            setHasMore(reconciled.hasMore);
+          }
+        }catch{
+          // The pin succeeded; the next list load will reconcile pagination.
+        }
+      }
+    }catch(error){
+      applyPinnedState(wasPinned);
+      setMessage(error.response?.data?.message || "Unable to update pin");
+    }finally{
+      setPinningMemoryIds(current => current.filter((id)=>id !== memoryId));
+    }
   };
 
   const handleDeleteRequest = (memory, options = {}) => {
@@ -927,10 +1116,17 @@ function MemoryTimeline() {
 
   const togglePreviewFavorite = async (memory) => {
     const res = await toggleFavorite(memory._id);
-    setMemories(prevMemories => prevMemories.map(item =>
-      item._id === memory._id ? res.data : item
+    const favorite = Boolean(res.data.favorite);
+
+    setMemories(prevMemories => orderUniqueMemories(
+      prevMemories.map(item => item._id === memory._id
+        ? {...item, favorite}
+        : item),
+      sortOrder
     ));
-    setPreviewMemory(res.data);
+    setPreviewMemory(current => current?._id === memory._id
+      ? {...current, favorite}
+      : current);
   };
 
   const getMemoryImages = (memory) => (
@@ -1286,44 +1482,73 @@ function MemoryTimeline() {
       year:"numeric"
     });
 
+    const isSelected = selectedMemoryIds.includes(memory._id);
+    const isSelecting = exportPanel === "selected";
+    const memoryLabel = memory.title || "memory";
+
     return (
-      <button
+      <div
         key={memory._id}
-        className={`${className} ${selectedMemoryIds.includes(memory._id) ? "selected" : ""}`}
-        onClick={()=>{
-          if(exportPanel === "selected"){
-            toggleMemorySelection(memory._id);
-          }else{
-            setPreviewMemory(memory);
-          }
-        }}
+        className={`${className} small-memory-card-shell ${isSelected ? "selected" : ""} ${memory.pinned ? "pinned-memory" : ""}`}
       >
-        {exportPanel === "selected" && (
-          <i aria-hidden="true">{selectedMemoryIds.includes(memory._id) ? "\u2713" : ""}</i>
-        )}
-        <span className={`calendar-memory-thumbnail ${cardImages[0] ? "" : "empty"}`}>
-          {cardImages[0] ? (
-            <SmartImage
-              src={getMemoryImageUrl(memory, cardImageKind, 0)}
-              alt=""
-              detectFaces={false}
-            />
-          ) : (
-            <strong>{memory.title?.slice(0,1) || "M"}</strong>
+        <button
+          type="button"
+          className="small-memory-open-btn"
+          aria-label={isSelecting
+            ? `${isSelected ? "Deselect" : "Select"} ${memoryLabel}`
+            : `Open ${memoryLabel}`}
+          aria-pressed={isSelecting ? isSelected : undefined}
+          onClick={(event)=>{
+            if(isSelecting){
+              toggleMemorySelection(memory._id);
+            }else{
+              openPreviewMemory(memory, event.currentTarget);
+            }
+          }}
+        >
+          {isSelecting && (
+            <i aria-hidden="true">{isSelected ? "\u2713" : ""}</i>
           )}
-        </span>
-        {!isCompactCard && (
-          <>
-            <span className="calendar-memory-copy">
-              <strong>{memory.title}</strong>
-              <span className="calendar-memory-meta">
-                <time dateTime={memory.date}>{formattedDate}</time>
+          <span className={`calendar-memory-thumbnail ${cardImages[0] ? "" : "empty"}`}>
+            {cardImages[0] ? (
+              <SmartImage
+                src={getMemoryImageUrl(memory, cardImageKind, 0)}
+                alt=""
+                detectFaces={false}
+              />
+            ) : (
+              <strong>{memory.title?.slice(0,1) || "M"}</strong>
+            )}
+          </span>
+          {!isCompactCard && (
+            <>
+              <span className="calendar-memory-copy">
+                <strong>{memory.title}</strong>
+                <span className="calendar-memory-meta">
+                  <time dateTime={memory.date}>{formattedDate}</time>
+                </span>
               </span>
-            </span>
-            <span className="calendar-memory-arrow" aria-hidden="true">&#8594;</span>
-          </>
+              <span className="calendar-memory-arrow" aria-hidden="true">&#8594;</span>
+            </>
+          )}
+        </button>
+        {!isSelecting && (
+          <button
+            type="button"
+            className={`small-memory-pin-btn ${memory.pinned ? "active" : ""}`}
+            title={memory.pinned ? "Unpin memory" : "Pin memory"}
+            aria-label={memory.pinned ? "Unpin memory" : "Pin memory"}
+            aria-pressed={Boolean(memory.pinned)}
+            disabled={pinningMemoryIds.includes(memory._id)}
+            onClick={(event)=>{
+              event.stopPropagation();
+              handlePin(memory);
+            }}
+          >
+            <PinIcon filled={Boolean(memory.pinned)} />
+          </button>
         )}
-      </button>
+      </div>
     );
   };
   const loadPreviewImageDetails = async () => {
@@ -1816,6 +2041,23 @@ function MemoryTimeline() {
           </div>
         ) : viewMode === "calendar" ? (
           <div className="calendar-view">
+            {pinnedMemories.length > 0 && (
+              <section className="calendar-month calendar-pinned-group">
+                <div className="calendar-month-heading">
+                  <div>
+                    <span className="calendar-month-kicker">First priority</span>
+                    <h3>Pinned Memories</h3>
+                  </div>
+                  <span className="calendar-month-count">
+                    {pinnedMemories.length} {pinnedMemories.length === 1 ? "memory" : "memories"}
+                  </span>
+                </div>
+                <div className="calendar-grid">
+                  {pinnedMemories.map((memory)=>renderSmallMemoryCard(memory, "calendar-memory small-container-memory calendar-image-memory"))}
+                </div>
+              </section>
+            )}
+
             {Object.entries(memoriesByMonth).map(([month, items])=>(
               <div className="calendar-month" key={month}>
                 <div className="calendar-month-heading">
@@ -1855,6 +2097,8 @@ function MemoryTimeline() {
                 index={virtualRange.start + index}
                 onDelete={handleDeleteRequest}
                 onFavorite={handleFavorite}
+                onPin={handlePin}
+                pinning={pinningMemoryIds.includes(memory._id)}
                 onPreview={openPreviewMemory}
                 isTransitionDimmed={Boolean(previewMemory) && previewMemory._id !== memory._id}
                 isTransitionSource={!disablePreviewSharedLayout && previewMemory?._id === memory._id}
@@ -1878,7 +2122,11 @@ function MemoryTimeline() {
         <div ref={loadMoreRef} className="load-more-sentinel">
           {loading && "Loading memories..."}
           {!loading && hasMore && (
-            <button onClick={()=>loadMemories(page + 1)}>
+            <button
+              type="button"
+              disabled={pinningMemoryIds.length > 0}
+              onClick={()=>loadMemories(page + 1)}
+            >
               Load More
             </button>
           )}
@@ -2162,6 +2410,17 @@ function MemoryTimeline() {
                 onClick={()=>navigate("/add", {state:{...previewMemory, returnToPreview:true}})}
               >
                 <span aria-hidden="true">✎</span>
+              </button>
+              <button
+                type="button"
+                title={previewMemory.pinned ? "Unpin memory" : "Pin memory"}
+                aria-label={previewMemory.pinned ? "Unpin memory" : "Pin memory"}
+                aria-pressed={Boolean(previewMemory.pinned)}
+                className={`preview-pin-btn ${previewMemory.pinned ? "active" : ""}`}
+                disabled={pinningMemoryIds.includes(previewMemory._id)}
+                onClick={()=>handlePin(previewMemory)}
+              >
+                <PinIcon filled={Boolean(previewMemory.pinned)} />
               </button>
               <button
                 type="button"

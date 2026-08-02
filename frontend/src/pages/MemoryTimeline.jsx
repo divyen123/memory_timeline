@@ -1816,13 +1816,6 @@ function MemoryTimeline() {
 
         <div className="timeline-controls-shell">
           <div className={`timeline-controls toolbar-icons-${settings.toolbarIconStyle || "box"}`}>
-          <Dock
-            className="timeline-controls-dock"
-            ariaLabel="Timeline actions"
-            baseItemSize={48}
-            magnification={68}
-            distance={170}
-          >
           <div className={`timeline-search-shell ${showSearch || searchText ? "open" : ""}`}>
             <button
               type="button"
@@ -1976,7 +1969,6 @@ function MemoryTimeline() {
           >
             👤
           </button>
-          </Dock>
           </div>
 
           {exportPanel === "menu" && (
@@ -2369,7 +2361,7 @@ function MemoryTimeline() {
                 className="preview-actions-dock"
                 ariaLabel="Memory actions"
                 baseItemSize={34}
-                magnification={50}
+                magnification={46}
                 distance={140}
               >
               {currentPreviewImage && (

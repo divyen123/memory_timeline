@@ -15600,39 +15600,7 @@ body.button-glass-on .small-memory-open-btn:hover{
   }
 }
 
-/* Transparent pointer dock for the home and full-memory action icons. */
-.timeline-controls-dock{
-  --dock-gap:var(--toolbar-control-gap, 9px);
-  min-width:0;
-  justify-content:center;
-}
-
-.timeline-controls-dock .dock-item > .timeline-search-shell,
-.timeline-controls-dock .dock-item > .timeline-filter-menu,
-.timeline-controls-dock .dock-item > .filter-toggle,
-.timeline-controls-dock .dock-item > .timeline-action-btn{
-  width:100% !important;
-  height:100% !important;
-  min-width:0 !important;
-  min-height:0 !important;
-}
-
-.timeline-controls-dock .dock-item > .timeline-filter-menu{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.timeline-controls-dock .timeline-search-shell > .timeline-icon-control,
-.timeline-controls-dock .dock-item > .timeline-filter-menu > .timeline-icon-control{
-  width:100% !important;
-  height:100% !important;
-  min-height:0 !important;
-}
-
-.timeline-controls-dock .dock-item:has(.timeline-search-shell.open){
-  width:min(320px,42vw) !important;
-}
+/* Transparent pointer dock for full-memory action icons. */
 
 .preview-actions-dock{
   --dock-gap:7px;
@@ -15664,31 +15632,6 @@ body.button-glass-on .small-memory-open-btn:hover{
 }
 
 @media (max-width:760px){
-  .timeline-controls-dock{
-    grid-column:1 / -1;
-    width:100%;
-    flex-wrap:wrap;
-    justify-content:space-between;
-    --dock-gap:4px;
-  }
-
-  .timeline-controls-dock .dock-item{
-    width:clamp(28px,8.6vw,32px) !important;
-    height:clamp(28px,8.6vw,32px) !important;
-  }
-
-  .timeline-controls-dock .dock-item > .timeline-search-shell{
-    grid-template-columns:100% 0fr;
-  }
-
-  .timeline-controls-dock .dock-item:has(.timeline-search-shell.open){
-    width:min(286px,100%) !important;
-    height:var(--toolbar-button-size) !important;
-  }
-
-  .timeline-controls-dock .dock-item:has(.timeline-search-shell.open) > .timeline-search-shell{
-    grid-template-columns:var(--toolbar-button-size) 1fr;
-  }
 
   .preview-actions-dock{
     width:100%;

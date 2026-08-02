@@ -6975,11 +6975,11 @@ body.button-glass-on .carousel-nav,
   color:#362300;
 }
 
-.preview-actions button:last-child{
+.preview-actions .preview-delete-btn{
   background:rgba(255,77,109,0.48);
 }
 
-.preview-actions button:last-child:hover{
+.preview-actions .preview-delete-btn:hover{
   background:rgba(255,77,109,0.62);
 }
 
@@ -11830,7 +11830,7 @@ body:not(.button-glass-on) .timeline-controls .filter-toggle,
 body:not(.button-glass-on) .timeline-controls .timeline-icon-control,
 body:not(.button-glass-on) .timeline-controls .timeline-action-btn,
 body:not(.button-glass-on) .timeline-toolbar button,
-body:not(.button-glass-on) .preview-actions button:not(:last-child):not(.preview-image-info-btn),
+body:not(.button-glass-on) .preview-actions button:not(.preview-delete-btn):not(.preview-image-info-btn),
 body:not(.button-glass-on) .about-back-btn,
 body:not(.button-glass-on) .about-modal-close {
   background: var(--button-bg-color) !important;
@@ -11846,7 +11846,7 @@ body:not(.button-glass-on) .timeline-controls .filter-toggle:hover,
 body:not(.button-glass-on) .timeline-controls .timeline-icon-control:hover,
 body:not(.button-glass-on) .timeline-controls .timeline-action-btn:hover,
 body:not(.button-glass-on) .timeline-toolbar button:hover,
-body:not(.button-glass-on) .preview-actions button:not(:last-child):not(.preview-image-info-btn):hover,
+body:not(.button-glass-on) .preview-actions button:not(.preview-delete-btn):not(.preview-image-info-btn):hover,
 body:not(.button-glass-on) .about-back-btn:hover,
 body:not(.button-glass-on) .about-modal-close:hover {
   background: color-mix(in srgb, var(--button-bg-color) 86%, white) !important;
@@ -11874,7 +11874,7 @@ body.button-glass-on .details-favorite.active:hover,
   color:#362300 !important;
 }
 
-body:not(.button-glass-on) .preview-actions button:last-child {
+body:not(.button-glass-on) .preview-actions .preview-delete-btn {
   background: rgba(255, 77, 109, 0.48);
   border-color: rgba(255, 255, 255, 0.18);
 }
@@ -12080,7 +12080,7 @@ body.top-icons-circle .reminder-menu .reminder-icon-btn:hover{
   background:color-mix(in srgb, var(--button-bg-color) 86%, #ffffff);
 }
 
-body:not(.button-glass-on) .preview-actions button:last-child:hover {
+body:not(.button-glass-on) .preview-actions .preview-delete-btn:hover {
   background: rgba(255, 77, 109, 0.62);
 }
 
@@ -15597,5 +15597,108 @@ body.button-glass-on .small-memory-open-btn:hover{
     display:flex !important;
     opacity:1;
     transform:none;
+  }
+}
+
+/* Transparent pointer dock for the home and full-memory action icons. */
+.timeline-controls-dock{
+  --dock-gap:var(--toolbar-control-gap, 9px);
+  min-width:0;
+  justify-content:center;
+}
+
+.timeline-controls-dock .dock-item > .timeline-search-shell,
+.timeline-controls-dock .dock-item > .timeline-filter-menu,
+.timeline-controls-dock .dock-item > .filter-toggle,
+.timeline-controls-dock .dock-item > .timeline-action-btn{
+  width:100% !important;
+  height:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+}
+
+.timeline-controls-dock .dock-item > .timeline-filter-menu{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.timeline-controls-dock .timeline-search-shell > .timeline-icon-control,
+.timeline-controls-dock .dock-item > .timeline-filter-menu > .timeline-icon-control{
+  width:100% !important;
+  height:100% !important;
+  min-height:0 !important;
+}
+
+.timeline-controls-dock .dock-item:has(.timeline-search-shell.open){
+  width:min(320px,42vw) !important;
+}
+
+.preview-actions-dock{
+  --dock-gap:7px;
+  align-items:center;
+  justify-content:flex-start;
+}
+
+.preview-actions-dock .dock-item > button,
+.preview-actions-dock .dock-item > .preview-image-info-wrap{
+  width:100% !important;
+  height:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  flex:0 0 100% !important;
+}
+
+.preview-actions-dock .dock-item > .preview-image-info-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.preview-actions-dock .preview-image-info-btn{
+  width:100% !important;
+  height:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  flex:0 0 100% !important;
+}
+
+@media (max-width:760px){
+  .timeline-controls-dock{
+    grid-column:1 / -1;
+    width:100%;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    --dock-gap:4px;
+  }
+
+  .timeline-controls-dock .dock-item{
+    width:clamp(28px,8.6vw,32px) !important;
+    height:clamp(28px,8.6vw,32px) !important;
+  }
+
+  .timeline-controls-dock .dock-item > .timeline-search-shell{
+    grid-template-columns:100% 0fr;
+  }
+
+  .timeline-controls-dock .dock-item:has(.timeline-search-shell.open){
+    width:min(286px,100%) !important;
+    height:var(--toolbar-button-size) !important;
+  }
+
+  .timeline-controls-dock .dock-item:has(.timeline-search-shell.open) > .timeline-search-shell{
+    grid-template-columns:var(--toolbar-button-size) 1fr;
+  }
+
+  .preview-actions-dock{
+    width:100%;
+    flex-wrap:nowrap;
+    justify-content:space-between;
+    --dock-gap:3px;
+  }
+
+  .preview-actions-dock .dock-item{
+    width:29px !important;
+    height:29px !important;
   }
 }

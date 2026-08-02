@@ -7,6 +7,7 @@ import { createCategoryShare, createMemoryShare, downloadMemoryImage, getImageUr
 import PageTransition from "../components/PageTransition";
 import SmartImage from "../components/SmartImage";
 import PinIcon from "../components/PinIcon";
+import Dock from "../components/Dock";
 import useAutoDismissMessage from "../components/useAutoDismissMessage";
 import { loadSettings, SETTINGS_PREVIEW_EVENT, SETTINGS_UPDATED_EVENT } from "../settings";
 import { playAppSound } from "../sound";
@@ -1815,6 +1816,13 @@ function MemoryTimeline() {
 
         <div className="timeline-controls-shell">
           <div className={`timeline-controls toolbar-icons-${settings.toolbarIconStyle || "box"}`}>
+          <Dock
+            className="timeline-controls-dock"
+            ariaLabel="Timeline actions"
+            baseItemSize={48}
+            magnification={68}
+            distance={170}
+          >
           <div className={`timeline-search-shell ${showSearch || searchText ? "open" : ""}`}>
             <button
               type="button"
@@ -1968,6 +1976,7 @@ function MemoryTimeline() {
           >
             👤
           </button>
+          </Dock>
           </div>
 
           {exportPanel === "menu" && (
@@ -2356,6 +2365,13 @@ function MemoryTimeline() {
               className="preview-actions"
               variants={activePreviewContentChildVariants}
             >
+              <Dock
+                className="preview-actions-dock"
+                ariaLabel="Memory actions"
+                baseItemSize={34}
+                magnification={50}
+                distance={140}
+              >
               {currentPreviewImage && (
                 <span className="preview-image-info-wrap">
                   <button
@@ -2466,6 +2482,7 @@ function MemoryTimeline() {
               >
                 <span aria-hidden="true">🗑️</span>
               </button>
+              </Dock>
             </motion.div>
           </motion.div>
 

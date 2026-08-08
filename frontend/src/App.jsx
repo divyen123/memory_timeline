@@ -30,6 +30,7 @@ import {
   SETTINGS_PREVIEW_EVENT,
   SETTINGS_UPDATED_EVENT
 } from "./settings";
+import { syncInstalledAppThemeColor } from "./installedAppTheme";
 
 import "./App.css";
 
@@ -177,6 +178,7 @@ function App(){
         ? `color-mix(in srgb, ${activeGradientEnd} 68%, white)`
         : `color-mix(in srgb, ${activeGradientEnd} 82%, #1a1a2e)`
     );
+    syncInstalledAppThemeColor(settings);
 
   },[darkMode, settings, isStaticBackgroundTheme, isAuthPage]);
 
@@ -376,6 +378,10 @@ function App(){
       extraScale={1.1}
     >
     <div className={`container ${isPublicSharePage ? "public-route-container" : ""}`}>
+      <div className="installed-app-titlebar" aria-hidden="true">
+        <img src="/memory-timeline-icon.svg" alt="" draggable="false" />
+        <span>Memory Timeline</span>
+      </div>
       {!isAuthPage && <AnimatedBackground theme={animationBackgroundTheme} />}
 
       {/* BUTTON GROUP */}

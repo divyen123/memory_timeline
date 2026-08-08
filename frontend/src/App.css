@@ -177,6 +177,10 @@ body.dark{
   align-items:center;
 }
 
+.installed-app-titlebar{
+  display:none;
+}
+
 .title{
   font-size:36px;
   font-weight:600;
@@ -15643,5 +15647,126 @@ body.button-glass-on .small-memory-open-btn:hover{
   .preview-actions-dock .dock-item{
     width:29px !important;
     height:29px !important;
+  }
+}
+
+@media (display-mode:window-controls-overlay){
+  .installed-app-titlebar{
+    position:fixed;
+    top:env(titlebar-area-y, 0);
+    left:env(titlebar-area-x, 0);
+    z-index:2147483646;
+    width:env(titlebar-area-width, 100%);
+    height:env(titlebar-area-height, 33px);
+    padding:0 12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--adaptive-icon-color);
+    font-family:Poppins, "Segoe UI", Arial, sans-serif;
+    font-size:13px;
+    line-height:1;
+    text-shadow:0 1px 8px rgba(0,0,0,0.35);
+    -webkit-app-region:drag;
+    app-region:drag;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+
+  .installed-app-titlebar img{
+    width:16px;
+    height:16px;
+    flex:0 0 16px;
+    pointer-events:none;
+    -webkit-user-drag:none;
+  }
+
+  .installed-app-titlebar span{
+    pointer-events:none;
+  }
+
+  .container{
+    padding-top:calc(40px + env(titlebar-area-height, 0px));
+  }
+
+  .container:has(.split-login-page){
+    min-height:100vh;
+    padding-top:env(titlebar-area-height, 0px) !important;
+  }
+
+  .split-login-page,
+  .split-login-page.fixed-auth-theme{
+    min-height:calc(100vh - env(titlebar-area-height, 0px));
+  }
+
+  .top-buttons,
+  .reminder-menu,
+  .toast{
+    top:calc(20px + env(titlebar-area-height, 0px));
+  }
+
+  .timeline-title{
+    top:calc(28px + env(titlebar-area-height, 0px));
+  }
+
+  .hidden-images-page{
+    padding-top:112px;
+  }
+
+  .hidden-images-title{
+    top:calc(48px + env(titlebar-area-height, 0px));
+  }
+
+  .hidden-page-back-btn{
+    top:calc(43px + env(titlebar-area-height, 0px));
+  }
+
+  .hidden-images-heading{
+    top:calc(34px + env(titlebar-area-height, 0px));
+  }
+
+  .hidden-images-timeline,
+  .hidden-images-page .calendar-view,
+  .hidden-images-page .small-cards-view{
+    top:calc(146px + env(titlebar-area-height, 0px));
+  }
+}
+
+@media (display-mode:window-controls-overlay) and (max-width:760px){
+  .container{
+    padding-top:calc(12px + env(safe-area-inset-top) + env(titlebar-area-height, 0px));
+  }
+
+  .container:has(.split-login-page){
+    padding-top:env(titlebar-area-height, 0px) !important;
+  }
+
+  .top-buttons,
+  .reminder-menu{
+    top:calc(12px + env(titlebar-area-height, 0px));
+  }
+
+  .timeline-title{
+    top:calc(16px + env(titlebar-area-height, 0px));
+  }
+
+  .reminder-popover{
+    top:calc(64px + env(titlebar-area-height, 0px));
+  }
+
+  .hidden-images-page{
+    padding-top:72px;
+  }
+
+  .hidden-images-title{
+    top:calc(16px + env(titlebar-area-height, 0px));
+  }
+
+  .hidden-page-back-btn{
+    top:calc(14px + env(titlebar-area-height, 0px)) !important;
+  }
+
+  .hidden-images-heading{
+    top:calc(12px + env(titlebar-area-height, 0px));
   }
 }

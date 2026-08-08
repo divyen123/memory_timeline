@@ -6,8 +6,9 @@
   "start_url": "/timeline",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#0f172a",
-  "theme_color": "#ff4b7d",
+  "theme_color": "#0f172a",
   "icons": [
     {
       "src": "/memory-timeline-icon.svg",
